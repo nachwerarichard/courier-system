@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourierSys - Mbale & Kampala</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans text-gray-900">
+
+    <section id="login-section" class="min-h-screen flex items-center justify-center bg-slate-900 p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="inline-block p-4 bg-blue-600 rounded-xl text-white mb-4">
+                    <i class="fa-solid fa-truck-fast text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-black text-slate-800 uppercase">Staff Login</h2>
+                <p class="text-gray-500 text-sm">Mbale & Kampala Stations</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <input type="email" id="login-email" placeholder="Email Address" class="w-full p-4 border rounded-xl outline-blue-600" required>
+                <input type="password" id="login-pass" placeholder="Password" class="w-full p-4 border rounded-xl outline-blue-600" required>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg">Enter Dashboard</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="dashboard-section" class="hidden min-h-screen flex flex-col">
+        <header class="bg-white border-b px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded flex items-center justify-center text-white font-bold">C</div>
+                <h1 class="font-bold text-xl tracking-tight uppercase">Courier<span class="text-blue-600">Sys</span></h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="text-right border-r pr-4">
+                    <p id="staff-name" class="font-semibold text-sm">--</p>
+                    <p id="staff-station" class="text-xs text-blue-600 font-bold italic uppercase"></p>
+                </div>
+                <button onclick="logout()" class="bg-gray-100 hover:bg-red-50 text-red-600 p-2 rounded-full transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col hidden md:flex">
+                <nav class="flex-1 p-4 space-y-1">
+                    <a href="#" class="flex items-center gap-3 p-3 bg-blue-600 text-white rounded-lg"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                    <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-box"></i> Parcels</a>
+                    <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-receipt"></i> Payments</a>
+                </nav>
+            </aside>
+
+            <main class="flex-1 overflow-y-auto p-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-l-4 border-l-blue-600">
+                        <p class="text-gray-500 text-xs font-bold uppercase">Total Today</p>
+                        <h3 id="stat-total" class="text-2xl font-black">0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-l-4 border-l-green-500">
+                        <p class="text-gray-500 text-xs font-bold uppercase">In Transit</p>
+                        <h3 id="stat-transit" class="text-2xl font-black">0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-l-4 border-l-blue-400">
+                        <p class="text-gray-500 text-xs font-bold uppercase">Ready for Pickup</p>
+                        <h3 id="stat-pickup" class="text-2xl font-black">0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-l-4 border-l-orange-500">
+                        <p class="text-gray-500 text-xs font-bold uppercase">Delivered</p>
+                        <h3 id="stat-delivered" class="text-2xl font-black">0</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border overflow-hidden">
+                        <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
+                            <h4 class="font-bold">Recent Parcels</h4>
+                            <input type="text" id="searchBar" placeholder="Search tracking..." class="text-sm p-2 border rounded-lg outline-none w-48">
+                        </div>
+                        <table class="w-full text-left">
+                            <thead class="bg-white border-b text-[10px] uppercase font-bold text-gray-400">
+                                <tr>
+                                    <th class="px-6 py-4">Tracking #</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Payment</th>
+                                    <th class="px-6 py-4">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="parcelTableBody" class="divide-y text-sm">
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-white p-6 rounded-xl border">
+                            <h4 class="font-bold mb-4">Station Operations</h4>
+                            <button onclick="showModal('parcelModal')" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold mb-2 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-circle-plus"></i> New Registration
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <div id="parcelModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-xl font-black">Parcel & Sender Registration</h2>
+                <button onclick="hideModal('parcelModal')" class="text-2xl">&times;</button>
+            </div>
+            <form id="parcelForm" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="sPhone" placeholder="Sender Phone" class="border p-3 rounded-lg" required>
+                    <input type="text" id="sName" placeholder="Sender Full Name" class="border p-3 rounded-lg" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="rName" placeholder="Receiver Name" class="border p-3 rounded-lg" required>
+                    <select id="pDest" class="border p-3 rounded-lg" required>
+                        <option value="Kampala">Destination: Kampala</option>
+                        <option value="Mbale">Destination: Mbale</option>
+                    </select>
+                </div>
+                <textarea id="pDesc" placeholder="Description & Weight (e.g. 5kg Sack)" class="w-full border p-3 rounded-lg h-24"></textarea>
+                
+                <div class="bg-blue-50 p-4 rounded-xl grid grid-cols-3 gap-3">
+                    <select id="pPayStatus" class="border p-2 rounded">
+                        <option value="Unpaid">Unpaid</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Partial">Partial</option>
+                    </select>
+                    <input type="number" id="pAmount" placeholder="Total UGX" class="border p-2 rounded">
+                    <input type="number" id="pPaid" placeholder="Amount Paid" class="border p-2 rounded">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold">Register & Save</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="receiptModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-xl w-full max-w-sm text-center">
+            <div class="text-green-500 mb-4 text-5xl"><i class="fa-solid fa-circle-check"></i></div>
+            <h3 class="text-xl font-bold mb-2">Registration Complete</h3>
+            <div id="receiptContent" class="text-left bg-gray-50 p-4 rounded font-mono text-xs my-4"></div>
+            <button onclick="window.print()" class="bg-gray-800 text-white px-6 py-2 rounded-lg mr-2">Print Waybill</button>
+            <button onclick="hideModal('receiptModal')" class="border px-6 py-2 rounded-lg">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // CLIENT-SIDE STATE
+        let state = {
+            user: null,
+            parcels: []
+        };
+
+        // LOGIN LOGIC [User Flow 1]
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            // Simulated login - Station auto-identified
+            state.user = { 
+                name: "Staff Member", 
+                station: email.includes('mbale') ? 'Mbale' : 'Kampala',
+                role: 'clerk'
+            };
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            renderDashboard();
+        });
+
+        function renderDashboard() {
+            document.getElementById('staff-name').innerText = state.user.name;
+            document.getElementById('staff-station').innerText = state.user.station;
+            updateTable();
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('parcelTableBody');
+            tbody.innerHTML = state.parcels.map(p => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 font-bold text-blue-600">${p.tracking}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusColor(p.status)}">
+                            ${p.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 font-mono text-xs">
+                        ${p.payStatus} (Bal: ${p.balance})
+                    </td>
+                    <td class="px-6 py-4">
+                        <button onclick="updateParcelStatus('${p.tracking}')" class="text-blue-600 font-bold">Update</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Update stats
+            document.getElementById('stat-total').innerText = state.parcels.length;
+            document.getElementById('stat-transit').innerText = state.parcels.filter(p => p.status === 'In Transit').length;
+        }
+
+        // PARCEL REGISTRATION [User Flow 2, 3, 4]
+        document.getElementById('parcelForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const tracking = 'TRK' + Math.floor(Math.random() * 900000);
+            const total = parseInt(document.getElementById('pAmount').value) || 0;
+            const paid = parseInt(document.getElementById('pPaid').value) || 0;
+
+            const newParcel = {
+                tracking: tracking,
+                sender: document.getElementById('sName').value,
+                receiver: document.getElementById('rName').value,
+                status: 'At Dispatch',
+                payStatus: document.getElementById('pPayStatus').value,
+                balance: total - paid
+            };
+
+            state.parcels.unshift(newParcel);
+            hideModal('parcelModal');
+            showReceipt(newParcel);
+            updateTable();
+        });
+
+        function showReceipt(p) {
+            document.getElementById('receiptContent').innerHTML = `
+                TRACKING: ${p.tracking}<br>
+                SENDER: ${p.sender}<br>
+                RECEIVER: ${p.receiver}<br>
+                STATUS: ${p.status}<br>
+                BALANCE: UGX ${p.balance}
+            `;
+            showModal('receiptModal');
+        }
+
+        function getStatusColor(s) {
+            if (s === 'At Dispatch') return 'bg-yellow-100 text-yellow-700';
+            if (s === 'In Transit') return 'bg-green-100 text-green-700';
+            if (s === 'Ready for Pickup') return 'bg-blue-100 text-blue-700';
+            return 'bg-orange-100 text-orange-700';
+        }
+
+        function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function logout() { location.reload(); }
+    </script>
+</body>
+</html>
