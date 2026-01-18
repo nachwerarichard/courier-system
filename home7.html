@@ -73,9 +73,10 @@
                 <nav class="flex-1 p-4 space-y-1">
                     <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Main Menu</p>
                     <a href="#" onclick="showSection('dashboard')" class="nav-item flex items-center gap-3 p-3 bg-blue-600 text-white rounded-lg"><i class="fa-solid fa-chart-line w-5"></i> Dashboard</a>
+                    <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-users w-5"></i> Senders</a>
+                    <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-user-tag w-5"></i> Receivers</a>
                     <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-box w-5"></i> Parcels</a>
                     <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-receipt w-5"></i> Payments</a>
-                    
                     <div id="admin-menu" class="hidden pt-4 border-t border-slate-800 mt-4">
                         <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Administration</p>
                         <a href="#" onclick="showSection('users')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
@@ -197,6 +198,111 @@
                         </table>
                     </div>
                 </section>
+
+                <section id="senders-section" class="hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h4 class="text-xl font-bold">Registered Senders (Clients)</h4>
+            <button onclick="showModal('senderModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm">+ Register Sender</button>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-[10px] uppercase text-gray-400 font-bold">
+                    <tr>
+                        <th class="p-4">Full Name</th>
+                        <th class="p-4">Phone</th>
+                        <th class="p-4">ID Number</th>
+                        <th class="p-4">Origin</th>
+                        <th class="p-4">Joined</th>
+                    </tr>
+                </thead>
+                <tbody id="senderTableBody" class="divide-y divide-gray-100"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="payments-section" class="hidden">
+        <h4 class="text-xl font-bold mb-6">Financial Transactions</h4>
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-[10px] uppercase text-gray-400 font-bold">
+                    <tr>
+                        <th class="p-4">Parcel Ref</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4">Type</th>
+                        <th class="p-4">Total</th>
+                        <th class="p-4">Paid</th>
+                        <th class="p-4">Balance</th>
+                        <th class="p-4">Processed By</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentTableBody" class="divide-y divide-gray-100"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <div id="senderModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6">
+            <h2 class="text-xl font-black mb-4">New Client Registration</h2>
+            <form id="senderForm" class="space-y-4">
+                <input type="text" id="clientName" placeholder="Full Name" class="w-full border p-3 rounded-lg" required>
+                <input type="text" id="clientPhone" placeholder="Phone Number" class="w-full border p-3 rounded-lg" required>
+                <input type="text" id="clientIdNum" placeholder="ID Number (Optional)" class="w-full border p-3 rounded-lg">
+                <select id="clientStation" class="w-full border p-3 rounded-lg">
+                    <option value="Mbale">Mbale</option>
+                    <option value="Kampala">Kampala</option>
+                </select>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">Save Client</button>
+                <button type="button" onclick="hideModal('senderModal')" class="w-full text-gray-400 text-sm">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="parcelModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <form id="createParcelForm" class="p-6">
+                <h2 class="text-xl font-black mb-6 border-b pb-2">New Shipment Booking</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <p class="text-xs font-bold text-blue-600 uppercase">Sender & Route</p>
+                        <select id="parcelClientId" class="w-full border p-3 rounded-lg" required>
+                            <option value="">Select Registered Sender</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="origin" class="border p-3 rounded-lg"><option value="Mbale">From Mbale</option><option value="Kampala">From Kampala</option></select>
+                            <select id="destination" class="border p-3 rounded-lg"><option value="Kampala">To Kampala</option><option value="Mbale">To Mbale</option></select>
+                        </div>
+                        <input type="text" id="receiverName" placeholder="Receiver Name" class="w-full border p-3 rounded-lg" required>
+                    </div>
+
+                    <div class="space-y-4">
+                        <p class="text-xs font-bold text-blue-600 uppercase">Parcel Metrics</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" id="qty" placeholder="Qty" class="border p-3 rounded-lg" value="1" oninput="calcPrice()">
+                            <input type="number" id="weight" placeholder="Weight(kg)" class="border p-3 rounded-lg" value="1" oninput="calcPrice()">
+                            <input type="number" id="volume" placeholder="Vol" class="border p-3 rounded-lg" value="1" oninput="calcPrice()">
+                        </div>
+                        <textarea id="description" placeholder="Parcel Details..." class="w-full border p-3 rounded-lg h-20"></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-gray-50 rounded-xl border-2 border-dashed">
+                    <p class="text-xs font-bold text-gray-500 uppercase mb-2">Payment Breakdown</p>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div><label class="text-[10px] font-bold">TOTAL PRICE (UGX)</label><input type="number" id="totalAmount" class="w-full font-bold text-blue-600 bg-transparent text-xl outline-none" readonly></div>
+                        <div><label class="text-[10px] font-bold">AMOUNT PAID</label><input type="number" id="amountPaid" class="w-full border-b-2 border-blue-600 p-1 outline-none" value="0" oninput="calcPrice()"></div>
+                        <div><label class="text-[10px] font-bold">BALANCE</label><input type="number" id="balance" class="w-full p-1 text-red-500" readonly></div>
+                        <select id="payType" class="border p-2 rounded-lg text-sm"><option value="Cash">Cash</option><option value="Mobile Money">Mobile Money</option><option value="Bank">Bank</option></select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="hideModal('parcelModal')" class="px-6 py-3">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white px-10 py-3 rounded-lg font-bold shadow-lg hover:bg-blue-700">Confirm Shipment</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
             </main>
         </div>
@@ -442,6 +548,56 @@
             if(saved) showDashboard(JSON.parse(saved));
             setInterval(updateDateTime, 1000);
         };
+
+        const RATE = 1500; // Base rate per unit
+
+    function calcPrice() {
+        const q = parseFloat(document.getElementById('qty').value) || 0;
+        const w = parseFloat(document.getElementById('weight').value) || 0;
+        const v = parseFloat(document.getElementById('volume').value) || 0;
+        const paid = parseFloat(document.getElementById('amountPaid').value) || 0;
+
+        const total = q * w * v * RATE;
+        const bal = total - paid;
+
+        document.getElementById('totalAmount').value = total;
+        document.getElementById('balance').value = bal;
+    }
+
+    // --- NAVIGATION CONTROLLER ---
+    function showSection(id) {
+        // Hide all sections
+        const sections = ['dashboard', 'senders', 'parcels', 'payments', 'users'];
+        sections.forEach(s => {
+            const el = document.getElementById(`${s}-section`);
+            if(el) el.classList.add('hidden');
+        });
+        // Show target
+        document.getElementById(`${id}-section`).classList.remove('hidden');
+        
+        // Refresh data based on section
+        if(id === 'senders') loadSenders();
+        if(id === 'payments') loadPayments();
+    }
+
+    // --- API CALLS FOR NEW SECTIONS ---
+    async function loadSenders() {
+        const res = await fetch(`${API_URL}/clients`);
+        const clients = await res.json();
+        document.getElementById('senderTableBody').innerHTML = clients.map(c => `
+            <tr>
+                <td class="p-4 font-bold">${c.full_name}</td>
+                <td class="p-4">${c.phone}</td>
+                <td class="p-4">${c.id_number || 'N/A'}</td>
+                <td class="p-4">${c.station}</td>
+                <td class="p-4 text-gray-400 text-xs">${new Date(c.created_at).toLocaleDateString()}</td>
+            </tr>
+        `).join('');
+        
+        // Populate Parcel Dropdown
+        document.getElementById('parcelClientId').innerHTML = '<option value="">Select Sender</option>' + 
+            clients.map(c => `<option value="${c._id}">${c.full_name} (${c.phone})</option>`).join('');
+    }
     </script>
 </body>
 </html>
