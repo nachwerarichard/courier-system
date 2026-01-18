@@ -675,12 +675,8 @@ function getStatusStyle(status) {
     }
 }
 
-// Initial Call to override your existing showSection for the parcel part
-const originalShowSection = showSection;
-showSection = (sectionId) => {
-    originalShowSection(sectionId);
-    if(sectionId === 'parcels') fetchParcels();
-};
+window.showSection = showSection;
+
     </script>
 </body>
 </html>
