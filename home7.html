@@ -244,8 +244,46 @@
         </table>
     </div>
 </section>
-
-<div id="parcel-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+ <div id="parcel-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-xl font-black">New Shipment</h2>
+                <button onclick="hideModal('parcelModal')" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+            <form id="createParcelForm" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-4">
+                    <p class="text-xs font-bold text-blue-600 uppercase">Sender Details</p>
+                    <input type="text" id="senderName" placeholder="Sender Name" class="w-full border p-3 rounded-lg" required>
+                    <input type="text" id="senderPhone" placeholder="Sender Phone" class="w-full border p-3 rounded-lg" required>
+                </div>
+                <div class="space-y-4">
+                    <p class="text-xs font-bold text-blue-600 uppercase">Receiver Details</p>
+                    <input type="text" id="receiverName" placeholder="Receiver Name" class="w-full border p-3 rounded-lg" required>
+                    <select id="destination" class="w-full border p-3 rounded-lg" required>
+                        <option value="Kampala">Kampala</option>
+                        <option value="Mbale">Mbale</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2 space-y-4">
+                    <p class="text-xs font-bold text-blue-600 uppercase">Payment & Description</p>
+                    <textarea id="description" placeholder="Description of items" class="w-full border p-3 rounded-lg h-20"></textarea>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="number" id="totalAmount" placeholder="Total UGX" class="border p-3 rounded-lg">
+                        <input type="number" id="amountPaid" placeholder="Paid UGX" class="border p-3 rounded-lg">
+                        <select id="paymentStatus" class="border p-3 rounded-lg">
+                            <option value="Paid">Fully Paid</option>
+                            <option value="Partial">Partial</option>
+                            <option value="Unpaid">Unpaid</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="md:col-span-2 flex justify-end gap-3 mt-4">
+                    <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg">Register & Print Waybill</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<div id="parcel-modals" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
         <div class="p-6 border-b border-slate-100 flex justify-between items-center">
             <h3 class="text-xl font-bold text-slate-800" id="modal-title">Register New Parcel</h3>
