@@ -469,19 +469,6 @@ function showSection(sectionId, clickedLink) {
         }
 
         // --- NAVIGATION ---
-function showSection(sectionId) {
-    document.querySelectorAll('[id$="-section"]').forEach(section => {
-        section.classList.add('hidden');
-    });
-
-    const target = document.getElementById(`${sectionId}-section`);
-    if (!target) {
-        console.error(`Section not found: ${sectionId}-section`);
-        return;
-    }
-
-    target.classList.remove('hidden');
-}
 
 
 
