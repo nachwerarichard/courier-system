@@ -187,6 +187,42 @@
                         </div>
                     </div>
                 </section>
+                <!-- Payments Section -->
+<section id="payments-section" class="hidden p-6">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-800">Payments</h2>
+            <p class="text-slate-500 text-sm">View and manage all payment transactions.</p>
+        </div>
+    </div>
+
+    <!-- Payments Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment ID</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Parcel ID</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment Status</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment Type</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Total Amount</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Amount Paid</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Balance</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Received By</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment Date</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="payments-table-body" class="divide-y divide-slate-100">
+                <!-- Payment rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
                 <!-- Senders Section -->
 <section id="senders-section" class="hidden p-6">
 
@@ -925,6 +961,57 @@ function getStatusStyle(status) {
 }
 
 window.showSection = showSection;
+
+        <script>
+// Example function to add a payment row (frontend only)
+function addPaymentRow(payment) {
+    const tbody = document.getElementById('payments-table-body');
+    const row = document.createElement('tr');
+
+    // Destructure payment object
+    const {
+        payment_id,
+        parcel_id,
+        payment_status,
+        payment_type,
+        total_amount,
+        amount_paid,
+        balance,
+        received_by,
+        payment_date
+    } = payment;
+
+    row.innerHTML = `
+        <td class="p-4">${payment_id}</td>
+        <td class="p-4">${parcel_id}</td>
+        <td class="p-4">${payment_status}</td>
+        <td class="p-4">${payment_type || '-'}</td>
+        <td class="p-4">${total_amount.toFixed(2)}</td>
+        <td class="p-4">${amount_paid.toFixed(2)}</td>
+        <td class="p-4">${balance.toFixed(2)}</td>
+        <td class="p-4">${received_by}</td>
+        <td class="p-4">${payment_date}</td>
+        <td class="p-4 text-right">
+            <button class="text-red-500 hover:underline" onclick="this.closest('tr').remove()">Delete</button>
+        </td>
+    `;
+    tbody.appendChild(row);
+}
+
+// Example usage
+addPaymentRow({
+    payment_id: 1,
+    parcel_id: 101,
+    payment_status: 'Paid',
+    payment_type: 'Cash',
+    total_amount: 50000,
+    amount_paid: 50000,
+    balance: 0,
+    received_by: 'Staff A',
+    payment_date: new Date().toLocaleString()
+});
+</script>
+
 
     </script>
 </body>
