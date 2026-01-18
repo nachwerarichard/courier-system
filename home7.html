@@ -427,14 +427,19 @@
 
         // --- NAVIGATION ---
 function showSection(sectionId) {
-    // Select all sections whose id ends with "-section"
     document.querySelectorAll('[id$="-section"]').forEach(section => {
         section.classList.add('hidden');
     });
 
-    // Show the requested section
-    document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+    const target = document.getElementById(`${sectionId}-section`);
+    if (!target) {
+        console.error(`Section not found: ${sectionId}-section`);
+        return;
+    }
+
+    target.classList.remove('hidden');
 }
+
 
 
         // --- STAFF MANAGEMENT ---
