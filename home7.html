@@ -183,6 +183,69 @@
                         </div>
                     </div>
                 </section>
+                <!-- Senders Section -->
+<section id="senders-section" class="hidden p-6">
+
+    <!-- Header + Add Sender Button -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-800">Senders / Clients</h2>
+            <p class="text-slate-500 text-sm">Manage all sender information.</p>
+        </div>
+        <button onclick="showModal('sender-modal')"
+                class="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> Add Sender
+        </button>
+    </div>
+
+    <!-- Senders Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Full Name</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Phone</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">ID Number</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Station</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Created At</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="senders-table-body" class="divide-y divide-slate-100">
+                <!-- Sender rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+</section>
+<!-- Sender Modal -->
+<div id="sender-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl">
+        <div class="p-6 border-b flex justify-between items-center">
+            <h2 class="text-xl font-black">Add New Sender</h2>
+            <button onclick="hideModal('sender-modal')" class="text-gray-400 text-2xl">&times;</button>
+        </div>
+        <form id="createSenderForm" class="p-6 grid grid-cols-1 gap-4">
+            
+            <input type="text" id="fullName" placeholder="Full Name" class="w-full border p-3 rounded-lg" required>
+            <input type="text" id="phone" placeholder="Phone" class="w-full border p-3 rounded-lg" required>
+            <input type="text" id="idNumber" placeholder="ID Number (Optional)" class="w-full border p-3 rounded-lg">
+            
+            <select id="station" class="w-full border p-3 rounded-lg" required>
+                <option value="">Select Station</option>
+                <option value="Kampala">Kampala</option>
+                <option value="Mbale">Mbale</option>
+            </select>
+            
+            <div class="flex justify-end gap-3 mt-4">
+                <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg">
+                    Add Sender
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 
                 <section id="users-section" class="hidden">
                     <div class="bg-white rounded-xl shadow-sm border p-6">
@@ -472,6 +535,48 @@
             </form>
         </div>
     </div>
+
+    <script>
+// Reuse modal functions
+function showModal(modalId) {
+    document.getElementById(modalId)?.classList.remove('hidden');
+}
+
+function hideModal(modalId) {
+    document.getElementById(modalId)?.classList.add('hidden');
+}
+
+// Handle sender form submission
+document.getElementById('createSenderForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const fullName = document.getElementById('fullName').value;
+    const phone = document.getElementById('phone').value;
+    const idNumber = document.getElementById('idNumber').value || '-';
+    const station = document.getElementById('station').value;
+    const createdAt = new Date().toLocaleString();
+
+    // Insert row in table (frontend only)
+    const tbody = document.getElementById('senders-table-body');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td class="p-4">${fullName}</td>
+        <td class="p-4">${phone}</td>
+        <td class="p-4">${idNumber}</td>
+        <td class="p-4">${station}</td>
+        <td class="p-4">${createdAt}</td>
+        <td class="p-4 text-right">
+            <button class="text-red-500 hover:underline" onclick="this.closest('tr').remove()">Delete</button>
+        </td>
+    `;
+    tbody.appendChild(row);
+
+    // Reset form & close modal
+    this.reset();
+    hideModal('sender-modal');
+});
+</script>
+
 
     <script>
 function hideModal(modalId) {
