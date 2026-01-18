@@ -72,9 +72,21 @@
             <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col">
                 <nav class="flex-1 p-4 space-y-1">
                     <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Main Menu</p>
-                    <a href="#" onclick="showSection('dashboard-section-section')" class="nav-item flex items-center gap-3 p-3 bg-blue-600 text-white rounded-lg section"><i class="fa-solid fa-chart-line w-5 "></i> Dashboard</a>
-                    <a href="#" onclick="showSection('parcels-section-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section"><i class="fa-solid fa-box w-5"></i> Parcels</a>
-                    <a href="#" onclick="showSection('payment-section-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section "><i class="fa-solid fa-receipt w-5"></i> Payments</a>
+<a href="#" onclick="showSection('dashboard-section', this)"
+   class="nav-item flex items-center gap-3 p-3 bg-blue-600 text-white rounded-lg section">
+   <i class="fa-solid fa-chart-line w-5"></i> Dashboard
+</a>
+
+<a href="#" onclick="showSection('parcels-section', this)"
+   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
+   <i class="fa-solid fa-box w-5"></i> Parcels
+</a>
+
+<a href="#" onclick="showSection('payment-section', this)"
+   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
+   <i class="fa-solid fa-receipt w-5"></i> Payments
+</a>
+
                     
                     <div id="admin-menu" class="hidden pt-4 border-t border-slate-800 mt-4">
                         <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Administration</p>
@@ -172,7 +184,7 @@
                     </div>
                 </section>
 
-                <section id="users-section-section" class="hidden">
+                <section id="users-section" class="hidden">
                     <div class="bg-white rounded-xl shadow-sm border p-6">
                         <div class="flex justify-between items-center mb-6">
                             <div>
@@ -368,6 +380,29 @@
             </form>
         </div>
     </div>
+    <script>
+function showSection(sectionId, clickedLink) {
+
+    // 1. Hide all sections
+    document.querySelectorAll('section[id$="-section"]').forEach(section => {
+        section.classList.add('hidden');
+    });
+
+    // 2. Show selected section
+    document.getElementById(sectionId).classList.remove('hidden');
+
+    // 3. Remove active styles from all nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('bg-blue-600', 'text-white');
+        item.classList.add('hover:bg-slate-800');
+    });
+
+    // 4. Highlight active nav item
+    clickedLink.classList.add('bg-blue-600', 'text-white');
+    clickedLink.classList.remove('hover:bg-slate-800');
+}
+</script>
+
 
     <script>
         const API_URL = "https://patrinahhotelmgtsys.onrender.com";
