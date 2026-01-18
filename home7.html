@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Courier System Dashboard</title>
+    <title>CourierSys | Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         #login-overlay { transition: opacity 0.3s ease-in-out; }
-        .active-link { @apply bg-blue-600 text-white shadow-lg; }
-        /* Custom scrollbar for better UI */
+        .nav-item-active { @apply bg-blue-600 text-white shadow-lg; }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -22,178 +21,105 @@
             <div class="text-center mb-8">
                 <div class="inline-flex w-16 h-16 bg-blue-600 rounded-xl items-center justify-center text-white text-3xl font-bold mb-4">C</div>
                 <h2 class="text-2xl font-black text-slate-800">COURIER<span class="text-blue-600">SYS</span></h2>
-                <p class="text-slate-500 text-sm">Please enter your credentials to continue</p>
             </div>
-            
             <form id="loginForm" class="space-y-5">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Staff ID / Email</label>
-                    <input type="text" id="username" required class="w-full border p-3 rounded-lg outline-blue-500 bg-gray-50" placeholder="admin@courier.com">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Password</label>
-                    <input type="password" id="password" required class="w-full border p-3 rounded-lg outline-blue-500 bg-gray-50" placeholder="••••••••">
-                </div>
-                <div id="login-error" class="hidden text-red-500 text-xs font-bold bg-red-50 p-3 rounded-lg">
-                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Invalid credentials.
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transition-all transform active:scale-95">
-                    Sign In to Dashboard
-                </button>
+                <input type="text" id="loginUsername" required class="w-full border p-3 rounded-lg outline-blue-500" placeholder="Staff Email">
+                <input type="password" id="loginPassword" required class="w-full border p-3 rounded-lg outline-blue-500" placeholder="Password">
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg">Sign In</button>
             </form>
-            <div class="mt-6 text-center text-xs text-slate-400">
-                Authorized Personnel Only • 2026 CourierSys v2.0
-            </div>
         </div>
     </div>
 
     <div id="main-content" class="hidden">
         <header class="bg-white border-b px-6 py-3 flex justify-between items-center sticky top-0 z-50">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded flex items-center justify-center text-white font-bold">C</div>
-                <h1 class="font-bold text-xl tracking-tight text-slate-800">COURIER<span class="text-blue-600">SYS</span></h1>
-            </div>
+            <h1 class="font-bold text-xl tracking-tight text-slate-800">COURIER<span class="text-blue-600">SYS</span></h1>
             <div class="flex items-center gap-6">
                 <div class="text-right border-r pr-4">
-                    <p id="staff-name" class="font-semibold text-sm">--</p>
-                    <p id="staff-station" class="text-xs text-blue-600 font-medium italic"></p>
+                    <p id="staff-name-display" class="font-semibold text-sm">--</p>
+                    <p id="staff-station-display" class="text-xs text-blue-600 italic"></p>
                 </div>
-                <div class="text-right hidden md:block">
-                    <p id="current-date" class="text-xs text-gray-500"></p>
-                    <p id="current-time" class="text-xs font-mono"></p>
-                </div>
-                <button onclick="handleLogout()" class="bg-gray-100 hover:bg-red-50 text-red-600 p-2 rounded-full transition-colors">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
+                <button onclick="handleLogout()" class="text-red-600"><i class="fa-solid fa-right-from-bracket"></i></button>
             </div>
         </header>
 
         <div class="flex h-screen overflow-hidden">
             <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col">
                 <nav class="flex-1 p-4 space-y-1">
-                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Main Menu</p>
-                    <a href="#" onclick="showSection('dashboard')" class="nav-item flex items-center gap-3 p-3 bg-blue-600 text-white rounded-lg"><i class="fa-solid fa-chart-line w-5"></i> Dashboard</a>
-                    <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-box w-5"></i> Parcels</a>
-                    <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-receipt w-5"></i> Payments</a>
-                    
-                    <div id="admin-menu" class="hidden pt-4 border-t border-slate-800 mt-4">
-                        <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Administration</p>
-                        <a href="#" onclick="showSection('users')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
-                            <i class="fa-solid fa-user-shield w-5 text-orange-400"></i> Users
-                        </a>
-                        <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-gears w-5"></i> System Settings</a>
-                    </div>
+                    <a href="#" onclick="showSection('dashboard')" class="nav-link flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                    <a href="#" onclick="showSection('senders')" class="nav-link flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800"><i class="fa-solid fa-user-plus"></i> Senders</a>
+                    <a href="#" onclick="showSection('receivers')" class="nav-link flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800"><i class="fa-solid fa-truck-ramp-box"></i> Receivers/Parcels</a>
+                    <a href="#" onclick="showSection('payments')" class="nav-link flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800"><i class="fa-solid fa-receipt"></i> Payments</a>
                 </nav>
             </aside>
 
             <main class="flex-1 overflow-y-auto p-6 pb-24">
                 
                 <section id="dashboard-section">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                            <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total Today</p>
-                            <h3 id="stat-total" class="text-2xl font-black mt-1">0</h3>
+                    <h2 class="text-2xl font-bold mb-4">Operations Overview</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border">
+                            <p class="text-gray-500 text-xs font-bold uppercase">Total Senders</p>
+                            <h3 id="count-senders" class="text-3xl font-black">0</h3>
                         </div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
-                            <p class="text-green-600 text-xs font-bold uppercase tracking-wider">In Transit</p>
-                            <h3 id="stat-transit" class="text-2xl font-black mt-1">0</h3>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
-                            <p class="text-blue-600 text-xs font-bold uppercase tracking-wider">Pickup Ready</p>
-                            <h3 id="stat-pickup" class="text-2xl font-black mt-1">0</h3>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500">
-                            <p class="text-orange-500 text-xs font-bold uppercase tracking-wider">Delivered</p>
-                            <h3 id="stat-delivered" class="text-2xl font-black mt-1">0</h3>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border p-6">
-                            <h4 class="font-bold text-gray-700 mb-4">Financial Overview</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="space-y-4">
-                                    <div class="bg-green-50 p-4 rounded-lg border border-green-100">
-                                        <p class="text-xs font-bold text-green-700 uppercase">Revenue Collected</p>
-                                        <p id="rev-today" class="text-2xl font-black text-green-800">UGX 0</p>
-                                    </div>
-                                    <div class="bg-red-50 p-4 rounded-lg border border-red-100">
-                                        <p class="text-xs font-bold text-red-700 uppercase">Outstanding</p>
-                                        <p id="bal-total" class="text-2xl font-black text-red-800">UGX 0</p>
-                                    </div>
-                                </div>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <p class="text-xs font-bold text-gray-500 uppercase mb-3">Payment Stats</p>
-                                    <div class="space-y-4" id="payment-bars">
-                                        </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-xl shadow-sm border p-6">
-                            <h4 class="font-bold text-gray-700 mb-4">Quick Actions</h4>
-                            <div class="grid grid-cols-1 gap-3">
-                                <button onclick="showModal('parcelModal')" class="flex items-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold shadow-md transition-all">
-                                    <i class="fa-solid fa-plus-circle"></i> Create New Parcel
-                                </button>
-                                <button class="flex items-center gap-3 w-full bg-white hover:bg-gray-50 border p-3 rounded-lg font-medium text-gray-700">
-                                    <i class="fa-solid fa-magnifying-glass text-slate-400"></i> Track Waybill
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                        <div class="p-4 border-b bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <h4 class="font-bold text-gray-700">Recent Shipments</h4>
-                            <div class="flex gap-2">
-                                <input type="text" id="tableSearch" placeholder="Search Tracking..." class="border rounded-lg px-3 py-1.5 text-sm">
-                                <select id="statusFilter" class="border rounded-lg px-3 py-1.5 text-sm">
-                                    <option value="All">All</option>
-                                    <option value="In Transit">In Transit</option>
-                                    <option value="Delivered">Delivered</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead class="bg-white border-b text-[10px] uppercase font-black text-gray-400">
-                                    <tr>
-                                        <th class="px-6 py-4">Tracking #</th>
-                                        <th class="px-6 py-4">Sender/Receiver</th>
-                                        <th class="px-6 py-4">Route</th>
-                                        <th class="px-6 py-4 text-center">Status</th>
-                                        <th class="px-6 py-4 text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="parcelTableBody" class="divide-y divide-gray-100 text-sm"></tbody>
-                            </table>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border">
+                            <p class="text-gray-500 text-xs font-bold uppercase">Revenue Today</p>
+                            <h3 id="rev-display" class="text-3xl font-black text-green-600">0</h3>
                         </div>
                     </div>
                 </section>
 
-                <section id="users-section" class="hidden">
-                    <div class="bg-white rounded-xl shadow-sm border p-6">
-                        <div class="flex justify-between items-center mb-6">
-                            <div>
-                                <h4 class="font-bold text-xl text-gray-800">System Staff</h4>
-                                <p class="text-sm text-gray-500">Manage access for clerks and supervisors</p>
-                            </div>
-                            <button onclick="showModal('staffModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm">
-                                <i class="fa-solid fa-user-plus mr-2"></i>Register Staff
-                            </button>
-                        </div>
+                <section id="senders-section" class="hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Registered Senders</h2>
+                        <button onclick="showModal('senderModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold"><i class="fa-solid fa-plus mr-2"></i>New Sender</button>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
                         <table class="w-full text-left">
-                            <thead class="bg-gray-50 text-[10px] uppercase text-gray-400">
+                            <thead class="bg-gray-50 text-xs uppercase font-bold text-gray-500">
                                 <tr>
                                     <th class="p-4">Name</th>
-                                    <th class="p-4">Role</th>
-                                    <th class="p-4">Station</th>
-                                    <th class="p-4">Email</th>
-                                    <th class="p-4 text-right">Action</th>
+                                    <th class="p-4">Phone</th>
+                                    <th class="p-4">ID Number</th>
+                                    <th class="p-4">Origin</th>
+                                    <th class="p-4">Date</th>
                                 </tr>
                             </thead>
-                            <tbody id="userTableBody" class="divide-y divide-gray-50"></tbody>
+                            <tbody id="senderTableBody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="receivers-section" class="hidden">
+                    <h2 class="text-2xl font-bold mb-6">Receiver & Parcel Details</h2>
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 text-xs uppercase font-bold text-gray-500">
+                                <tr>
+                                    <th class="p-4">Tracking #</th>
+                                    <th class="p-4">Receiver</th>
+                                    <th class="p-4">Destination</th>
+                                    <th class="p-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receiverTableBody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="payments-section" class="hidden">
+                    <h2 class="text-2xl font-bold mb-6">Financial Records</h2>
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 text-xs uppercase font-bold text-gray-500">
+                                <tr>
+                                    <th class="p-4">Tracking #</th>
+                                    <th class="p-4">Total Amt</th>
+                                    <th class="p-4">Paid</th>
+                                    <th class="p-4">Balance</th>
+                                    <th class="p-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentTableBody" class="divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
                 </section>
@@ -202,245 +128,86 @@
         </div>
     </div>
 
-    <div id="staffModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
-            <h2 class="text-xl font-black mb-4">Register New Staff</h2>
-            <form id="staffForm" class="space-y-4">
-                <input type="text" id="staffName" placeholder="Full Name" class="w-full border p-3 rounded-lg" required>
-                <input type="email" id="staffEmail" placeholder="Email Address" class="w-full border p-3 rounded-lg" required>
-                <input type="password" id="staffPass" placeholder="Password" class="w-full border p-3 rounded-lg" required>
-                <div class="grid grid-cols-2 gap-4">
-                    <select id="staffRole" class="border p-3 rounded-lg">
-                        <option value="clerk">Clerk</option>
-                        <option value="supervisor">Supervisor</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                    <select id="staffStation" class="border p-3 rounded-lg">
-                        <option value="Kampala">Kampala</option>
-                        <option value="Mbale">Mbale</option>
-                        <option value="Gulu">Gulu</option>
-                        <option value="Mbarara">Mbarara</option>
-                    </select>
-                </div>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold shadow-lg">Save Staff Member</button>
-                <button type="button" onclick="hideModal('staffModal')" class="w-full text-gray-400 text-sm mt-2">Close</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="parcelModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl">
-            <div class="p-6 border-b flex justify-between items-center">
-                <h2 class="text-xl font-black">New Shipment</h2>
-                <button onclick="hideModal('parcelModal')" class="text-gray-400 text-2xl">&times;</button>
-            </div>
-            <form id="createParcelForm" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-4">
-                    <p class="text-xs font-bold text-blue-600 uppercase">Sender Details</p>
-                    <input type="text" id="senderName" placeholder="Sender Name" class="w-full border p-3 rounded-lg" required>
-                    <input type="text" id="senderPhone" placeholder="Sender Phone" class="w-full border p-3 rounded-lg" required>
-                </div>
-                <div class="space-y-4">
-                    <p class="text-xs font-bold text-blue-600 uppercase">Receiver Details</p>
-                    <input type="text" id="receiverName" placeholder="Receiver Name" class="w-full border p-3 rounded-lg" required>
-                    <select id="destination" class="w-full border p-3 rounded-lg" required>
-                        <option value="Kampala">Kampala</option>
-                        <option value="Mbale">Mbale</option>
-                    </select>
-                </div>
-                <div class="md:col-span-2 space-y-4">
-                    <p class="text-xs font-bold text-blue-600 uppercase">Payment & Description</p>
-                    <textarea id="description" placeholder="Description of items" class="w-full border p-3 rounded-lg h-20"></textarea>
-                    <div class="grid grid-cols-3 gap-2">
-                        <input type="number" id="totalAmount" placeholder="Total UGX" class="border p-3 rounded-lg">
-                        <input type="number" id="amountPaid" placeholder="Paid UGX" class="border p-3 rounded-lg">
-                        <select id="paymentStatus" class="border p-3 rounded-lg">
-                            <option value="Paid">Fully Paid</option>
-                            <option value="Partial">Partial</option>
-                            <option value="Unpaid">Unpaid</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="md:col-span-2 flex justify-end gap-3 mt-4">
-                    <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg">Register & Print Waybill</button>
-                </div>
+    <div id="senderModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6">
+            <h2 class="text-xl font-black mb-4">Register Sender</h2>
+            <form id="senderForm" class="space-y-4">
+                <input type="text" id="regFullName" placeholder="Full Name" class="w-full border p-3 rounded-lg" required>
+                <input type="text" id="regPhone" placeholder="Phone Number" class="w-full border p-3 rounded-lg" required>
+                <input type="text" id="regIdNum" placeholder="ID Number (Optional)" class="w-full border p-3 rounded-lg">
+                <select id="regStation" class="w-full border p-3 rounded-lg">
+                    <option value="Kampala">Kampala</option>
+                    <option value="Mbale">Mbale</option>
+                </select>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">Save Sender</button>
+                <button type="button" onclick="hideModal('senderModal')" class="w-full text-gray-400 mt-2">Cancel</button>
             </form>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://patrinahhotelmgtsys.onrender.com";
-        
-        let state = {
-            currentUser: null,
-            parcels: [
-                { tracking: "C-99102", sender: "John Doe", receiver: "Mary Joe", destination: "Kampala", status: "In Transit", amount: 50000, balance: 0, pStatus: "Paid" },
-                { tracking: "C-99105", sender: "Alex Kato", receiver: "Sarah Nam", destination: "Mbale", status: "Ready for Pickup", amount: 30000, balance: 10000, pStatus: "Partial" }
-            ]
-        };
+        const API_BASE = "http://localhost:5000/api";
 
-        // --- AUTH LOGIC ---
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('login-error');
-
-            try {
-                const res = await fetch(`${API_URL}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                if (res.ok) {
-                    const userData = await res.json();
-                    localStorage.setItem('courier_user', JSON.stringify(userData));
-                    showDashboard(userData);
-                } else {
-                    errorDiv.classList.remove('hidden');
-                }
-            } catch (err) {
-                console.error("Connection failed", err);
-                alert("Server connection failed. Check your internet.");
-            }
-        });
-
-        function showDashboard(user) {
-            state.currentUser = user;
-            document.getElementById('login-overlay').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-            
-            document.getElementById('staff-name').innerText = user.full_name;
-            document.getElementById('staff-station').innerText = `Station: ${user.station}`;
-            
-            if(user.role === 'admin') {
-                document.getElementById('admin-menu').classList.remove('hidden');
-            }
-            
-            updateDateTime();
-            renderParcels();
-            calculateFinancials();
-            if(user.role === 'admin') loadUsers();
-        }
-
-        // --- NAVIGATION ---
+        // Navigation Logic
         function showSection(sectionId) {
-            document.getElementById('dashboard-section').classList.add('hidden');
-            document.getElementById('users-section').classList.add('hidden');
+            const sections = ['dashboard', 'senders', 'receivers', 'payments'];
+            sections.forEach(s => document.getElementById(`${s}-section`).classList.add('hidden'));
             document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+            
+            if(sectionId === 'senders') fetchSenders();
+            if(sectionId === 'receivers') fetchParcels();
+            if(sectionId === 'payments') fetchPayments();
         }
 
-        // --- STAFF MANAGEMENT ---
-        async function loadUsers() {
-            try {
-                const res = await fetch(`${API_URL}/users`);
-                const users = await res.json();
-                const tbody = document.getElementById('userTableBody');
-                tbody.innerHTML = users.map(u => `
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4 font-bold text-slate-700">${u.full_name}</td>
-                        <td class="p-4"><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold uppercase">${u.role}</span></td>
-                        <td class="p-4 text-sm">${u.station}</td>
-                        <td class="p-4 text-sm text-gray-500">${u.email}</td>
-                        <td class="p-4 text-right">
-                            <button onclick="deleteUser('${u._id}')" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) { console.error(err); }
-        }
+        // Modal Logic
+        function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        document.getElementById('staffForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = {
-                full_name: document.getElementById('staffName').value,
-                email: document.getElementById('staffEmail').value,
-                password: document.getElementById('staffPass').value,
-                role: document.getElementById('staffRole').value,
-                station: document.getElementById('staffStation').value
-            };
-
-            try {
-                const res = await fetch(`${API_URL}/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                if(res.ok) {
-                    alert("Staff Registered!");
-                    hideModal('staffModal');
-                    loadUsers();
-                    e.target.reset();
-                }
-            } catch (err) { alert("Error saving staff"); }
-        });
-
-        async function deleteUser(id) {
-            if(!confirm("Delete this staff member?")) return;
-            await fetch(`${API_URL}/users/${id}`, { method: 'DELETE' });
-            loadUsers();
-        }
-
-        // --- PARCEL LOGIC ---
-        function renderParcels() {
-            const tbody = document.getElementById('parcelTableBody');
-            tbody.innerHTML = state.parcels.map(p => `
-                <tr class="hover:bg-blue-50/30">
-                    <td class="px-6 py-4 font-mono font-bold text-blue-600">${p.tracking}</td>
-                    <td class="px-6 py-4">
-                        <div class="font-bold">${p.sender}</div>
-                        <div class="text-[10px] text-gray-400">To: ${p.receiver}</div>
-                    </td>
-                    <td class="px-6 py-4 text-xs font-medium">${p.destination}</td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${getStatusStyle(p.status)}">${p.status}</span>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <button class="text-xs font-bold text-slate-400 hover:text-blue-600 uppercase">Manage</button>
-                    </td>
+        // Data Fetching: Senders
+        async function fetchSenders() {
+            const res = await fetch(`${API_BASE}/senders`);
+            const data = await res.json();
+            const tbody = document.getElementById('senderTableBody');
+            tbody.innerHTML = data.map(s => `
+                <tr>
+                    <td class="p-4 font-bold">${s.full_name}</td>
+                    <td class="p-4">${s.phone}</td>
+                    <td class="p-4">${s.id_number || 'N/A'}</td>
+                    <td class="p-4">${s.station}</td>
+                    <td class="p-4 text-xs text-gray-400">${new Date(s.created_at).toLocaleDateString()}</td>
                 </tr>
             `).join('');
         }
 
-        function calculateFinancials() {
-            const rev = state.parcels.reduce((sum, p) => sum + (p.amount - p.balance), 0);
-            const bal = state.parcels.reduce((sum, p) => sum + p.balance, 0);
-            document.getElementById('rev-today').innerText = `UGX ${rev.toLocaleString()}`;
-            document.getElementById('bal-total').innerText = `UGX ${bal.toLocaleString()}`;
-            
-            // Counters
-            document.getElementById('stat-total').innerText = state.parcels.length;
-            document.getElementById('stat-transit').innerText = state.parcels.filter(p => p.status === 'In Transit').length;
-            document.getElementById('stat-pickup').innerText = state.parcels.filter(p => p.status === 'Ready for Pickup').length;
-            document.getElementById('stat-delivered').innerText = state.parcels.filter(p => p.status === 'Delivered').length;
-        }
+        // Form Submission: Senders
+        document.getElementById('senderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const senderData = {
+                full_name: document.getElementById('regFullName').value,
+                phone: document.getElementById('regPhone').value,
+                id_number: document.getElementById('regIdNum').value,
+                station: document.getElementById('regStation').value
+            };
 
-        function getStatusStyle(status) {
-            if(status === 'In Transit') return 'bg-green-100 text-green-700';
-            if(status === 'Ready for Pickup') return 'bg-blue-100 text-blue-700';
-            return 'bg-gray-100 text-gray-600';
-        }
+            const res = await fetch(`${API_BASE}/senders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(senderData)
+            });
 
-        // --- UTILS ---
-        function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
+            if(res.ok) {
+                alert("Sender Registered");
+                hideModal('senderModal');
+                fetchSenders();
+                e.target.reset();
+            }
+        });
 
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('current-date').innerText = now.toLocaleDateString('en-GB', { dateStyle: 'long' });
-            document.getElementById('current-time').innerText = now.toLocaleTimeString();
-        }
-
-        function handleLogout() {
-            localStorage.removeItem('courier_user');
-            location.reload();
-        }
-
+        // Initialize
         window.onload = () => {
-            const saved = localStorage.getItem('courier_user');
-            if(saved) showDashboard(JSON.parse(saved));
-            setInterval(updateDateTime, 1000);
+            // Check auth here as per previous code...
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
         };
     </script>
 </body>
