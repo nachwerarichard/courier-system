@@ -380,28 +380,37 @@
             </form>
         </div>
     </div>
+
     <script>
 function showSection(sectionId, clickedLink) {
 
-    // 1. Hide all sections
-    document.querySelectorAll('section[id$="-section"]').forEach(section => {
+    // Hide all sections
+    document.querySelectorAll('section').forEach(section => {
         section.classList.add('hidden');
     });
 
-    // 2. Show selected section
-    document.getElementById(sectionId).classList.remove('hidden');
+    // Find the requested section
+    const targetSection = document.getElementById(sectionId);
 
-    // 3. Remove active styles from all nav items
+    if (!targetSection) {
+        console.error('Section not found:', sectionId);
+        return;
+    }
+
+    targetSection.classList.remove('hidden');
+
+    // Reset nav styles
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('bg-blue-600', 'text-white');
         item.classList.add('hover:bg-slate-800');
     });
 
-    // 4. Highlight active nav item
+    // Activate clicked nav item
     clickedLink.classList.add('bg-blue-600', 'text-white');
     clickedLink.classList.remove('hover:bg-slate-800');
 }
 </script>
+
 
 
     <script>
