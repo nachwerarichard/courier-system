@@ -85,6 +85,10 @@
    class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
    <i class="fa-solid fa-users w-5"></i> Senders
 </a>
+                              <a href="#" onclick="showSection('receivers-section', this)"
+   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
+   <i class="fa-solid fa-users w-5"></i> Senders
+</a>
 
 <a href="#" onclick="showSection('payment-section', this)"
    class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
@@ -187,6 +191,44 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- Receivers Section -->
+<section id="receivers-section" class="hidden p-6">
+
+    <!-- Header + Add Receiver Button -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-800">Receivers</h2>
+            <p class="text-slate-500 text-sm">Manage all receiver information.</p>
+        </div>
+        <button onclick="showModal('receiver-modal')"
+                class="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> Add Receiver
+        </button>
+    </div>
+
+    <!-- Receivers Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Receiver ID</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Full Name</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Phone</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">ID Number</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Station</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Created At</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="receivers-table-body" class="divide-y divide-slate-100">
+                <!-- Receiver rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
                 <!-- Payments Section -->
 <section id="payment-section" class="hidden p-6">
 
