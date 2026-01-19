@@ -819,36 +819,7 @@ function hideModal(modalId) {
     document.getElementById(modalId)?.classList.add('hidden');
 }
 
-// Handle sender form submission
-document.getElementById('createSenderForm').addEventListener('submit', function(e) {
-    e.preventDefault();
 
-    const fullName = document.getElementById('fullName').value;
-    const phone = document.getElementById('phone').value;
-    const idNumber = document.getElementById('idNumber').value || '-';
-    const station = document.getElementById('station').value;
-    const createdAt = new Date().toLocaleString();
-
-    // Insert row in table (frontend only)
-    const tbody = document.getElementById('senders-table-body');
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td class="p-4">${fullName}</td>
-        <td class="p-4">${phone}</td>
-        <td class="p-4">${idNumber}</td>
-        <td class="p-4">${station}</td>
-        <td class="p-4">${createdAt}</td>
-        <td class="p-4 text-right">
-            <button class="text-red-500 hover:underline" onclick="this.closest('tr').remove()">Delete</button>
-        </td>
-    `;
-    tbody.appendChild(row);
-
-    // Reset form & close modal
-    this.reset();
-    hideModal('sender-modal');
-});
-</script>
 
 
     <script>
@@ -898,13 +869,6 @@ function showSection(sectionId, clickedLink) {
     <script>
         const API_URL = "https://patrinahhotelmgtsys.onrender.com";
         
-        let state = {
-            currentUser: null,
-            parcels: [
-                { tracking: "C-99102", sender: "John Doe", receiver: "Mary Joe", destination: "Kampala", status: "In Transit", amount: 50000, balance: 0, pStatus: "Paid" },
-                { tracking: "C-99105", sender: "Alex Kato", receiver: "Sarah Nam", destination: "Mbale", status: "Ready for Pickup", amount: 30000, balance: 10000, pStatus: "Partial" }
-            ]
-        };
 
         // --- AUTH LOGIC ---
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -948,6 +912,7 @@ function showSection(sectionId, clickedLink) {
             updateDateTime();
             fetchParcels();
             fetchSenders();
+            fetchReceivers()
             calculateFinancials();
             if(user.role === 'admin') loadUsers();
         }
@@ -1308,35 +1273,7 @@ function hideModal(modalId) {
 }
 
 // Handle Receiver Form Submission
-document.getElementById('createReceiverForm').addEventListener('submit', function(e) {
-    e.preventDefault();
 
-    const fullName = document.getElementById('receiverFullName').value;
-    const phone = document.getElementById('receiverPhone').value;
-    const idNumber = document.getElementById('receiverIdNumber').value || '-';
-    const station = document.getElementById('receiverStation').value;
-    const createdAt = new Date().toLocaleString();
-
-    // Insert row into table (frontend only)
-    const tbody = document.getElementById('receivers-table-body');
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td class="p-4">--</td> <!-- Receiver ID, replace with real ID from DB -->
-        <td class="p-4">${fullName}</td>
-        <td class="p-4">${phone}</td>
-        <td class="p-4">${idNumber}</td>
-        <td class="p-4">${station}</td>
-        <td class="p-4">${createdAt}</td>
-        <td class="p-4 text-right">
-            <button class="text-red-500 hover:underline" onclick="this.closest('tr').remove()">Delete</button>
-        </td>
-    `;
-    tbody.appendChild(row);
-
-    // Reset form & close modal
-    this.reset();
-    hideModal('receiver-modal');
-});
 
         // Ensure API_URL is defined at the top of your script
 // const API_URL = "https://patrinahhotelmgtsys.onrender.com";
