@@ -1067,14 +1067,14 @@ function showSection(sectionId, clickedLink) {
             setInterval(updateDateTime, 1000);
         };
     
-const SHIPPING_RATE = 2000; // Example rate per unit
 
 /**
  * READ: Fetch and Display Parcels
  */
 async function fetchParcels() {
     try {
-const response = await fetch(`${API_URL}/api/parcels`);        const parcels = await response.json();
+        const response = await fetch(`${API_URL}/api/parcels`);
+        const parcels = await response.json();
         const tbody = document.getElementById('parcel-table-body');
         
         document.getElementById('stat-total').innerText = parcels.length;
@@ -1082,26 +1082,28 @@ const response = await fetch(`${API_URL}/api/parcels`);        const parcels = a
         tbody.innerHTML = parcels.map(p => `
             <tr class="hover:bg-slate-50 transition-colors group">
                 <td class="p-4">
-                    <div class="font-mono text-blue-600 font-bold">${p.tracking_number}</div>
-                    <div class="text-[10px] text-slate-400">${new Date(p.created_at).toLocaleDateString()}</div>
+                    <div class="font-mono text-blue-600 font-bold">${p.tracking_number || 'N/A'}</div>
+                    <div class="text-[10px] text-slate-400">
+                        ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'No Date'}
+                    </div>
                 </td>
                 <td class="p-4">
-                    <div class="text-sm font-semibold text-slate-700">${p.receiver_name}</div>
-                    <div class="text-xs text-slate-400 font-mono italic">CID: ${p.client_id}</div>
+                    <div class="text-sm font-semibold text-slate-700">${p.receiver_name || 'Unknown'}</div>
+                    <div class="text-xs text-slate-400 font-mono italic">CID: ${p.client_id || 'N/A'}</div>
                 </td>
                 <td class="p-4">
                     <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
-                        <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin}</span>
+                        <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
                         <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
-                        <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination}</span>
+                        <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
                     </div>
                 </td>
                 <td class="p-4 font-bold text-slate-800">
-                    UGX ${p.price.toLocaleString()}
+                    UGX ${p.price ? p.price.toLocaleString() : '0'}
                 </td>
                 <td class="p-4">
                     <span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusStyle(p.status)}">
-                        ${p.status}
+                        ${p.status || 'Pending'}
                     </span>
                 </td>
                 <td class="p-4 text-right">
@@ -1204,10 +1206,10 @@ function openParcelModal() {
     document.getElementById('parcel-modal').classList.remove('hidden');
 }
 
-function closeModal() {
+
+function closeParcelModal() {
     document.getElementById('parcel-modal').classList.add('hidden');
 }
-
 function getStatusStyle(status) {
     switch(status) {
         case 'Delivered': return 'bg-green-100 text-green-700';
