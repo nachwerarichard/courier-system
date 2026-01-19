@@ -869,6 +869,10 @@ function showSection(sectionId, clickedLink) {
     <script>
         const API_URL = "https://patrinahhotelmgtsys.onrender.com";
         
+let state = {
+            currentUser: null,
+
+        };
 
         // --- AUTH LOGIC ---
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
