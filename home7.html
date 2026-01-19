@@ -1102,10 +1102,16 @@ async function fetchParcels() {
                     UGX ${p.price ? p.price.toLocaleString() : '0'}
                 </td>
                 <td class="p-4">
-                    <span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${getStatusStyle(p.status)}">
-                        ${p.status || 'Pending'}
-                    </span>
-                </td>
+    <select 
+        onchange="updateStatus('${p._id}', this.value)" 
+        class="text-[10px] font-bold uppercase px-2 py-1 rounded-full cursor-pointer border-none outline-none ${getStatusStyle(p.status)}"
+    >
+        <option value="At Dispatch" ${p.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
+        <option value="In Transit" ${p.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+        <option value="Ready for Pickup" ${p.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
+        <option value="Delivered" ${p.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+    </select>
+</td>
                 <td class="p-4 text-right">
                     <button onclick="deleteParcel('${p._id}')" class="text-slate-300 hover:text-red-500 transition-colors">
                         <i class="fa-solid fa-trash-can"></i>
@@ -1160,6 +1166,27 @@ document.getElementById('createParcelForm').addEventListener('submit', async (e)
     alert("Error saving parcel: " + err.message);
 }
 });
+
+        async function updateStatus(id, newStatus) {
+    try {
+        const response = await fetch(`${API_URL}/api/parcels/${id}/status`, {
+            method: 'PATCH', // Using PATCH for partial updates
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!response.ok) throw new Error("Update failed");
+
+        console.log("Status updated successfully");
+        
+        // Optional: Refresh the table to apply new styles
+        fetchParcels(); 
+
+    } catch (err) {
+        console.error("Error updating status:", err);
+        alert("Failed to update status");
+    }
+}
 /**
  * DELETE: Remove Parcel
  */
