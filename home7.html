@@ -102,7 +102,7 @@
                         <a href="#" onclick="showSection('users-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
                             <i class="fa-solid fa-user-shield w-5 text-orange-400"></i> Users
                         </a>
-                        <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-gears w-5"></i> System Settings</a>
+                        <a href="#" onclick="showSection('settings-section')"  class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-gears w-5"></i> System Settings</a>
                     </div>
                 </nav>
             </aside>
@@ -387,6 +387,95 @@
         </table>
     </div>
 </section>
+
+                <!-- Settings Section -->
+<section id="settings-section" class="hidden p-6">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-800">Settings</h2>
+        <p class="text-slate-500 text-sm">Manage system configuration and preferences.</p>
+    </div>
+
+    <!-- Settings Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Company / System Info -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-building text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Company Info</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Update company name, logo and contacts.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage
+            </button>
+        </div>
+
+        <!-- Stations -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-location-dot text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Stations</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Add or manage Kampala, Mbale and other stations.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage
+            </button>
+        </div>
+
+        <!-- Pricing & Rates -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-tags text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Pricing & Rates</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Set delivery rates by weight, volume and route.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage
+            </button>
+        </div>
+
+        <!-- User Profile -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-user text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">My Profile</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Update your name, phone and password.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Edit Profile
+            </button>
+        </div>
+
+        <!-- Users & Roles -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-users-gear text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Users & Roles</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Create staff accounts and assign permissions.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage Users
+            </button>
+        </div>
+
+        <!-- Security -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Security</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Change password, enable activity logs and backups.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Security Settings
+            </button>
+        </div>
+
+    </div>
+
+</section>
+
  <div id="parcel-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl">
             <div class="p-6 border-b flex justify-between items-center">
