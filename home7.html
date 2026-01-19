@@ -1336,6 +1336,99 @@ document.getElementById('createReceiverForm').addEventListener('submit', functio
     this.reset();
     hideModal('receiver-modal');
 });
+
+        // Ensure API_URL is defined at the top of your script
+// const API_URL = "https://patrinahhotelmgtsys.onrender.com";
+
+document.getElementById('createSenderForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // 1. Gather data from the form IDs
+    const senderData = {
+        full_name: document.getElementById('fullName').value,
+        phone: document.getElementById('phone').value,
+        id_number: document.getElementById('idNumber').value,
+        station: document.getElementById('station').value
+    };
+
+    try {
+        // 2. Send POST request to backend
+        const response = await fetch(`${API_URL}/api/senders`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(senderData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert("Sender added successfully!");
+            
+            // 3. Clear the form and close modal (if applicable)
+            document.getElementById('createSenderForm').reset();
+            if (typeof closeSenderModal === "function") closeSenderModal();
+            
+            // Optional: Refresh a sender list if you have one
+            // fetchSenders(); 
+        } else {
+            const error = await response.json();
+            alert("Failed to add sender: " + error.error);
+        }
+    } catch (err) {
+        console.error("Network error:", err);
+        alert("Server connection error. Please try again.");
+    }
+});
+        async function fetchSenders() {
+    try {
+        const response = await fetch(`${API_URL}/api/senders`);
+        const senders = await response.json();
+        
+        const tbody = document.getElementById('sender-table-body');
+        if (!tbody) return; // Exit if the table doesn't exist on the current page
+
+        tbody.innerHTML = senders.map(s => `
+            <tr class="border-b hover:bg-slate-50">
+                <td class="p-3 font-medium text-slate-700">${s.full_name}</td>
+                <td class="p-3 text-slate-600">${s.phone}</td>
+                <td class="p-3 text-slate-600">${s.id_number || '<span class="text-slate-300 italic">None</span>'}</td>
+                <td class="p-3">
+                    <span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-full font-semibold">
+                        ${s.station}
+                    </span>
+                </td>
+                <td class="p-3 text-right">
+                    <button onclick="deleteSender('${s._id}')" class="text-red-400 hover:text-red-600 transition-colors">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error("Failed to fetch senders:", err);
+    }
+}
+        async function deleteSender(id) {
+    if (!confirm("Are you sure you want to delete this sender? This action cannot be undone.")) return;
+
+    try {
+        const response = await fetch(`${API_URL}/api/senders/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert("Sender deleted");
+            fetchSenders(); // Refresh the list immediately
+        } else {
+            const error = await response.json();
+            alert("Delete failed: " + error.error);
+        }
+    } catch (err) {
+        console.error("Error deleting sender:", err);
+        alert("Server error while deleting.");
+    }
+}
 </script>
 
 </body>
