@@ -1121,20 +1121,30 @@ async function fetchParcels() {
 /**
  * CREATE: Submit Form to Backend
  */
-document.getElementById('parcel-form').addEventListener('submit', async (e) => {
+document.getElementById('createParcelForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const parcelData = {
-        client_id: document.getElementById('client_id').value,
-        receiver_name: document.getElementById('receiver_name').value,
-        origin: document.getElementById('origin').value,
-        destination: document.getElementById('destination').value,
-        quantity: document.getElementById('quantity').value,
-        weight: document.getElementById('weight').value,
-        volume: document.getElementById('volume').value,
-        price: document.getElementById('price').value,
-        description: document.getElementById('description').value
-    };
+const parcelData = {
+    // Sender Information
+    client_id: document.getElementById('client_id').value,
+    sender_name: document.getElementById('senderName').value,
+    sender_phone: document.getElementById('senderPhone').value,
+    origin: document.getElementById('origin').value,
+
+    // Receiver Information
+    receiver_name: document.getElementById('receiverName').value,
+    destination: document.getElementById('destination').value,
+
+    // Parcel Details
+    description: document.getElementById('description').value,
+    quantity: document.getElementById('quantity').value,
+    weight: document.getElementById('weight').value,
+    volume: document.getElementById('volume').value,
+    rate: document.getElementById('rate').value,
+
+    // Delivery Status
+    status: document.getElementById('status').value
+};  
 
     try {
         const response = await fetch(API_BASE, {
