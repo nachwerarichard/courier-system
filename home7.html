@@ -87,7 +87,7 @@
 </a>
                               <a href="#" onclick="showSection('receivers-section', this)"
    class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
-   <i class="fa-solid fa-users w-5"></i> Senders
+   <i class="fa-solid fa-user-tag w-5"> Recievers
 </a>
 
 <a href="#" onclick="showSection('payment-section', this)"
@@ -101,13 +101,103 @@
                         <a href="#" onclick="showSection('users-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
                             <i class="fa-solid fa-user-shield w-5 text-orange-400"></i> Users
                         </a>
-                        <a href="#" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-gears w-5"></i> System Settings</a>
+                        <a href="#" onclick="showSection('reports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
+                            <i class="fa-solid fa-file-invoice-dollar w-5"></i> Reports
+                        </a>
+                        <a href="#" onclick="showSection('settings-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-gears w-5"></i> System Settings</a>
                     </div>
                 </nav>
             </aside>
 
             <main class="flex-1 overflow-y-auto p-6 pb-24">
-                
+                <!-- Settings Section -->
+<section id="settings-section" class="hidden p-6">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-800">Settings</h2>
+        <p class="text-slate-500 text-sm">Manage system configuration and preferences.</p>
+    </div>
+
+    <!-- Settings Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Company / System Info -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-building text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Company Info</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Update company name, logo and contacts.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage
+            </button>
+        </div>
+
+        <!-- Stations -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-location-dot text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Stations</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Add or manage Kampala, Mbale and other stations.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage
+            </button>
+        </div>
+
+        <!-- Pricing & Rates -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-tags text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Pricing & Rates</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Set delivery rates by weight, volume and route.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage
+            </button>
+        </div>
+
+        <!-- User Profile -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-user text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">My Profile</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Update your name, phone and password.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Edit Profile
+            </button>
+        </div>
+
+        <!-- Users & Roles -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-users-gear text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Users & Roles</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Create staff accounts and assign permissions.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage Users
+            </button>
+        </div>
+
+        <!-- Security -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Security</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Change password, enable activity logs and backups.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Security Settings
+            </button>
+        </div>
+
+    </div>
+
+</section>
+
                 <section id="dashboard-section">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
@@ -228,6 +318,101 @@
     </div>
 
 </section>
+                <!-- Reports Section -->
+<section id="reports-section" class="hidden p-6">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-800">Reports</h2>
+        <p class="text-slate-500 text-sm">View operational and financial reports.</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        <input type="date" id="reportFrom"
+               class="border p-3 rounded-lg"
+               placeholder="From Date">
+
+        <input type="date" id="reportTo"
+               class="border p-3 rounded-lg"
+               placeholder="To Date">
+
+        <select id="reportStation" class="border p-3 rounded-lg">
+            <option value="">All Stations</option>
+            <option value="Kampala">Kampala</option>
+            <option value="Mbale">Mbale</option>
+        </select>
+
+        <select id="reportStatus" class="border p-3 rounded-lg">
+            <option value="">All Status</option>
+            <option value="At Dispatch">At Dispatch</option>
+            <option value="In Transit">In Transit</option>
+            <option value="Ready for Pickup">Ready for Pickup</option>
+            <option value="Delivered">Delivered</option>
+        </select>
+
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Total Parcels</p>
+            <h3 id="report-total-parcels" class="text-2xl font-bold text-slate-800">0</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Total Revenue</p>
+            <h3 id="report-total-revenue" class="text-2xl font-bold text-slate-800">UGX 0</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Delivered</p>
+            <h3 id="report-delivered" class="text-2xl font-bold text-slate-800">0</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Pending</p>
+            <h3 id="report-pending" class="text-2xl font-bold text-slate-800">0</h3>
+        </div>
+
+    </div>
+
+    <!-- Report Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="font-bold text-slate-700">Parcel & Payment Report</h3>
+            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
+                <i class="fa-solid fa-file-export"></i> Export
+            </button>
+        </div>
+
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Tracking #</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Sender</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Receiver</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Route</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Status</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Total</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Paid</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Balance</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Date</th>
+                </tr>
+            </thead>
+
+            <tbody id="reports-table-body" class="divide-y divide-slate-100">
+                <!-- Report rows will be inserted here -->
+            </tbody>
+        </table>
+
+    </div>
+
+</section>
+
 
                 <!-- Payments Section -->
 <section id="payment-section" class="hidden p-6">
