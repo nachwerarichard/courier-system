@@ -1322,7 +1322,7 @@ document.getElementById('createSenderForm').addEventListener('submit', async (e)
         const response = await fetch(`${API_URL}/api/senders`);
         const senders = await response.json();
         
-        const tbody = document.getElementById('sender-table-body');
+        const tbody = document.getElementById('senders-table-body');
         if (!tbody) return; // Exit if the table doesn't exist on the current page
 
         tbody.innerHTML = senders.map(s => `
@@ -1402,7 +1402,7 @@ async function fetchReceivers() {
     try {
         const response = await fetch(`${API_URL}/api/receivers`);
         const receivers = await response.json();
-        const tbody = document.getElementById('receiver-table-body');
+        const tbody = document.getElementById('receivers-table-body');
         
         if (!tbody) return;
 
