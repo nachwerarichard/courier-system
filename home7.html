@@ -1074,7 +1074,7 @@ const SHIPPING_RATE = 2000; // Example rate per unit
  */
 async function fetchParcels() {
     try {
-        const response = await fetch(API_BASE);
+        const response = await fetch(API_URL);
         const parcels = await response.json();
         const tbody = document.getElementById('parcel-table-body');
         
@@ -1146,7 +1146,7 @@ const parcelData = {
 };  
 
     try {
-        const response = await fetch(API_BASE, {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(parcelData)
@@ -1166,7 +1166,7 @@ const parcelData = {
  */
 async function deleteParcel(id) {
     if (confirm('Are you sure you want to delete this parcel record?')) {
-        await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+        await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
         fetchParcels();
     }
 }
