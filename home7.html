@@ -1074,8 +1074,7 @@ const SHIPPING_RATE = 2000; // Example rate per unit
  */
 async function fetchParcels() {
     try {
-        const response = await fetch(API_URL);
-        const parcels = await response.json();
+const response = await fetch(`${API_URL}/api/parcels`);        const parcels = await response.json();
         const tbody = document.getElementById('parcel-table-body');
         
         document.getElementById('stat-total').innerText = parcels.length;
@@ -1146,9 +1145,11 @@ const parcelData = {
 };  
 
     try {
-        const response = await fetch(API_URL, {
+       const response = await fetch(`${API_URL}/api/parcels`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
             body: JSON.stringify(parcelData)
         });
 
@@ -1164,10 +1165,28 @@ const parcelData = {
 /**
  * DELETE: Remove Parcel
  */
+
 async function deleteParcel(id) {
-    if (confirm('Are you sure you want to delete this parcel record?')) {
-        await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        fetchParcels();
+    if (!confirm("Are you sure you want to delete this parcel?")) return;
+
+    try {
+        // Fix: Added '/api/parcels/' before the id
+        const response = await fetch(`${API_URL}/api/parcels/${id}`, { 
+            method: 'DELETE' 
+        });
+
+        if (!response.ok) {
+            throw new Error(`Delete failed with status: ${response.status}`);
+        }
+
+        console.log(`Parcel ${id} deleted successfully`);
+        
+        // Refresh the list after deleting
+        fetchParcels(); 
+
+    } catch (error) {
+        console.error("Error deleting parcel:", error);
+        alert("Could not delete the parcel.");
     }
 }
 
