@@ -947,6 +947,7 @@ function showSection(sectionId, clickedLink) {
             
             updateDateTime();
             fetchParcels();
+            fetchSenders();
             calculateFinancials();
             if(user.role === 'admin') loadUsers();
         }
