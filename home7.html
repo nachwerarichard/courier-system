@@ -149,6 +149,18 @@
                                 <div class="bg-gray-50 p-4 rounded-lg">
                                     <p class="text-xs font-bold text-gray-500 uppercase mb-3">Payment Stats</p>
                                     <div class="space-y-4" id="payment-bars">
+                                         <div>
+                                        <div class="flex justify-between text-xs mb-1"><span>Paid</span><span id="breakdown-paid">0</span></div>
+                                        <div class="w-full bg-gray-200 h-1.5 rounded-full"><div id="bar-paid" class="bg-green-500 h-1.5 rounded-full" style="width: 0%"></div></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1"><span>Partial</span><span id="breakdown-partial">0</span></div>
+                                        <div class="w-full bg-gray-200 h-1.5 rounded-full"><div id="bar-partial" class="bg-yellow-500 h-1.5 rounded-full" style="width: 0%"></div></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1"><span>Unpaid</span><span id="breakdown-unpaid">0</span></div>
+                                        <div class="w-full bg-gray-200 h-1.5 rounded-full"><div id="bar-unpaid" class="bg-red-500 h-1.5 rounded-full" style="width: 0%"></div></div>
+                                    </div>
                                         </div>
                                 </div>
                             </div>
