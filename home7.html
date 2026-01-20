@@ -937,10 +937,8 @@ let state = {
             
             updateDateTime();
             fetchParcels();
-            fetchSenders();
-            fetchReceivers()
             calculateFinancials();
-            refreshCustomerTable()
+            refreshCustomerTable();
             if(user.role === 'admin') loadUsers();
         }
 
