@@ -532,189 +532,116 @@
 </section>
 
 
- <div id="parcel-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+
+<div id="parcel-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col">
         
-        <div class="p-6 border-b flex justify-between items-center bg-slate-50 rounded-t-2xl sticky top-0 z-10">
+        <div class="p-5 border-b flex justify-between items-center bg-slate-50 rounded-t-2xl">
             <div>
                 <h2 class="text-xl font-black text-slate-800">New Parcel Booking</h2>
-                <p class="text-xs text-slate-500">Enter shipment and payment details below</p>
+                <p class="text-xs text-slate-500">Assign sender, receiver, and payment details in one view.</p>
             </div>
-            <button onclick="hideModal('parcel-modal')" class="text-slate-400 hover:text-slate-600 text-3xl transition-colors">&times;</button>
+            <button onclick="hideModal('parcel-modal')" class="text-slate-400 hover:text-slate-600 text-3xl">&times;</button>
         </div>
 
-        <form id="createParcelForm" class="p-6 space-y-8">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-3">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="bg-blue-100 text-blue-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-upload"></i></span>
-                        <p class="text-xs font-bold text-slate-700 uppercase tracking-wider">Sender Details</p>
-                    </div>
-                    <input type="hidden" id="client_id">
-                    <input list="senderList" id="senderName" placeholder="Search or select Sender Name" class="w-full border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" required>
-                    <datalist id="senderList"></datalist>
-                    <input type="text" id="senderPhone" placeholder="Sender Phone" class="w-full border border-slate-200 p-3 rounded-xl bg-slate-50" readonly>
-                    <select id="origin" class="w-full border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required>
-                        <option value="">Select Origin Station</option>
-                        <option value="Kampala">Kampala</option>
-                        <option value="Mbale">Mbale</option>
-                    </select>
-                </div>
-
-                <div class="space-y-3">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="bg-orange-100 text-orange-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-download"></i></span>
-                        <p class="text-xs font-bold text-slate-700 uppercase tracking-wider">Receiver Details</p>
-                    </div>
-                    <input list="receiverList" id="receiverName" placeholder="Search or select Receiver Name" class="w-full border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all" required>
-                    <datalist id="receiverList"></datalist>
-                    <input type="text" id="receiverPhone" placeholder="Receiver Phone" class="w-full border border-slate-200 p-3 rounded-xl bg-slate-50" readonly>
-                    <select id="destination" class="w-full border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none" required>
-                        <option value="">Select Destination</option>
-                        <option value="Kampala">Kampala</option>
-                        <option value="Mbale">Mbale</option>
-                    </select>
-                </div>
-            </div>
-
-            <hr class="border-slate-100">
-
-            <div class="space-y-4">
-                <div class="flex items-center gap-2">
-                    <span class="bg-slate-100 text-slate-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-box"></i></span>
-                    <p class="text-xs font-bold text-slate-700 uppercase tracking-wider">Parcel Content & Status</p>
-                </div>
-                <textarea id="description" placeholder="Description of items (e.g. 2 boxes of electronics)" class="w-full border border-slate-200 p-3 rounded-xl h-20 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+        <form id="createParcelForm" class="p-6 overflow-y-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    <input type="number" id="quantity" placeholder="Qty" class="border border-slate-200 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                    <input type="number" step="0.01" id="weight" placeholder="Weight (kg)" class="border border-slate-200 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="number" step="0.01" id="volume" placeholder="Vol (m³)" class="border border-slate-200 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="number" id="rate" placeholder="Rate" class="border border-slate-200 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                    <select id="status" class="border border-slate-200 p-3 rounded-xl outline-none bg-blue-50 font-bold text-blue-700 col-span-2 md:col-span-1">
-                        <option value="At Dispatch">At Dispatch</option>
-                        <option value="In Transit">In Transit</option>
-                        <option value="Ready for Pickup">Ready for Pickup</option>
-                        <option value="Delivered">Delivered</option>
-                    </select>
+                <div class="lg:col-span-1 space-y-6 border-r border-slate-100 pr-4">
+                    <div class="space-y-3">
+                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-circle-user"></i> Sender
+                        </p>
+                        <input type="hidden" id="client_id">
+                        <input list="senderList" id="senderName" placeholder="Name" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="text" id="senderPhone" placeholder="Phone" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm bg-slate-50" readonly>
+                        <select id="origin" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm outline-none">
+                            <option value="">Origin Station</option>
+                            <option value="Kampala">Kampala</option>
+                            <option value="Mbale">Mbale</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-3 pt-4">
+                        <p class="text-[10px] font-bold text-orange-600 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-truck-ramp-box"></i> Receiver
+                        </p>
+                        <input list="receiverList" id="receiverName" placeholder="Name" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none">
+                        <input type="text" id="receiverPhone" placeholder="Phone" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm bg-slate-50" readonly>
+                        <select id="destination" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm outline-none">
+                            <option value="">Destination</option>
+                            <option value="Kampala">Kampala</option>
+                            <option value="Mbale">Mbale</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-6">
+                    
+                    <div class="space-y-3">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Parcel Information</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <textarea id="description" placeholder="Description of items..." class="w-full border border-slate-200 p-3 rounded-xl h-[108px] text-sm focus:ring-2 focus:ring-blue-500 outline-none md:row-span-2"></textarea>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" id="quantity" placeholder="Qty" class="border border-slate-200 p-2.5 rounded-xl text-sm outline-none">
+                                <input type="number" step="0.01" id="weight" placeholder="Kg" class="border border-slate-200 p-2.5 rounded-xl text-sm outline-none">
+                                <input type="number" step="0.01" id="volume" placeholder="m³" class="border border-slate-200 p-2.5 rounded-xl text-sm outline-none">
+                                <input type="number" id="rate" placeholder="Rate" class="border border-slate-200 p-2.5 rounded-xl text-sm outline-none">
+                            </div>
+                            <select id="status" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm font-bold bg-blue-50 text-blue-700">
+                                <option value="At Dispatch">At Dispatch</option>
+                                <option value="In Transit">In Transit</option>
+                                <option value="Ready for Pickup">Ready for Pickup</option>
+                                <option value="Delivered">Delivered</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-2xl">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Financials</p>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-black text-slate-400 px-1">STATUS</label>
+                                <select id="paymentStatus" class="border border-slate-200 p-2 rounded-lg text-xs bg-white">
+                                    <option value="Unpaid">Unpaid</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Partial">Partial</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-black text-slate-400 px-1">METHOD</label>
+                                <select id="paymentType" class="border border-slate-200 p-2 rounded-lg text-xs bg-white">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Mobile Money">M-Money</option>
+                                    <option value="Bank">Bank</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-black text-slate-400 px-1">TOTAL (UGX)</label>
+                                <input type="number" id="totalAmount" placeholder="0" class="border border-slate-200 p-2 rounded-lg text-xs font-bold">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-black text-slate-400 px-1">PAID</label>
+                                <input type="number" id="amountPaid" placeholder="0" class="border border-slate-200 p-2 rounded-lg text-xs text-green-600 font-bold">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-black text-slate-400 px-1">BALANCE</label>
+                                <input type="number" id="balance" placeholder="0" class="border border-slate-200 p-2 rounded-lg text-xs bg-slate-100 text-red-500 font-bold" readonly>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <hr class="border-slate-100">
-
-            <div class="bg-slate-50 p-5 rounded-2xl space-y-4">
-                <div class="flex items-center gap-2">
-                    <span class="bg-green-100 text-green-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-money-bill"></i></span>
-                    <p class="text-xs font-bold text-slate-700 uppercase tracking-wider">Payment Capture</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 ml-1">STATUS</label>
-                        <select id="paymentStatus" class="border border-slate-200 p-3 rounded-xl w-full bg-white" required>
-                            <option value="Unpaid">Unpaid</option>
-                            <option value="Paid">Paid</option>
-                            <option value="Partial">Partial</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 ml-1">METHOD</label>
-                        <select id="paymentType" class="border border-slate-200 p-3 rounded-xl w-full bg-white" required>
-                            <option value="Cash">Cash</option>
-                            <option value="Mobile Money">Mobile Money</option>
-                            <option value="Bank">Bank Transfer</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 ml-1">TOTAL COST (UGX)</label>
-                        <input type="number" id="totalAmount" placeholder="0" class="border border-slate-200 p-3 rounded-xl w-full bg-white font-bold text-slate-800">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 ml-1">AMOUNT PAID</label>
-                        <input type="number" id="amountPaid" placeholder="0" class="border border-slate-200 p-3 rounded-xl w-full bg-white text-green-600 font-bold">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 ml-1">BALANCE</label>
-                        <input type="number" id="balance" placeholder="0" class="border border-slate-200 p-3 rounded-xl w-full bg-slate-100 font-bold text-red-500" readonly>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-end gap-3 pt-2">
-                <button type="button" onclick="hideModal('parcel-modal')" class="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-all">Cancel</button>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-xl font-bold shadow-lg shadow-blue-200 transition-all transform active:scale-95">
-                    Complete Booking
+            <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-slate-100">
+                <button type="button" onclick="hideModal('parcel-modal')" class="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100">Discard</button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-100 transition-transform active:scale-95">
+                    Save Parcel & Generate Waybill
                 </button>
             </div>
         </form>
     </div>
 </div>
-<div id="parcel-modals" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-            <h3 class="text-xl font-bold text-slate-800" id="modal-title">Add New Parcel</h3>
-            <button onclick="closeParcelModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
-        </div>
-        
-        <form id="parcel-form" class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-600 uppercase">Client ID</label>
-                    <input type="number" id="client_id" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-600 uppercase">Receiver Name</label>
-                    <input type="text" id="receiver_name" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-
-                <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-600 uppercase">Origin</label>
-                    <select id="origin" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none">
-                        <option value="Mbale">Mbale</option>
-                        <option value="Kampala">Kampala</option>
-                    </select>
-                </div>
-                <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-600 uppercase">Destination</label>
-                    <select id="destination" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none">
-                        <option value="Kampala">Kampala</option>
-                        <option value="Mbale">Mbale</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-3 col-span-2 gap-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-blue-600 uppercase">Qty</label>
-                        <input type="number" id="quantity" value="1" oninput="calculateParcelPrice()" class="w-full p-2 border border-blue-200 rounded">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-blue-600 uppercase">Weight (kg)</label>
-                        <input type="number" step="0.1" id="weight" value="1" oninput="calculateParcelPrice()" class="w-full p-2 border border-blue-200 rounded">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-blue-600 uppercase">Volume</label>
-                        <input type="number" step="0.1" id="volume" value="1" oninput="calculateParcelPrice()" class="w-full p-2 border border-blue-200 rounded">
-                    </div>
-                </div>
-
-                <div class="col-span-2 space-y-1">
-                    <label class="text-xs font-bold text-slate-600 uppercase">Calculated Price (UGX)</label>
-                    <input type="number" id="price" readonly class="w-full p-3 bg-slate-800 text-white font-mono text-xl rounded-lg">
-                </div>
-                <div class="col-span-2 space-y-1">
-                    <label class="text-xs font-bold text-slate-600 uppercase">Description / Details</label>
-                    <textarea id="description" rows="2" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none"></textarea>
-                </div>
-            </div>
-
-            <div class="mt-6 flex gap-3">
-                <button type="button" onclick="closeParcelModal()" class="flex-1 py-3 text-slate-500 font-bold hover:bg-slate-100 rounded-lg transition-colors">Discard</button>
-                <button type="submit" class="flex-1 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all">Confirm Shipment</button>
-            </div>
-        </form>
-    </div>
-</div>
-
             </main>
         </div>
     </div>
