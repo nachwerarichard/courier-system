@@ -1010,50 +1010,79 @@ async function fetchParcels() {
         document.getElementById('stat-total').innerText = parcels.length;
         
         tbody.innerHTML = parcels.map(p => `
-            <tr class="hover:bg-slate-50 transition-colors group">
-                <td class="p-4">
-                    <div class="font-mono text-blue-600 font-bold">${p.tracking_number || 'N/A'}</div>
-                    <div class="text-[10px] text-slate-400">
-                        ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'No Date'}
-                    </div>
-                </td>
-                <td class="p-4">
-                    <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
-                    <div class="text-xs text-slate-400 font-mono italic">Receiver: ${p.reciever_name || 'N/A'}</div>
-                </td>
-                <td class="p-4">
-                    <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
-                        <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
-                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
-                        <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
-                    </div>
-                </td>
-                <td class="p-4 font-bold text-slate-800">
-                    UGX ${p.price ? p.price.toLocaleString() : '0'}
-                </td>
-                <td class="p-4">
-    <select 
-        onchange="updateStatus('${p._id}', this.value)" 
-        class="text-[10px] font-bold uppercase px-2 py-1 rounded-full cursor-pointer border-none outline-none ${getStatusStyle(p.status)}"
-    >
-        <option value="At Dispatch" ${p.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
-        <option value="In Transit" ${p.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
-        <option value="Ready for Pickup" ${p.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
-        <option value="Delivered" ${p.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-    </select>
-</td>
-                <td class="p-4 text-right">
-                    <button onclick="deleteParcel('${p._id}')" class="text-slate-300 hover:text-red-500 transition-colors">
-                        <i class="fa-solid fa-trash-can"></i>
+    <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
+        <td class="p-4">
+            <div class="font-mono text-blue-600 font-bold">${p.tracking_number || 'N/A'}</div>
+            <div class="text-[10px] text-slate-400">
+                ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'No Date'}
+            </div>
+        </td>
+        <td class="p-4">
+            <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
+            <div class="text-xs text-slate-400 font-mono italic">Receiver: ${p.receiver_name || 'N/A'}</div>
+        </td>
+        <td class="p-4">
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
+                <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
+            </div>
+        </td>
+        <td class="p-4 font-bold text-slate-800 text-sm">
+            UGX ${p.price ? p.price.toLocaleString() : '0'}
+        </td>
+        <td class="p-4">
+            <select 
+                onchange="updateStatus('${p._id}', this.value)" 
+                class="text-[10px] font-bold uppercase px-2 py-1 rounded-full cursor-pointer border-none outline-none ${getStatusStyle(p.status)}"
+            >
+                <option value="At Dispatch" ${p.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
+                <option value="In Transit" ${p.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+                <option value="Ready for Pickup" ${p.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
+                <option value="Delivered" ${p.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            </select>
+        </td>
+        
+        <td class="p-4 text-right relative">
+            <div class="inline-block text-left">
+                <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600 focus:outline-none">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+                
+                <div id="menu-${p._id}" class="hidden absolute right-4 mt-1 w-32 bg-white border border-slate-200 shadow-lg rounded-md z-50">
+                    <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                        <i class="fa-solid fa-trash-can"></i> Delete Parcel
                     </button>
-                </td>
-            </tr>
-        `).join('');
+                </div>
+            </div>
+        </td>
+    </tr>
+`).join('');
     } catch (err) {
         console.error("Failed to load parcels:", err);
     }
 }
 
+        // Function to toggle the three-dot menu
+function toggleActionMenu(event, id) {
+    event.stopPropagation(); // Prevents clicking the button from closing itself immediately
+    
+    // Close any other open menus first
+    const allMenus = document.querySelectorAll('[id^="menu-"]');
+    allMenus.forEach(menu => {
+        if (menu.id !== `menu-${id}`) menu.classList.add('hidden');
+    });
+
+    // Toggle the clicked menu
+    const currentMenu = document.getElementById(`menu-${id}`);
+    currentMenu.classList.toggle('hidden');
+}
+
+// Close menus when clicking anywhere else on the page
+document.addEventListener('click', () => {
+    const allMenus = document.querySelectorAll('[id^="menu-"]');
+    allMenus.forEach(menu => menu.classList.add('hidden'));
+});
 /**
  * CREATE: Submit Form to Backend
  */
