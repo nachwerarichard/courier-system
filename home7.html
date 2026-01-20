@@ -1030,72 +1030,85 @@ let state = {
 async function fetchParcels() {
     try {
         const response = await fetch(`${API_URL}/api/parcels`);
+        if (!response.ok) throw new Error("Network response was not ok");
+        
         const parcels = await response.json();
         const tbody = document.getElementById('parcel-table-body');
         
         document.getElementById('stat-total').innerText = parcels.length;
         
-        tbody.innerHTML = parcels.map(p => `
-    <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
-        <td class="p-4">
-            <div class="font-mono text-blue-600 font-bold">${p.tracking_number || 'N/A'}</div>
-            <div class="text-[10px] text-slate-400">
-                ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'No Date'}
-            </div>
-        </td>
-        <td class="p-4">
-            <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
-            <div class="text-xs text-slate-400 font-mono italic">Receiver: ${p.receiver_name || 'N/A'}</div>
-        </td>
-        <td class="p-4">
-            <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
-                <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
-                <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
-                <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
-            </div>
-        </td>
-        <td class="p-4 font-bold text-slate-800 text-sm">
-            UGX ${p.price ? p.price.toLocaleString() : '0'}
-        </td>
-        <td class="p-4">
-            <select 
-                onchange="updateStatus('${p._id}', this.value)" 
-                class="text-[10px] font-bold uppercase px-2 py-1 rounded-full cursor-pointer border-none outline-none ${getStatusStyle(p.status)}"
-            >
-                <option value="At Dispatch" ${p.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
-                <option value="In Transit" ${p.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
-                <option value="Ready for Pickup" ${p.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
-                <option value="Delivered" ${p.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-            </select>
-        </td>
-        
-        <td class="p-4 text-right relative">
-            <div class="inline-block text-left">
-                <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600 focus:outline-none">
-                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                </button>
-                
-                <div id="menu-${p._id}" class="hidden absolute right-4 mt-1 w-32 bg-white border border-slate-200 shadow-lg rounded-md z-50">
-                <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2">
-                        <i class="fa-solid fa-money-bill-wave text-green-600"></i> Add Payment
-                    </button>
+        tbody.innerHTML = parcels.map(p => {
+            // Since we now use an items array, we show the first item + a count if there's more
+            const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
+            const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
 
-                    <button onclick="addNewParcelForCustomer('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
-                        <i class="fa-solid fa-box-archive text-blue-600"></i> Add  Parcel
-                    </button>
-                    <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                        <i class="fa-solid fa-trash-can"></i> Delete Parcel
-                    </button>
-                </div>
-            </div>
-        </td>
-    </tr>
-`).join('');
+            return `
+            <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
+                <td class="p-4">
+                    <div class="font-mono text-blue-600 font-bold">${p.tracking_number || 'N/A'}</div>
+                    <div class="text-[10px] text-slate-400">
+                        ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'No Date'}
+                    </div>
+                </td>
+                <td class="p-4">
+                    <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
+                    <div class="text-[11px] text-slate-500 font-medium">
+                        <i class="fa-solid fa-box text-slate-300 mr-1"></i> ${firstItemDesc}${extraItems}
+                    </div>
+                    <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
+                </td>
+                <td class="p-4">
+                    <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                        <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                        <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
+                    </div>
+                </td>
+                <td class="p-4">
+                    <div class="font-bold text-slate-800 text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
+                    <div class="text-[10px] ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
+                        Bal: UGX ${(p.balance || 0).toLocaleString()}
+                    </div>
+                </td>
+                <td class="p-4">
+                    <select 
+                        onchange="updateStatus('${p._id}', this.value)" 
+                        class="text-[10px] font-bold uppercase px-2 py-1 rounded-full cursor-pointer border border-slate-200 outline-none ${getStatusStyle(p.status)}"
+                    >
+                        <option value="At Dispatch" ${p.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
+                        <option value="In Transit" ${p.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+                        <option value="Ready for Pickup" ${p.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
+                        <option value="Delivered" ${p.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                    </select>
+                </td>
+                
+                <td class="p-4 text-right">
+                    <div class="relative inline-block text-left">
+                        <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600">
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </button>
+                        
+                        <div id="menu-${p._id}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
+                            <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2">
+                                <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
+                            </button>
+
+                            <button onclick="addNewParcelForCustomer('${p.sender_name}', '${p.sender_phone}', '${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
+                                <i class="fa-solid fa-plus text-blue-600 w-4"></i> Add Item
+                            </button>
+                            
+                            <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                <i class="fa-solid fa-trash-can w-4"></i> Delete Waybill
+                            </button>
+                        </div>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
     } catch (err) {
         console.error("Failed to load parcels:", err);
     }
 }
-
         // Function to toggle the three-dot menu
 function toggleActionMenu(event, id) {
     event.stopPropagation(); // Prevents clicking the button from closing itself immediately
@@ -1782,6 +1795,11 @@ function calculateBalance() {
 }
         // OPEN ITEM MODAL
 function addNewParcelForCustomer(id) {
+    console.log("Adding item to Waybill ID:", id); // Check if this is a real ID or 'undefined'
+    if (!id || id === 'undefined') {
+        alert("Error: Waybill ID is missing. Please refresh the page.");
+        return;
+    }
     document.getElementById('target_waybill_id').value = id;
     showModal('item-modal');
 }
