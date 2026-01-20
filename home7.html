@@ -1441,16 +1441,22 @@ async function deleteReceiver(id) {
         receiverList.innerHTML = "";
 
         customers.forEach(person => {
-            const option = document.createElement('option');
-            option.value = person.full_name;
-            option.dataset.phone = person.phone;
-            option.dataset.id = person._id;
-            option.dataset.station = person.station;
+    // Create for Sender List
+    const optSender = document.createElement('option');
+    optSender.value = person.full_name;
+    optSender.dataset.phone = person.phone;
+    optSender.dataset.id = person._id;
+    optSender.dataset.station = person.station;
+    senderList.appendChild(optSender);
 
-            // Add the same person to both lists
-            senderList.appendChild(option);
-            receiverList.appendChild(option.cloneNode(true));
-        });
+    // Create for Receiver List (New instance)
+    const optReceiver = document.createElement('option');
+    optReceiver.value = person.full_name;
+    optReceiver.dataset.phone = person.phone;
+    optReceiver.dataset.id = person._id;
+    optReceiver.dataset.station = person.station;
+    receiverList.appendChild(optReceiver);
+});
     } catch (err) {
         console.error("Fetch failed:", err);
     }
@@ -1482,23 +1488,20 @@ document.getElementById('receiverName').addEventListener('input', function(e) {
     const val = e.target.value;
     const options = document.querySelectorAll('#receiverList option');
     
-    if (val === "") {
-        document.getElementById('receiverPhone').value = "";
-        document.getElementById('client_id').value = "";
-        document.getElementById('destination').value = "";
-        return;
-    }
-
     options.forEach(opt => {
-        if (opt.value === val) { 
-            document.getElementById('receiverPhone').value = opt.dataset.phone || "";
-            document.getElementById('client_id').value = opt.dataset.id || "";
-            // Auto-fills Destination based on the customer's registered station
-            document.getElementById('destination').value = opt.dataset.station || "";
+        if (opt.value === val) {
+            // Safety checks using optional chaining or simple if-statements
+            const phoneEl = document.getElementById('receiverPhone');
+            const destEl = document.getElementById('destination');
+            const clientEl = document.getElementById('client_id');
+
+            if (phoneEl) phoneEl.value = opt.dataset.phone || "";
+            if (destEl) destEl.value = opt.dataset.station || "";
+            if (clientEl) clientEl.value = opt.dataset.id || "";
         }
     });
 });
-        // Function to update payment status dropdown automatically
+        
 function calculatePaymentStatus() {
     const total = parseFloat(document.getElementById('totalAmount').value) || 0;
     const paid = parseFloat(document.getElementById('amountPaid').value) || 0;
