@@ -229,7 +229,7 @@
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment Type</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Total Amount</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Amount Paid</th>
-                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Balance</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Pricing</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Received By</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment Date</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500 text-right">Actions</th>
@@ -1794,13 +1794,13 @@ function calculateBalance() {
     }
 }
         // OPEN ITEM MODAL
-function addNewParcelForCustomer(id) {
-    console.log("Adding item to Waybill ID:", id); // Check if this is a real ID or 'undefined'
-    if (!id || id === 'undefined') {
-        alert("Error: Waybill ID is missing. Please refresh the page.");
-        return;
-    }
-    document.getElementById('target_waybill_id').value = id;
+function addNewParcelForCustomer(name, phone, id) {
+    // This 'id' must be the long database string (p._id)
+    console.log("Setting Target ID:", id); 
+    
+    // Put the database ID into the hidden input
+    document.getElementById('target_waybill_id').value = id; 
+    
     showModal('item-modal');
 }
 
