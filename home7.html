@@ -1299,73 +1299,7 @@ function hideModal(modalId) {
         alert("Server error while deleting.");
     }
 }
-        document.getElementById('createReceiverForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const receiverData = {
-        full_name: document.getElementById('receiverFullName').value,
-        phone: document.getElementById('receiverPhone').value,
-        id_number: document.getElementById('receiverIdNumber').value,
-        station: document.getElementById('receiverStation').value
-    };
-
-    try {
-        const response = await fetch(`${API_URL}/api/receivers`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(receiverData)
-        });
-
-        if (response.ok) {
-            alert("Receiver added successfully!");
-            document.getElementById('createReceiverForm').reset();
-            hideModal('receiver-modal'); // Closes your modal
-            if (typeof fetchReceivers === "function") fetchReceivers(); // Refresh list
-        } else {
-            const error = await response.json();
-            alert("Error: " + error.error);
-        }
-    } catch (err) {
-        console.error("Network error:", err);
-        alert("Failed to connect to server.");
-    }
-});
-        // Fetch and Display
-async function fetchReceivers() {
-    try {
-        const response = await fetch(`${API_URL}/api/receivers`);
-        const receivers = await response.json();
-        const tbody = document.getElementById('receivers-table-body');
         
-        if (!tbody) return;
-
-        tbody.innerHTML = receivers.map(r => `
-            <tr class="border-b hover:bg-slate-50">
-                <td class="p-3 font-medium">${r.full_name}</td>
-                <td class="p-3">${r.phone}</td>
-                <td class="p-3">${r.station}</td>
-                <td class="p-3 text-right">
-                    <button onclick="deleteReceiver('${r._id}')" class="text-red-400 hover:text-red-600">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-    } catch (err) {
-        console.error("Error loading receivers:", err);
-    }
-}
-
-// Delete function
-async function deleteReceiver(id) {
-    if (!confirm("Delete this receiver?")) return;
-    try {
-        const response = await fetch(`${API_URL}/api/receivers/${id}`, { method: 'DELETE' });
-        if (response.ok) fetchReceivers();
-    } catch (err) {
-        alert("Delete failed");
-    }
-}
 
   async function loadFormOptions() {
     try {
