@@ -1072,52 +1072,73 @@ document.addEventListener('click', () => {
 /**
  * CREATE: Submit Form to Backend
  */
-document.getElementById('createParcelForm').addEventListener('submit', async (e) => {
+
+        document.getElementById('createParcelForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
+    // 1. Validation: Ensure there is at least one item in the list
+    if (currentConsignment.length === 0) {
+        alert("Please add at least one parcel item to the list before saving.");
+        return;
+    }
+
+    // 2. Structure the data for a "Consignment" (Group of Parcels)
     const parcelData = {
-    client_id: document.getElementById('client_id').value,
-    sender_name: document.getElementById('senderName').value,
-    sender_phone: document.getElementById('senderPhone').value,
-    origin: document.getElementById('origin').value,
-    receiver_name: document.getElementById('receiverName').value,
-    destination: document.getElementById('destination').value,
-    description: document.getElementById('description').value,
-    quantity: document.getElementById('quantity').value,
-    weight: document.getElementById('weight').value,
-    volume: document.getElementById('volume').value,
-    price: document.getElementById('rate').value, 
-    status: document.getElementById('status').value,
-    
-    // New Fields Added Below
-    payment_status: document.getElementById('paymentStatus').value,
-    total_amount: Number(document.getElementById('totalAmount').value),
-    paymentType: document.getElementById('paymentType').value,
-    amount_paid: Number(document.getElementById('amountPaid').value)
-};
+        client_id: document.getElementById('client_id').value,
+        sender_name: document.getElementById('senderName').value,
+        sender_phone: document.getElementById('senderPhone').value,
+        origin: document.getElementById('origin').value,
+        receiver_name: document.getElementById('receiverName').value,
+        receiver_phone: document.getElementById('receiverPhone').value,
+        destination: document.getElementById('destination').value,
+        
+        // The list of all separate items for the same receipt
+        items: currentConsignment, 
+        
+        // Summary Financials
+        total_amount: Number(document.getElementById('totalAmount').value),
+        amount_paid: Number(document.getElementById('amountPaid').value),
+        balance: Number(document.getElementById('balance').value),
+        payment_status: document.getElementById('paymentStatus').value,
+        payment_method: document.getElementById('paymentType').value,
+        
+        // Global status for the whole waybill
+        status: document.getElementById('status').value 
+    };
 
     try {
-       const response = await fetch(`${API_URL}/api/parcels`, {
+        const response = await fetch(`${API_URL}/api/parcels`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(parcelData)
         });
 
         if (response.ok) {
-            alert("Parcel added successfully!");
-            closeParcelModal();
-            fetchParcels(); 
+            const result = await response.json();
+            alert("Waybill created successfully with " + currentConsignment.length + " items!");
+            
+            // 3. Cleanup
+            currentConsignment = []; // Reset the local array
+            renderParcelList(); // Clear the UI list
+            document.getElementById('createParcelForm').reset();
+            hideModal('parcel-modal');
+            
+            // 4. Refresh Table
+            if (typeof fetchParcels === 'function') fetchParcels(); 
+
+            // OPTIONAL: Auto-open print waybill
+            // printWaybill(result._id); 
+            
         } else {
             const errorData = await response.json();
             console.error("Server Error:", errorData);
             alert("Error: " + (errorData.error || "Unknown server error"));
         }
-    }  catch (err) {
-    console.log(err); // This will tell you exactly what went wrong
-    alert("Error saving parcel: " + err.message);
-}
+    } catch (err) {
+        console.error("Network Error:", err);
+        alert("Error saving: Check your internet connection or server status.");
+    }
 });
-
         async function updateStatus(id, newStatus) {
     try {
         const response = await fetch(`${API_URL}/api/parcels/${id}/status`, {
