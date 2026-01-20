@@ -641,7 +641,7 @@
                     Discard
                 </button>
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-lg text-sm font-bold shadow-lg transition transform active:scale-95">
-                    Save Waybill & Generate Receipt
+                    Add Parcel
                 </button>
             </div>
         </form>
@@ -1149,9 +1149,7 @@ document.addEventListener('click', () => {
         payment_status: document.getElementById('paymentStatus').value,
         payment_method: document.getElementById('paymentType').value,
         
-        // Global status for the whole waybill
-        status: document.getElementById('status').value 
-    };
+            };
 
     try {
         const response = await fetch(`${API_URL}/api/parcels`, {
@@ -1162,7 +1160,7 @@ document.addEventListener('click', () => {
 
         if (response.ok) {
             const result = await response.json();
-            alert("Waybill created successfully with " + currentConsignment.length + " items!");
+            alert("Parcel added successfully with " + currentConsignment.length + " items!");
             
             // 3. Cleanup
             currentConsignment = []; // Reset the local array
