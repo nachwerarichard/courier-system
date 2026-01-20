@@ -754,6 +754,65 @@
         </form>
     </div>
 </div>
+    <div id="item-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="font-bold text-slate-800">Add Item to Waybill</h3>
+            <button onclick="hideModal('item-modal')" class="text-slate-400 text-2xl">&times;</button>
+        </div>
+        <form id="addItemForm" class="p-6 space-y-4">
+            <input type="hidden" id="target_waybill_id">
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Item Description</label>
+                <input type="text" id="mini_desc" placeholder="e.g. Spare parts" class="w-full border p-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Qty</label>
+                    <input type="number" id="mini_qty" class="w-full border p-2.5 rounded-xl text-sm" required>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Weight</label>
+                    <input type="number" id="mini_weight" class="w-full border p-2.5 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Rate</label>
+                    <input type="number" id="mini_rate" class="w-full border p-2.5 rounded-xl text-sm" required>
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all">Add to Receipt</button>
+        </form>
+    </div>
+</div>
+
+<div id="payment-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="font-bold text-slate-800">Collect Payment</h3>
+            <button onclick="hideModal('payment-modal')" class="text-slate-400 text-2xl">&times;</button>
+        </div>
+        <form id="miniPaymentForm" class="p-6 space-y-4">
+            <input type="hidden" id="pay_waybill_id">
+            <div class="bg-slate-50 p-3 rounded-lg flex justify-between">
+                <span class="text-xs text-slate-500">Balance Due:</span>
+                <span id="display_balance" class="text-sm font-bold text-red-600">0 UGX</span>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Amount Paid Now (UGX)</label>
+                <input type="number" id="mini_pay_amount" class="w-full border p-3 rounded-xl text-lg font-bold text-green-600 outline-none" required>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Payment Method</label>
+                <select id="mini_pay_method" class="w-full border p-2.5 rounded-xl text-sm">
+                    <option value="Cash">Cash</option>
+                    <option value="Mobile Money">Mobile Money</option>
+                    <option value="Bank">Bank Transfer</option>
+                </select>
+            </div>
+            <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-green-700 transition-all">Record Payment</button>
+        </form>
+    </div>
+</div>
 
     <script>
 // Reuse modal functions
@@ -1033,7 +1092,7 @@ async function fetchParcels() {
                         <i class="fa-solid fa-money-bill-wave text-green-600"></i> Add Payment
                     </button>
 
-                    <button onclick="addNewParcelForCustomer('${p.sender_name}', '${p.sender_phone}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
+                    <button onclick="addNewParcelForCustomer('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
                         <i class="fa-solid fa-box-archive text-blue-600"></i> Add  Parcel
                     </button>
                     <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
@@ -1703,6 +1762,66 @@ function calculateBalance() {
     else if (paid > 0) status.value = "Partial";
     else status.value = "Unpaid";
 }
+
+        // OPEN ITEM MODAL
+function addNewParcelForCustomer(name, phone, id) {
+    document.getElementById('target_waybill_id').value = id;
+    showModal('item-modal');
+}
+
+// OPEN PAYMENT MODAL
+async function openPaymentModal(id) {
+    const response = await fetch(`${API_URL}/api/parcels/${id}`);
+    const p = await response.json();
+    
+    document.getElementById('pay_waybill_id').value = id;
+    document.getElementById('display_balance').innerText = `${p.balance.toLocaleString()} UGX`;
+    showModal('payment-modal');
+}
+
+// SUBMIT ITEM ONLY
+document.getElementById('addItemForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('target_waybill_id').value;
+    
+    const newItem = {
+        description: document.getElementById('mini_desc').value,
+        quantity: Number(document.getElementById('mini_qty').value),
+        weight: Number(document.getElementById('mini_weight').value),
+        rate: Number(document.getElementById('mini_rate').value),
+        subtotal: Number(document.getElementById('mini_qty').value) * Number(document.getElementById('mini_rate').value)
+    };
+
+    // We use a special "PUSH" endpoint or handle it in your PUT route
+    await fetch(`${API_URL}/api/parcels/${id}/add-item`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newItem)
+    });
+    
+    hideModal('item-modal');
+    fetchParcels();
+});
+
+// SUBMIT PAYMENT ONLY
+document.getElementById('miniPaymentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('pay_waybill_id').value;
+    
+    const paymentData = {
+        amount_paid: Number(document.getElementById('mini_pay_amount').value),
+        payment_method: document.getElementById('mini_pay_method').value
+    };
+
+    await fetch(`${API_URL}/api/parcels/${id}/add-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(paymentData)
+    });
+    
+    hideModal('payment-modal');
+    fetchParcels();
+});
 </script>
 
 </body>
