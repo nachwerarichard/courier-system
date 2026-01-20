@@ -1806,12 +1806,29 @@ function addNewParcelForCustomer(name, phone, id) {
 
 // OPEN PAYMENT MODAL
 async function openPaymentModal(id) {
-    const response = await fetch(`${API_URL}/api/parcels/${id}`);
-    const p = await response.json();
-    
-    document.getElementById('pay_waybill_id').value = id;
-    document.getElementById('display_balance').innerText = `${p.balance.toLocaleString()} UGX`;
-    showModal('payment-modal');
+    try {
+        const response = await fetch(`${API_URL}/api/parcels/${id}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Server Response:", errorText);
+            throw new Error(`Failed to fetch parcel: ${response.status}`);
+        }
+
+        const p = await response.json();
+        
+        // Ensure these IDs exist in your payment-modal HTML
+        document.getElementById('pay_waybill_id').value = id;
+        
+        // Safety check for balance
+        const balance = p.balance || 0;
+        document.getElementById('display_balance').innerText = `${balance.toLocaleString()} UGX`;
+        
+        showModal('payment-modal');
+    } catch (err) {
+        alert("Could not open payment window. Check console for details.");
+        console.error("Payment Modal Error:", err);
+    }
 }
 
 // SUBMIT ITEM ONLY
