@@ -940,6 +940,7 @@ let state = {
             fetchSenders();
             fetchReceivers()
             calculateFinancials();
+            refreshCustomerTable()
             if(user.role === 'admin') loadUsers();
         }
 
