@@ -617,8 +617,15 @@
                             <option value="Paid">Paid</option>
                             <option value="Partial">Partial</option>
                         </select>
+                        <select id="paymentType" class="border p-3 rounded-lg w-full" required>
+                            <option value="Unpaid">Cash</option>
+                            <option value="Paid">Mobile Money</option>
+                            <option value="Partial">Bank</option>
+                        </select>
                         <input type="number" id="totalAmount" placeholder="Total Cost (UGX)" class="border p-3 rounded-lg w-full">
                         <input type="number" id="amountPaid" placeholder="Amount Paid (UGX)" class="border p-3 rounded-lg w-full">
+                        <input type="number" id="balance" placeholder="Balance (UGX)" class="border p-3 rounded-lg w-full">
+
                     </div>
                 </div>
 
