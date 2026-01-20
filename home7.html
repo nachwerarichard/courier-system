@@ -1017,18 +1017,18 @@ let state = {
             `).join('');
         }
 
-        function calculateFinancials() {
-            const rev = state.parcels.reduce((sum, p) => sum + (p.amount - p.balance), 0);
-            const bal = state.parcels.reduce((sum, p) => sum + p.balance, 0);
-            document.getElementById('rev-today').innerText = `UGX ${rev.toLocaleString()}`;
-            document.getElementById('bal-total').innerText = `UGX ${bal.toLocaleString()}`;
+       // function calculateFinancials() {
+            //const rev = state.parcels.reduce((sum, p) => sum + (p.amount - p.balance), 0);
+            //const bal = state.parcels.reduce((sum, p) => sum + p.balance, 0);
+            //document.getElementById('rev-today').innerText = `UGX ${rev.toLocaleString()}`;
+            //document.getElementById('bal-total').innerText = `UGX ${bal.toLocaleString()}`;
             
             // Counters
-            document.getElementById('stat-total').innerText = state.parcels.length;
-            document.getElementById('stat-transit').innerText = state.parcels.filter(p => p.status === 'In Transit').length;
-            document.getElementById('stat-pickup').innerText = state.parcels.filter(p => p.status === 'Ready for Pickup').length;
-            document.getElementById('stat-delivered').innerText = state.parcels.filter(p => p.status === 'Delivered').length;
-        }
+            //document.getElementById('stat-total').innerText = state.parcels.length;
+            //document.getElementById('stat-transit').innerText = state.parcels.filter(p => p.status === 'In Transit').length;
+            //document.getElementById('stat-pickup').innerText = state.parcels.filter(p => p.status === 'Ready for Pickup').length;
+            //document.getElementById('stat-delivered').innerText = state.parcels.filter(p => p.status === 'Delivered').length;
+        //}
 
         function getStatusStyle(status) {
             if(status === 'In Transit') return 'bg-green-100 text-green-700';
