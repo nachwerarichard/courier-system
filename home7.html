@@ -1451,64 +1451,131 @@ async function deleteReceiver(id) {
 
   async function loadFormOptions() {
     try {
-        // Fetch Senders and Receivers in parallel
-        const [senderRes, receiverRes] = await Promise.all([
-            fetch('/api/senders'),
-            fetch('/api/receivers')
-        ]);
+        const response = await fetch(`${API_URL}/api/customers`);
+        const customers = await response.json();
 
-        const senders = await senderRes.json();
-        const receivers = await receiverRes.json();
-
-        // Populate Sender Datalist
         const senderList = document.getElementById('senderList');
-        senders.forEach(sender => {
-            const option = document.createElement('option');
-            option.value = sender.full_name; // Matches Schema
-            option.dataset.phone = sender.phone;
-            option.dataset.id = sender._id;
-            option.dataset.station = sender.station;
-            senderList.appendChild(option);
-        });
-
-        // Populate Receiver Datalist
         const receiverList = document.getElementById('receiverList');
-        receivers.forEach(receiver => {
-            const option = document.createElement('option');
-            option.value = receiver.full_name; // Matches Schema
-            option.dataset.station = receiver.station;
-            receiverList.appendChild(option);
-        });
+        
+        senderList.innerHTML = "";
+        receiverList.innerHTML = "";
 
+        customers.forEach(person => {
+            const option = document.createElement('option');
+            option.value = person.full_name;
+            option.dataset.phone = person.phone;
+            option.dataset.id = person._id;
+            option.dataset.station = person.station;
+
+            // Add the same person to both lists
+            senderList.appendChild(option);
+            receiverList.appendChild(option.cloneNode(true));
+        });
     } catch (err) {
-        console.error("Error loading form data:", err);
+        console.error("Fetch failed:", err);
     }
 }
-
-// Event Listener for Sender Selection (Auto-fill Phone & Origin)
+// --- SENDER SELECTION ---
 document.getElementById('senderName').addEventListener('input', function(e) {
     const val = e.target.value;
     const options = document.querySelectorAll('#senderList option');
     
+    // Clear fields if input is cleared
+    if (val === "") {
+        document.getElementById('senderPhone').value = "";
+        document.getElementById('client_id').value = "";
+        document.getElementById('origin').value = "";
+        return;
+    }
+
     options.forEach(opt => {
         if (opt.value === val) {
-            document.getElementById('senderPhone').value = opt.dataset.phone;
-            document.getElementById('client_id').value = opt.dataset.id;
-            document.getElementById('origin').value = opt.dataset.station;
+            document.getElementById('senderPhone').value = opt.dataset.phone || "";
+            document.getElementById('client_id').value = opt.dataset.id || "";
+            document.getElementById('origin').value = opt.dataset.station || "";
         }
     });
 });
 
-// Event Listener for Receiver Selection (Auto-fill Destination)
+// --- RECEIVER SELECTION ---
 document.getElementById('receiverName').addEventListener('input', function(e) {
     const val = e.target.value;
     const options = document.querySelectorAll('#receiverList option');
     
+    if (val === "") {
+        document.getElementById('destination').value = "";
+        return;
+    }
+
     options.forEach(opt => {
         if (opt.value === val) {
-            document.getElementById('destination').value = opt.dataset.station;
+            // Auto-fills Destination based on the customer's registered station
+            document.getElementById('destination').value = opt.dataset.station || "";
         }
     });
+});
+        // Function to update payment status dropdown automatically
+function calculatePaymentStatus() {
+    const total = parseFloat(document.getElementById('totalAmount').value) || 0;
+    const paid = parseFloat(document.getElementById('amountPaid').value) || 0;
+    const statusField = document.getElementById('paymentStatus');
+
+    if (paid === 0) {
+        statusField.value = "Unpaid";
+    } else if (paid >= total && total > 0) {
+        statusField.value = "Paid";
+    } else {
+        statusField.value = "Partial";
+    }
+}
+
+// Attach listeners to the amount fields
+document.getElementById('totalAmount').addEventListener('input', calculatePaymentStatus);
+document.getElementById('amountPaid').addEventListener('input', calculatePaymentStatus);
+        
+        document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // We no longer care about 'type' for the database, 
+    // but we use it to know which input to fill on the UI.
+    const type = document.getElementById('modalUserType').value; 
+    
+    const userData = {
+        full_name: document.getElementById('modalFullName').value,
+        phone: document.getElementById('modalPhone').value,
+        id_number: document.getElementById('modalID').value,
+        station: document.getElementById('modalStation').value
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/api/customers`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+
+        if (response.ok) {
+            const newCustomer = await response.json();
+            
+            // Refresh the shared datalists
+            await loadFormOptions(); 
+            
+            // Auto-fill the specific side of the form user was working on
+            if (type === 'sender') {
+                document.getElementById('senderName').value = newCustomer.full_name;
+                document.getElementById('senderPhone').value = newCustomer.phone;
+                document.getElementById('origin').value = newCustomer.station;
+                document.getElementById('client_id').value = newCustomer._id;
+            } else {
+                document.getElementById('receiverName').value = newCustomer.full_name;
+                document.getElementById('destination').value = newCustomer.station;
+            }
+            
+            closeModal();
+        }
+    } catch (err) {
+        console.error("Save failed:", err);
+    }
 });
 
 loadFormOptions();
