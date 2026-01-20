@@ -580,26 +580,34 @@
 
                 <div class="lg:col-span-2 space-y-6">
                     
-                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                        <label class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-3 block">Add Item to Waybill</label>
-                        <div class="flex flex-col md:flex-row gap-3">
-                            <input type="text" id="temp_desc" placeholder="Description (e.g., Box of clothes)" class="flex-grow border border-slate-200 p-3 rounded-lg text-sm outline-none bg-white">
-                            <div class="flex gap-2">
-                                <input type="number" id="temp_qty" placeholder="Qty" class="w-16 border border-slate-200 p-3 rounded-lg text-sm bg-white">
-                                <input type="number" id="temp_weight" placeholder="Kg" class="w-16 border border-slate-200 p-3 rounded-lg text-sm bg-white">
-                                                                <input type="number" id="length" placeholder="Length" class="w-24 border border-slate-200 p-3 rounded-lg text-sm bg-white">
-                                                                <input type="number" id="width" placeholder="width" class="w-24 border border-slate-200 p-3 rounded-lg text-sm bg-white">
-                                                                <input type="number" id="height" placeholder="height" class="w-24 border border-slate-200 p-3 rounded-lg text-sm bg-white">
-                                                              <input type="number" id="volume" placeholder="Volume" class="w-24 border border-slate-200 p-3 rounded-lg text-sm bg-white">
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-3">
+    <label class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block">Add Item to Waybill</label>
+    
+    <div class="flex gap-2">
+        <input type="text" id="temp_desc" placeholder="Description (e.g., Box of clothes)" 
+               class="flex-grow border border-slate-200 p-3 rounded-lg text-sm outline-none bg-white focus:ring-2 focus:ring-blue-400">
+    </div>
 
-                                <input type="number" id="temp_rate" placeholder="Rate" class="w-24 border border-slate-200 p-3 rounded-lg text-sm bg-white">
-                                <button type="button" onclick="addParcelToList()" class="bg-blue-600 text-white px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                                    <i class="fa-solid fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+    <div class="flex flex-wrap items-center gap-2">
+        <input type="number" id="temp_qty" oninput="calculateParcelPrice()" placeholder="Qty" class="w-16 border border-slate-200 p-3 rounded-lg text-sm bg-white">
+        <input type="number" id="temp_weight" oninput="calculateParcelPrice()" placeholder="Kg" class="w-16 border border-slate-200 p-3 rounded-lg text-sm bg-white">
+        
+        <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2">
+            <input type="number" id="length" oninput="calculateParcelPrice()" placeholder="L" class="w-12 p-2 text-xs outline-none">
+            <span class="text-slate-300 text-[10px]">×</span>
+            <input type="number" id="width"  oninput="calculateParcelPrice()" placeholder="W" class="w-12 p-2 text-xs outline-none">
+            <span class="text-slate-300 text-[10px]">×</span>
+            <input type="number" id="height" oninput="calculateParcelPrice()" placeholder="H" class="w-12 p-2 text-xs outline-none">
+        </div>
 
+        <input type="number" id="volume" placeholder="Vol" class="w-20 border border-slate-200 p-3 rounded-lg text-sm bg-slate-50 font-medium" readonly>
+        <input type="number" id="temp_rate" oninput="calculateParcelPrice()" placeholder="Rate" class="w-24 border border-slate-200 p-3 rounded-lg text-sm bg-white font-bold text-blue-700">
+        
+        <button type="button" onclick="addParcelToList()" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors flex-grow md:flex-grow-0">
+            <i class="fa-solid fa-plus mr-1"></i> Add
+        </button>
+    </div>
+</div>
                     <div class="border border-slate-100 rounded-xl overflow-hidden flex flex-col bg-white">
                         <div class="bg-slate-50 px-4 py-2 text-[10px] font-bold text-slate-500 flex justify-between uppercase">
                             <span>Items in this Shipment</span>
