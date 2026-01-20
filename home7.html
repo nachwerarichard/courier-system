@@ -291,9 +291,9 @@
             <h2 class="text-2xl font-bold text-slate-800">Sender</h2>
             <p class="text-slate-500 text-sm">Manage all sender information.</p>
         </div>
-        <button onclick="showModal('sender-modal')"
+        <button onclick="showModal('userModal')"
                 class="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2">
-            <i class="fa-solid fa-plus"></i> Add Sender
+            <i class="fa-solid fa-plus"></i> Add User
         </button>
     </div>
 
@@ -315,6 +315,30 @@
             </tbody>
         </table>
     </div>
+    <div class="bg-white p-6 rounded-xl shadow-md">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+        <h2 class="text-xl font-bold text-gray-800">Registered Customers</h2>
+        <input type="text" id="customerSearch" onkeyup="filterTable()" 
+               placeholder="Search by name or phone..." 
+               class="border p-2 rounded-lg w-full md:w-64 outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 border-b">
+                    <th class="p-3 text-xs font-bold uppercase text-gray-500">Full Name</th>
+                    <th class="p-3 text-xs font-bold uppercase text-gray-500">Phone</th>
+                    <th class="p-3 text-xs font-bold uppercase text-gray-500">ID Number</th>
+                    <th class="p-3 text-xs font-bold uppercase text-gray-500">Station</th>
+                    <th class="p-3 text-xs font-bold uppercase text-gray-500 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="customerTableBody">
+                </tbody>
+        </table>
+    </div>
+</div>
 
 </section>
 
@@ -816,6 +840,52 @@
             </form>
         </div>
     </div>
+
+    <div id="userModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modalTitle" class="text-lg font-bold text-blue-600 uppercase">Add New Customer</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+
+        <form id="quickUserForm" class="space-y-4">
+            <input type="hidden" id="modalCustomerId">
+
+            <div>
+                <label class="text-xs font-semibold text-gray-500 uppercase">Full Name</label>
+                <input type="text" id="modalFullName" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            </div>
+
+            <div>
+                <label class="text-xs font-semibold text-gray-500 uppercase">Phone Number</label>
+                <input type="text" id="modalPhone" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase">ID Number</label>
+                    <input type="text" id="modalID" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Optional">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase">Home Station</label>
+                    <select id="modalStation" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        <option value="Kampala">Kampala</option>
+                        <option value="Mbale">Mbale</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex space-x-3 pt-4">
+                <button type="button" onclick="closeModal()" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold">
+                    Save Customer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
     <script>
 // Reuse modal functions
@@ -1538,7 +1608,7 @@ document.getElementById('amountPaid').addEventListener('input', calculatePayment
     
     // We no longer care about 'type' for the database, 
     // but we use it to know which input to fill on the UI.
-    const type = document.getElementById('modalUserType').value; 
+    const type = document.getElementById('modalCustomerId').value; 
     
     const userData = {
         full_name: document.getElementById('modalFullName').value,
@@ -1579,6 +1649,154 @@ document.getElementById('amountPaid').addEventListener('input', calculatePayment
 });
 
 loadFormOptions();
+
+        // Function to show the modal and set the context (Sender or Receiver)
+function openUserModal(type) {
+    const modal = document.getElementById('userModal');
+    const title = document.getElementById('modalTitle');
+    const typeInput = document.getElementById('modalCustomerId');
+
+    typeInput.value = type;
+    title.innerText = type === 'sender' ? 'Add New Sender' : 'Add New Receiver';
+    
+    modal.classList.remove('hidden');
+}
+
+// Function to hide the modal and reset fields
+function closeModal() {
+    document.getElementById('userModal').classList.add('hidden');
+    document.getElementById('quickUserForm').reset();
+}
+
+// Close modal if user clicks outside the white box
+window.onclick = function(event) {
+    const modal = document.getElementById('userModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+        async function refreshCustomerTable() {
+    try {
+        const response = await fetch(`${API_URL}/api/customers`);
+        const customers = await response.json();
+        const tableBody = document.getElementById('customerTableBody');
+        
+        tableBody.innerHTML = ""; // Clear current rows
+
+        customers.forEach(customer => {
+            const row = `
+                <tr class="border-b hover:bg-gray-50 transition">
+                    <td class="p-3 font-medium text-gray-800">${customer.full_name}</td>
+                    <td class="p-3 text-gray-600">${customer.phone}</td>
+                    <td class="p-3 text-gray-600">${customer.id_number || 'N/A'}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${
+                            customer.station === 'Kampala' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                        }">
+                            ${customer.station}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right">
+                        <button onclick="editCustomer('${customer._id}')" class="text-blue-600 hover:underline mr-2">Edit</button>
+                        <button onclick="deleteCustomer('${customer._id}')" class="text-red-600 hover:underline">Delete</button>
+                    </td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+    } catch (err) {
+        console.error("Failed to load table:", err);
+    }
+}
+
+// Simple search filter function
+function filterTable() {
+    const input = document.getElementById("customerSearch");
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll("#customerTableBody tr");
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+    });
+}
+
+// Initial load
+refreshCustomerTable();
+
+        async function deleteCustomer(id) {
+    if (confirm("Are you sure you want to delete this customer? This will not delete their past parcels.")) {
+        try {
+            const response = await fetch(`${API_URL}/api/customers/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                // Refresh both the table and the datalists on the booking form
+                refreshCustomerTable();
+                loadFormOptions();
+            } else {
+                alert("Failed to delete customer");
+            }
+        } catch (err) {
+            console.error("Error deleting:", err);
+        }
+    }
+}
+        async function editCustomer(id) {
+    try {
+        const response = await fetch(`${API_URL}/api/customers/${id}`);
+        const customer = await response.json();
+
+        // 1. Open the modal and change title
+        document.getElementById('userModal').classList.remove('hidden');
+        document.getElementById('modalTitle').innerText = "Edit Customer Details";
+        
+        // 2. Fill the fields with current data
+        document.getElementById('modalCustomerId').value = customer._id;
+        document.getElementById('modalFullName').value = customer.full_name;
+        document.getElementById('modalPhone').value = customer.phone;
+        document.getElementById('modalID').value = customer.id_number || "";
+        document.getElementById('modalStation').value = customer.station;
+
+    } catch (err) {
+        alert("Error fetching customer data");
+    }
+}
+        document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const customerId = document.getElementById('modalCustomerId').value;
+    const userData = {
+        full_name: document.getElementById('modalFullName').value,
+        phone: document.getElementById('modalPhone').value,
+        id_number: document.getElementById('modalID').value,
+        station: document.getElementById('modalStation').value
+    };
+
+    // Determine if we are Updating (PUT) or Creating (POST)
+    const method = customerId ? 'PUT' : 'POST';
+    const url = customerId ? `${API_URL}/api/customers/${customerId}` : `${API_URL}/api/customers`;
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+
+        if (response.ok) {
+            // Refresh everything
+            await loadFormOptions(); 
+            if (typeof refreshCustomerTable === "function") refreshCustomerTable();
+            
+            closeModal();
+            document.getElementById('modalCustomerId').value = ""; // Clear the ID
+        }
+    } catch (err) {
+        console.error("Save failed:", err);
+    }
+});
 </script>
 
 </body>
