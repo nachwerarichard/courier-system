@@ -1307,46 +1307,7 @@ function hideModal(modalId) {
         // Ensure API_URL is defined at the top of your script
 // const API_URL = "https://patrinahhotelmgtsys.onrender.com";
 
-document.getElementById('createSenderForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
 
-    // 1. Gather data from the form IDs
-    const senderData = {
-        full_name: document.getElementById('fullName').value,
-        phone: document.getElementById('phone').value,
-        id_number: document.getElementById('idNumber').value,
-        station: document.getElementById('station').value
-    };
-
-    try {
-        // 2. Send POST request to backend
-        const response = await fetch(`${API_URL}/api/senders`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(senderData)
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            alert("Sender added successfully!");
-            
-            // 3. Clear the form and close modal (if applicable)
-            document.getElementById('createSenderForm').reset();
-            if (typeof closeSenderModal === "function") closeSenderModal();
-            
-            // Optional: Refresh a sender list if you have one
-            // fetchSenders(); 
-        } else {
-            const error = await response.json();
-            alert("Failed to add sender: " + error.error);
-        }
-    } catch (err) {
-        console.error("Network error:", err);
-        alert("Server connection error. Please try again.");
-    }
-});
         async function fetchSenders() {
     try {
         const response = await fetch(`${API_URL}/api/senders`);
