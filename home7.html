@@ -1116,7 +1116,7 @@ async function fetchParcels() {
 
         renderTable(allParcels);
         renderPaymentsTable();
-        updateDashboardStats();
+        await updateDashboardStats();
     } catch (err) {
         console.error("Fetch error:", err);
     }
@@ -2314,7 +2314,7 @@ window.handleReactivate = async function(id) {
         row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
 };
-window.updateDashboardStats = function() {
+window.updateDashboardStats = async function() {
     // --- 1. PREVIOUS STATUS CARDS ---
     const totalParcels = allParcels.length;
     document.getElementById('stat-total').innerText = totalParcels;
