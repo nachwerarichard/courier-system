@@ -1113,8 +1113,7 @@ function renderTable(parcels) {
             <td class="p-4">
                 <div class="font-mono text-blue-600 font-bold">${p.tracking_number || 'N/A'}</div>
                 <div class="text-[10px] text-slate-400">
-                    ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'No Date'}
-                </div>
+${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'No Date'}                </div>
             </td>
             <td class="p-4">
                 <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
