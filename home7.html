@@ -2274,8 +2274,14 @@ window.handleReactivate = async function(id) {
                 <td class="p-4 text-xs font-bold text-red-600">
                     UGX ${(p.balance || 0).toLocaleString()}
                 </td>
-                <td class="p-4 text-xs text-slate-600">
-                    ${p.receiver_name} </td>
+                <td class="p-4 text-xs font-medium text-slate-700">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] text-slate-500">
+                            ${(p.recorded_by || 'U').charAt(0)}
+                        </div>
+                        ${p.recorded_by || 'Unknown'}
+                    </div>
+                </td>
                 <td class="p-4 text-xs text-slate-500">
                     ${new Date(p.created_at).toLocaleDateString()}
                 </td>
