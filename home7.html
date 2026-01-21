@@ -1603,7 +1603,7 @@ document.getElementById('createParcelForm').addEventListener('submit', async (e)
             
             document.getElementById('createParcelForm').reset();
             hideModal('parcel-modal');
-            
+            window.location.reload();
             // Refresh main table & search options
             fetchParcels(); 
             loadFormOptions(); // Refreshes datalists with the new customers
