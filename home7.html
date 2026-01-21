@@ -1195,17 +1195,10 @@ ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.
                 </div>
             </td>
             <td class="p-4">
-                <select 
-                    onchange="updateStatus('${p._id}', this.value)" 
-                    class="text-[10px] font-bold uppercase px-2 py-1 rounded-full cursor-pointer border border-slate-200 outline-none ${getStatusStyle(p.status)}"
-                >
-                    <option value="At Dispatch" ${p.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
-                    <option value="In Transit" ${p.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
-                    <option value="Partially received" ${p.status === 'Partially received' ? 'selected' : ''}>Partially Received</option>
-                    <option value="Ready for Pickup" ${p.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
-                    <option value="Delivered" ${p.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                </select>
-            </td>
+    <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-100 inline-block shadow-sm ${getStatusStyle(p.status)}">
+        ${p.status}
+    </span>
+</td>
             <td class="p-4 text-right">
                 <div class="relative inline-block text-left">
                     <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600">
