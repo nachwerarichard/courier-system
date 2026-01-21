@@ -155,16 +155,13 @@
                                     <div class="space-y-4" id="payment-bars">
                                          <div>
                                         <div class="flex justify-between text-xs mb-1"><span>Paid</span><span id="breakdown-paid">0</span></div>
-                                        <div class="w-full bg-gray-200 h-1.5 rounded-full"><div id="bar-paid" class="bg-green-500 h-1.5 rounded-full" style="width: 0%"></div></div>
-                                    </div>
+<div id="bar-paid" class="bg-green-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>                                    </div>
                                     <div>
                                         <div class="flex justify-between text-xs mb-1"><span>Partial</span><span id="breakdown-partial">0</span></div>
-                                        <div class="w-full bg-gray-200 h-1.5 rounded-full"><div id="bar-partial" class="bg-yellow-500 h-1.5 rounded-full" style="width: 0%"></div></div>
-                                    </div>
+<div id="bar-partial" class="bg-green-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>                                    </div>
                                     <div>
                                         <div class="flex justify-between text-xs mb-1"><span>Unpaid</span><span id="breakdown-unpaid">0</span></div>
-                                        <div class="w-full bg-gray-200 h-1.5 rounded-full"><div id="bar-unpaid" class="bg-red-500 h-1.5 rounded-full" style="width: 0%"></div></div>
-                                    </div>
+<div id="bar-unpaid" class="bg-green-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>                                    </div>
                                         </div>
                                 </div>
                             </div>
@@ -2318,36 +2315,46 @@ window.handleReactivate = async function(id) {
     });
 };
 window.updateDashboardStats = function() {
-    // 1. Total Parcels
-    const totalElem = document.getElementById('stat-total');
-    if (totalElem) totalElem.innerText = allParcels.length;
+    // --- 1. PREVIOUS STATUS CARDS ---
+    const totalParcels = allParcels.length;
+    document.getElementById('stat-total').innerText = totalParcels;
+    document.getElementById('stat-transit').innerText = allParcels.filter(p => p.status === 'In Transit').length;
+    document.getElementById('stat-pickup').innerText = allParcels.filter(p => p.status === 'Ready for Pickup').length;
+    document.getElementById('stat-partial').innerText = allParcels.filter(p => p.status === 'Partially received').length;
+    document.getElementById('stat-delivered').innerText = allParcels.filter(p => p.status === 'Delivered').length;
 
-    // 2. In Transit
-    const transitCount = allParcels.filter(p => p.status === 'In Transit').length;
-    const transitElem = document.getElementById('stat-transit');
-    if (transitElem) transitElem.innerText = transitCount;
+    // --- 2. FINANCIAL OVERVIEW ---
+    
+    // Calculate Revenue Collected (Sum of amount_paid)
+    const revenueTotal = allParcels.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+    document.getElementById('rev-today').innerText = `UGX ${revenueTotal.toLocaleString()}`;
 
-    // 3. Pickup Ready (Ready for Pickup)
-    const pickupCount = allParcels.filter(p => p.status === 'Ready for Pickup').length;
-    const pickupElem = document.getElementById('stat-pickup');
-    if (pickupElem) pickupElem.innerText = pickupCount;
+    // Calculate Outstanding Balance (Sum of balance)
+    const balanceTotal = allParcels.reduce((sum, p) => sum + (p.balance || 0), 0);
+    document.getElementById('bal-total').innerText = `UGX ${balanceTotal.toLocaleString()}`;
 
-    // 4. Partially Received
-    const partialCount = allParcels.filter(p => p.status === 'Partially received').length;
-    const partialElem = document.getElementById('stat-partial');
-    if (partialElem) partialElem.innerText = partialCount;
+    // --- 3. PAYMENT STATUS BARS ---
+    
+    // Get counts
+    const paidCount = allParcels.filter(p => p.payment_status === 'Paid').length;
+    const partialCount = allParcels.filter(p => p.payment_status === 'Partial').length;
+    const unpaidCount = allParcels.filter(p => p.payment_status === 'Unpaid').length;
 
-    // 5. Delivered
-    const deliveredCount = allParcels.filter(p => p.status === 'Delivered').length;
-    const deliveredElem = document.getElementById('stat-delivered');
-    if (deliveredElem) deliveredElem.innerText = deliveredCount;
+    // Update Number Displays
+    document.getElementById('breakdown-paid').innerText = paidCount;
+    document.getElementById('breakdown-partial').innerText = partialCount;
+    document.getElementById('breakdown-unpaid').innerText = unpaidCount;
 
-    // 6. Revenue (Total money collected)
-    const totalRevenue = allParcels.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
-    const revenueElem = document.getElementById('stat-revenue');
-    if (revenueElem) revenueElem.innerText = `UGX ${totalRevenue.toLocaleString()}`;
+    // Calculate Percentages for Bars (Avoid division by zero)
+    const paidPercent = totalParcels > 0 ? (paidCount / totalParcels) * 100 : 0;
+    const partialPercent = totalParcels > 0 ? (partialCount / totalParcels) * 100 : 0;
+    const unpaidPercent = totalParcels > 0 ? (unpaidCount / totalParcels) * 100 : 0;
+
+    // Update Progress Bar Widths
+    document.getElementById('bar-paid').style.width = `${paidPercent}%`;
+    document.getElementById('bar-partial').style.width = `${partialPercent}%`;
+    document.getElementById('bar-unpaid').style.width = `${unpaidPercent}%`;
 };
-
 </script>
 
 </body>
