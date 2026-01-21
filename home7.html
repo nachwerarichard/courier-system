@@ -1113,6 +1113,7 @@ async function fetchParcels() {
 
         renderTable(allParcels);
         renderPaymentsTable();
+        updateStats();
     } catch (err) {
         console.error("Fetch error:", err);
     }
@@ -2309,6 +2310,19 @@ window.handleReactivate = async function(id) {
         const text = row.innerText.toLowerCase();
         row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
+};
+                    window.updateStats = function() {
+    // 1. Get the total count from the global array
+    const totalCount = allParcels.length;
+
+    // 2. Update the HTML element
+    const totalElement = document.getElementById('stat-total');
+    if (totalElement) {
+        totalElement.innerText = totalCount.toLocaleString();
+    }
+    
+    // Optional: If you want to animate the count from 0 to the total
+    // animateValue("stat-total", 0, totalCount, 500);
 };
 </script>
 
