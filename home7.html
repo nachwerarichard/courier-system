@@ -330,15 +330,45 @@
             <h3 id="stat-total" class="text-2xl font-bold text-slate-800">0</h3>
         </div>
     </div>
+<div class="mb-4 relative max-w-md">
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
+    </div>
+    <input 
+        type="text" 
+        id="table-search" 
+        onkeyup="filterTable()" 
+        placeholder="Search by Tracking ID..." 
+        class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+    >
+</div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    ...
+</div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="mb-4 relative max-w-md">
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
+    </div>
+    <input 
+        type="text" 
+        id="table-search" 
+        onkeyup="filterTable()" 
+        placeholder="Search by Tracking ID..." 
+        class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+    >
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    ...
+</div>
         <table class="w-full text-left">
             <thead class="bg-slate-50 border-b border-slate-200">
                 <tr>
-                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Tracking Info</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Tracking ID</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Sender</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Destination</th>
-                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Balance</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Status</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500 text-right">Actions</th>
                 </tr>
@@ -1042,86 +1072,107 @@ let state = {
 /**
  * READ: Fetch and Display Parcels
  */
+let allParcels = []; // Global variable to hold the full list
+
 async function fetchParcels() {
     try {
         const response = await fetch(`${API_URL}/api/parcels`);
         if (!response.ok) throw new Error("Network response was not ok");
         
-        const parcels = await response.json();
-        const tbody = document.getElementById('parcel-table-body');
+        allParcels = await response.json(); // Store data globally
         
-        document.getElementById('stat-total').innerText = parcels.length;
-        
-        tbody.innerHTML = parcels.map(p => {
-            // Since we now use an items array, we show the first item + a count if there's more
-            const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
-            const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
+        // Update total stats
+        const statTotal = document.getElementById('stat-total');
+        if(statTotal) statTotal.innerText = allParcels.length;
 
-            return `
-            <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
-                <td class="p-4">
-                    <div class="font-mono text-blue-600 font-bold">${p.tracking_number || 'N/A'}</div>
-                    <div class="text-[10px] text-slate-400">
-                        ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'No Date'}
-                    </div>
-                </td>
-                <td class="p-4">
-                    <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
-                    <div class="text-[11px] text-slate-500 font-medium">
-                        <i class="fa-solid fa-box text-slate-300 mr-1"></i> ${firstItemDesc}${extraItems}
-                    </div>
-                    <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
-                </td>
-                <td class="p-4">
-                    <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
-                        <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
-                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
-                        <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
-                    </div>
-                </td>
-                <td class="p-4">
-                    <div class="font-bold text-slate-800 text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
-                    <div class="text-[10px] ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
-                        Bal: UGX ${(p.balance || 0).toLocaleString()}
-                    </div>
-                </td>
-                <td class="p-4">
-                    <select 
-                        onchange="updateStatus('${p._id}', this.value)" 
-                        class="text-[10px] font-bold uppercase px-2 py-1 rounded-full cursor-pointer border border-slate-200 outline-none ${getStatusStyle(p.status)}"
-                    >
-                        <option value="At Dispatch" ${p.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
-                        <option value="In Transit" ${p.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
-                        <option value="Partially received" ${p.status === 'In Transit' ? 'selected' : ''}>Partially Received</option>
-                        <option value="Ready for Pickup" ${p.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
-                        <option value="Delivered" ${p.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                    </select>
-                </td>
-                
-                <td class="p-4 text-right">
-                    <div class="relative inline-block text-left">
-                        <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600">
-                            <i class="fa-solid fa-ellipsis-vertical"></i>
-                        </button>
-                        
-                        <div id="menu-${p._id}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
-                            <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2">
-                                <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
-                            </button>
-
-                            <button onclick="addNewParcelForCustomer('${p.sender_name}', '${p.sender_phone}', '${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
-                                <i class="fa-solid fa-plus text-blue-600 w-4"></i> Add Item
-                            </button>
-                            
-                            <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                <i class="fa-solid fa-trash-can w-4"></i> Delete Waybill
-                            </button>
-                        </div>
-                    </div>
-                </td>
-            </tr>`;
-        }).join('');
+        renderTable(allParcels); // Call the render function
     } catch (err) {
+        console.error("Failed to load parcels:", err);
+    }
+}
+
+// Function to handle the filtering logic
+function filterTable() {
+    const searchTerm = document.getElementById('table-search').value.toLowerCase();
+    
+    const filtered = allParcels.filter(p => {
+        const trackingID = (p.tracking_number || '').toLowerCase();
+        return trackingID.includes(searchTerm);
+    });
+
+    renderTable(filtered);
+}
+
+// Move your rendering logic into its own function
+function renderTable(parcels) {
+    const tbody = document.getElementById('parcel-table-body');
+    
+    tbody.innerHTML = parcels.map(p => {
+        const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
+        const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
+
+        return `
+        <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
+            <td class="p-4">
+                <div class="font-mono text-blue-600 font-bold">${p.tracking_number || 'N/A'}</div>
+                <div class="text-[10px] text-slate-400">
+                    ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'No Date'}
+                </div>
+            </td>
+            <td class="p-4">
+                <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
+                <div class="text-[11px] text-slate-500 font-medium">
+                    <i class="fa-solid fa-box text-slate-300 mr-1"></i> ${firstItemDesc}${extraItems}
+                </div>
+                <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
+            </td>
+            <td class="p-4">
+                <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
+                </div>
+            </td>
+            <td class="p-4">
+                <div class="font-bold text-slate-800 text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
+                <div class="text-[10px] ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
+                    Bal: UGX ${(p.balance || 0).toLocaleString()}
+                </div>
+            </td>
+            <td class="p-4">
+                <select 
+                    onchange="updateStatus('${p._id}', this.value)" 
+                    class="text-[10px] font-bold uppercase px-2 py-1 rounded-full cursor-pointer border border-slate-200 outline-none ${getStatusStyle(p.status)}"
+                >
+                    <option value="At Dispatch" ${p.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
+                    <option value="In Transit" ${p.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+                    <option value="Partially received" ${p.status === 'Partially received' ? 'selected' : ''}>Partially Received</option>
+                    <option value="Ready for Pickup" ${p.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
+                    <option value="Delivered" ${p.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                </select>
+            </td>
+            <td class="p-4 text-right">
+                <div class="relative inline-block text-left">
+                    <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+                    <div id="menu-${p._id}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
+                        <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
+                        </button>
+                        <button onclick="addNewParcelForCustomer('${p.sender_name}', '${p.sender_phone}', '${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
+                            <i class="fa-solid fa-plus text-blue-600 w-4"></i> Add Item
+                        </button>
+                        <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can w-4"></i> Delete 
+                        </button>
+                    </div>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+     catch (err) {
         console.error("Failed to load parcels:", err);
     }
 }
