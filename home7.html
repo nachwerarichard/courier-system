@@ -1112,7 +1112,7 @@ async function fetchParcels() {
 
         renderTable(allParcels);
         renderPaymentsTable();
-        updateStats();
+        updateDashboardStats();
     } catch (err) {
         console.error("Fetch error:", err);
     }
@@ -2310,19 +2310,21 @@ window.handleReactivate = async function(id) {
         row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
 };
-                    window.updateStats = function() {
-    // 1. Get the total count from the global array
-    const totalCount = allParcels.length;
+        window.updateDashboardStats = function() {
+    // Total
+    document.getElementById('stat-total').innerText = allParcels.length;
 
-    // 2. Update the HTML element
-    const totalElement = document.getElementById('stat-total');
-    if (totalElement) {
-        totalElement.innerText = totalCount.toLocaleString();
-    }
-    
-    // Optional: If you want to animate the count from 0 to the total
-    // animateValue("stat-total", 0, totalCount, 500);
+    // Delivered
+    const deliveredCount = allParcels.filter(p => p.status === 'Delivered').length;
+    const deliveredElem = document.getElementById('stat-delivered'); // Assuming you have this ID
+    if (deliveredElem) deliveredElem.innerText = deliveredCount;
+
+    // Revenue (Total money collected)
+    const totalRevenue = allParcels.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+    const revenueElem = document.getElementById('stat-revenue'); // Assuming you have this ID
+    if (revenueElem) revenueElem.innerText = `UGX ${totalRevenue.toLocaleString()}`;
 };
+
 </script>
 
 </body>
