@@ -1576,10 +1576,10 @@ function calculateParcelPrice() {
     const q = document.getElementById('temp_qty').value || 1;
     const w = document.getElementById('temp_weight').value || 1;
     const l = document.getElementById('length').value || 1;
-    const w = document.getElementById('width').value || 1;
+    const wi = document.getElementById('width').value || 1;
     const h = document.getElementById('height').value || 1;
     const r = document.getElementById('temp_rate').value || 1;
-    const v= l *w*h;
+    const v= l *wi*h;
     document.getElementById('volume').value = Math.round(v);
 
     // Calculation: Qty * Weight * Volume * Rate
