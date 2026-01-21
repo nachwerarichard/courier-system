@@ -2325,35 +2325,39 @@ window.updateDashboardStats = function() {
 
     // --- 2. FINANCIAL OVERVIEW ---
     
-    // Calculate Revenue Collected (Sum of amount_paid)
-    const revenueTotal = allParcels.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
-    document.getElementById('rev-today').innerText = `UGX ${revenueTotal.toLocaleString()}`;
+   try {
+        const response = await fetch(`${API_URL}/api/stats/financial`);
+        if (!response.ok) throw new Error("Failed to fetch stats");
+        
+        const data = await response.json();
 
-    // Calculate Outstanding Balance (Sum of balance)
-    const balanceTotal = allParcels.reduce((sum, p) => sum + (p.balance || 0), 0);
-    document.getElementById('bal-total').innerText = `UGX ${balanceTotal.toLocaleString()}`;
+        // --- 1. Top Cards (Using data from aggregate) ---
+        // Note: You can still use allParcels.filter for statuses if you prefer, 
+        // but the backend 'totalCount' is more efficient.
+        document.getElementById('stat-total').innerText = data.totalCount || 0;
 
-    // --- 3. PAYMENT STATUS BARS ---
-    
-    // Get counts
-    const paidCount = allParcels.filter(p => p.payment_status === 'Paid').length;
-    const partialCount = allParcels.filter(p => p.payment_status === 'Partial').length;
-    const unpaidCount = allParcels.filter(p => p.payment_status === 'Unpaid').length;
+        // --- 2. Financial Overview ---
+        document.getElementById('rev-today').innerText = `UGX ${(data.totalRevenue || 0).toLocaleString()}`;
+        document.getElementById('bal-total').innerText = `UGX ${(data.totalBalance || 0).toLocaleString()}`;
 
-    // Update Number Displays
-    document.getElementById('breakdown-paid').innerText = paidCount;
-    document.getElementById('breakdown-partial').innerText = partialCount;
-    document.getElementById('breakdown-unpaid').innerText = unpaidCount;
+        // --- 3. Payment Status Breakdown ---
+        document.getElementById('breakdown-paid').innerText = data.countPaid || 0;
+        document.getElementById('breakdown-partial').innerText = data.countPartial || 0;
+        document.getElementById('breakdown-unpaid').innerText = data.countUnpaid || 0;
 
-    // Calculate Percentages for Bars (Avoid division by zero)
-    const paidPercent = totalParcels > 0 ? (paidCount / totalParcels) * 100 : 0;
-    const partialPercent = totalParcels > 0 ? (partialCount / totalParcels) * 100 : 0;
-    const unpaidPercent = totalParcels > 0 ? (unpaidCount / totalParcels) * 100 : 0;
+        // --- 4. Progress Bars ---
+        const total = data.totalCount || 1; // Avoid division by zero
+        const paidPct = ((data.countPaid || 0) / total) * 100;
+        const partialPct = ((data.countPartial || 0) / total) * 100;
+        const unpaidPct = ((data.countUnpaid || 0) / total) * 100;
 
-    // Update Progress Bar Widths
-    document.getElementById('bar-paid').style.width = `${paidPercent}%`;
-    document.getElementById('bar-partial').style.width = `${partialPercent}%`;
-    document.getElementById('bar-unpaid').style.width = `${unpaidPercent}%`;
+        document.getElementById('bar-paid').style.width = `${paidPct}%`;
+        document.getElementById('bar-partial').style.width = `${partialPct}%`;
+        document.getElementById('bar-unpaid').style.width = `${unpaidPct}%`;
+
+    } catch (err) {
+        console.error("Error loading dashboard stats:", err);
+    }
 };
 </script>
 
