@@ -1294,6 +1294,8 @@ window.showParcelDetails = function(id) {
             </div>
         </div>
 
+        // ... (inside the innerHTML of showParcelDetails)
+
         <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
             <div>
                 <button onclick="deleteParcel('${parcel._id}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-colors flex items-center gap-2">
@@ -1302,9 +1304,14 @@ window.showParcelDetails = function(id) {
             </div>
 
             <div class="flex gap-2">
-                <button onclick="updateStatus('${parcel._id}', 'Delivered')" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-medium hover:bg-black transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-truck-fast"></i> Deliver
-                </button>
+                ${parcel.balance > 0 
+                    ? `<button onclick="alert('Cannot deliver: There is a pending balance of UGX ${parcel.balance.toLocaleString()}')" class="px-4 py-2 bg-slate-100 text-slate-400 rounded-lg font-medium cursor-not-allowed flex items-center gap-2">
+                        <i class="fa-solid fa-lock"></i> Deliver (Balance Due)
+                       </button>`
+                    : `<button onclick="confirmDelivery('${parcel._id}')" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-medium hover:bg-black transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-truck-fast"></i> Mark as Delivered
+                       </button>`
+                }
 
                 <button onclick="openPaymentModal('${parcel._id}')" class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2">
                     <i class="fa-solid fa-money-bill-wave"></i> Add Payment
