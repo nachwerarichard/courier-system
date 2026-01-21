@@ -1406,7 +1406,8 @@ window.editParcel = function(id) {
         receiver_name: document.getElementById('receiverName').value,
         receiver_phone: document.getElementById('receiverPhone').value,
         destination: document.getElementById('destination').value,
-        
+
+        recorded_by: localStorage.getItem('userName') || 'Unknown Clerk',
         // The list of all separate items for the same receipt
         items: currentConsignment, 
         
