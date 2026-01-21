@@ -1306,23 +1306,42 @@ window.showParcelDetails = function(id) {
 window.closeDetailsModal = function() {
     document.getElementById('details-modal').classList.add('hidden');
 };
-        window.editParcel = function(id) {
+        let isEditMode = false;
+let editingId = null;
+
+window.editParcel = function(id) {
     const parcel = allParcels.find(p => p._id === id);
     if (!parcel) return;
 
-    // Close the action menu first
-    const menu = document.getElementById(`menu-${id}`);
-    if (menu) menu.classList.add('hidden');
+    isEditMode = true;
+    editingId = id;
 
-    // Option A: If you have a separate Edit Modal
-    // openEditModal(parcel); 
+    // 1. Change UI Titles
+    document.querySelector('#parcel-modal h3').innerText = "Edit Parcel Details";
+    document.querySelector('#parcel-modal button[type="submit"]').innerText = "Update Parcel";
 
-    // Option B: Quick way to test if it's working
-    console.log("Editing parcel:", parcel.tracking_number);
-    
-    // Example: Populating a form (adjust IDs to match your edit form)
-    // document.getElementById('edit-sender-name').value = parcel.sender_name;
-    // document.getElementById('edit-modal').classList.remove('hidden');
+    // 2. Fill Basic Details
+    document.getElementById('client_id').value = parcel.client_id || '';
+    document.getElementById('senderName').value = parcel.sender_name || '';
+    document.getElementById('senderPhone').value = parcel.sender_phone || '';
+    document.getElementById('origin').value = parcel.origin || '';
+    document.getElementById('receiverName').value = parcel.receiver_name || '';
+    document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
+    document.getElementById('destination').value = parcel.destination || '';
+
+    // 3. Fill Financials
+    document.getElementById('totalAmount').value = parcel.total_amount || 0;
+    document.getElementById('amountPaid').value = (parcel.total_amount - parcel.balance) || 0;
+    document.getElementById('balance').value = parcel.balance || 0;
+    document.getElementById('paymentStatus').value = parcel.payment_status || 'Unpaid';
+    document.getElementById('paymentType').value = parcel.payment_method || 'Cash';
+
+    // 4. Load Items into the consignment list
+    currentConsignment = [...parcel.items]; 
+    renderParcelList(); // This is your function that draws the items in the list
+
+    // 5. Show Modal
+    document.getElementById('parcel-modal').classList.remove('hidden');
 };
 /**
 
@@ -1360,39 +1379,51 @@ window.closeDetailsModal = function() {
         
             };
 
-    try {
-        const response = await fetch(`${API_URL}/api/parcels`, {
-            method: 'POST',
+try {
+        // Determine URL and Method based on mode
+        const url = isEditMode ? `${API_URL}/api/parcels/${editingId}` : `${API_URL}/api/parcels`;
+        const method = isEditMode ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(parcelData)
         });
 
         if (response.ok) {
-            const result = await response.json();
-            alert("Parcel added successfully with " + currentConsignment.length + " items!");
+            alert(isEditMode ? "Parcel updated successfully!" : "Parcel added successfully!");
             
-            // 3. Cleanup
-            currentConsignment = []; // Reset the local array
-            renderParcelList(); // Clear the UI list
+            // Cleanup
+            isEditMode = false;
+            editingId = null;
+            currentConsignment = [];
+            renderParcelList();
             document.getElementById('createParcelForm').reset();
             hideModal('parcel-modal');
             
-            // 4. Refresh Table
-            if (typeof fetchParcels === 'function') fetchParcels(); 
-
-            // OPTIONAL: Auto-open print waybill
-            // printWaybill(result._id); 
-            
+            // Refresh main table
+            fetchParcels(); 
         } else {
             const errorData = await response.json();
-            console.error("Server Error:", errorData);
-            alert("Error: " + (errorData.error || "Unknown server error"));
+            alert("Error: " + (errorData.error || "Unknown error"));
         }
     } catch (err) {
-        console.error("Network Error:", err);
-        alert("Error saving: Check your internet connection or server status.");
+        console.error("Error saving:", err);
     }
 });
+        function openNewParcelModal() {
+    isEditMode = false;
+    editingId = null;
+    currentConsignment = [];
+    
+    // Reset Titles
+    document.querySelector('#parcel-modal h3').innerText = "New Parcel Booking";
+    document.querySelector('#parcel-modal button[type="submit"]').innerText = "Add Parcel";
+    
+    document.getElementById('createParcelForm').reset();
+    renderParcelList();
+    document.getElementById('parcel-modal').classList.remove('hidden');
+}
         async function updateStatus(id, newStatus) {
     try {
         const response = await fetch(`${API_URL}/api/parcels/${id}/status`, {
