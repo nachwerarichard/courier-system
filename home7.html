@@ -831,6 +831,22 @@
         </form>
     </div>
 </div>
+
+                <div id="details-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-slate-800">Delivery Details</h3>
+            <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <div id="modal-content" class="p-6 space-y-4">
+            </div>
+        <div class="p-4 bg-slate-50 text-right">
+            <button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition-colors">Close</button>
+        </div>
+    </div>
+</div>
     <script>
         function showModal(id) {
     document.getElementById(id).classList.remove('hidden');
@@ -1111,8 +1127,9 @@ function renderTable(parcels) {
         return `
         <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
             <td class="p-4">
-                <div class="font-mono text-blue-600 font-bold">${p.tracking_number || 'N/A'}</div>
-                <div class="text-[10px] text-slate-400">
+<button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
+                    ${p.tracking_number || 'N/A'}
+                </button>                <div class="text-[10px] text-slate-400">
 ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'No Date'}                </div>
             </td>
             <td class="p-4">
@@ -1188,7 +1205,53 @@ document.addEventListener('click', () => {
     const allMenus = document.querySelectorAll('[id^="menu-"]');
     allMenus.forEach(menu => menu.classList.add('hidden'));
 });
+        // Function to open modal and show data
+window.showParcelDetails = function(id) {
+    const parcel = allParcels.find(p => p._id === id);
+    if (!parcel) return;
+
+    const modal = document.getElementById('details-modal');
+    const content = document.getElementById('modal-content');
+
+    content.innerHTML = `
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <p class="text-slate-400 text-xs uppercase font-bold">Sender</p>
+                <p class="font-semibold text-slate-700">${parcel.sender_name}</p>
+                <p class="text-slate-500">${parcel.sender_phone || 'No Phone'}</p>
+            </div>
+            <div>
+                <p class="text-slate-400 text-xs uppercase font-bold">Receiver</p>
+                <p class="font-semibold text-slate-700">${parcel.receiver_name}</p>
+                <p class="text-slate-500">${parcel.receiver_phone || 'No Phone'}</p>
+            </div>
+            <div class="col-span-2 pt-2 border-t border-slate-100">
+                <p class="text-slate-400 text-xs uppercase font-bold">Route</p>
+                <p class="text-slate-700 font-medium">${parcel.origin} <i class="fa-solid fa-arrow-right mx-2 text-slate-300"></i> ${parcel.destination}</p>
+            </div>
+            <div class="col-span-2 pt-2 border-t border-slate-100">
+                <p class="text-slate-400 text-xs uppercase font-bold mb-2">Items</p>
+                <ul class="space-y-1">
+                    ${parcel.items.map(item => `
+                        <li class="flex justify-between bg-slate-50 p-2 rounded">
+                            <span>${item.description}</span>
+                            <span class="font-mono font-bold">x${item.quantity || 1}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        </div>
+    `;
+
+    modal.classList.remove('hidden');
+};
+
+// Function to close modal
+window.closeDetailsModal = function() {
+    document.getElementById('details-modal').classList.add('hidden');
+};
 /**
+
  * CREATE: Submit Form to Backend
  */
 
