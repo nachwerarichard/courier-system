@@ -110,25 +110,32 @@
             <main class="flex-1 overflow-y-auto p-6 pb-24">
                 
                 <section id="dashboard-section">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                            <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total Today</p>
-                            <h3 id="stat-total" class="text-2xl font-black mt-1">0</h3>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
-                            <p class="text-green-600 text-xs font-bold uppercase tracking-wider">In Transit</p>
-                            <h3 id="stat-transit" class="text-2xl font-black mt-1">0</h3>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
-                            <p class="text-blue-600 text-xs font-bold uppercase tracking-wider">Pickup Ready</p>
-                            <h3 id="stat-pickup" class="text-2xl font-black mt-1">0</h3>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500">
-                            <p class="text-orange-500 text-xs font-bold uppercase tracking-wider">Delivered</p>
-                            <h3 id="stat-delivered" class="text-2xl font-black mt-1">0</h3>
-                        </div>
-                    </div>
+<div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+        <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total Today</p>
+        <h3 id="stat-total" class="text-2xl font-black mt-1">0</h3>
+    </div>
 
+    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
+        <p class="text-green-600 text-xs font-bold uppercase tracking-wider">In Transit</p>
+        <h3 id="stat-transit" class="text-2xl font-black mt-1">0</h3>
+    </div>
+
+    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
+        <p class="text-blue-600 text-xs font-bold uppercase tracking-wider">Pickup Ready</p>
+        <h3 id="stat-pickup" class="text-2xl font-black mt-1">0</h3>
+    </div>
+
+    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
+        <p class="text-purple-600 text-xs font-bold uppercase tracking-wider">Partially Received</p>
+        <h3 id="stat-partial" class="text-2xl font-black mt-1">0</h3>
+    </div>
+
+    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500">
+        <p class="text-orange-500 text-xs font-bold uppercase tracking-wider">Delivered</p>
+        <h3 id="stat-delivered" class="text-2xl font-black mt-1">0</h3>
+    </div>
+</div>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                         <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border p-6">
                             <h4 class="font-bold text-gray-700 mb-4">Financial Overview</h4>
@@ -2310,18 +2317,34 @@ window.handleReactivate = async function(id) {
         row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
 };
-        window.updateDashboardStats = function() {
-    // Total
-    document.getElementById('stat-total').innerText = allParcels.length;
+window.updateDashboardStats = function() {
+    // 1. Total Parcels
+    const totalElem = document.getElementById('stat-total');
+    if (totalElem) totalElem.innerText = allParcels.length;
 
-    // Delivered
+    // 2. In Transit
+    const transitCount = allParcels.filter(p => p.status === 'In Transit').length;
+    const transitElem = document.getElementById('stat-transit');
+    if (transitElem) transitElem.innerText = transitCount;
+
+    // 3. Pickup Ready (Ready for Pickup)
+    const pickupCount = allParcels.filter(p => p.status === 'Ready for Pickup').length;
+    const pickupElem = document.getElementById('stat-pickup');
+    if (pickupElem) pickupElem.innerText = pickupCount;
+
+    // 4. Partially Received
+    const partialCount = allParcels.filter(p => p.status === 'Partially received').length;
+    const partialElem = document.getElementById('stat-partial');
+    if (partialElem) partialElem.innerText = partialCount;
+
+    // 5. Delivered
     const deliveredCount = allParcels.filter(p => p.status === 'Delivered').length;
-    const deliveredElem = document.getElementById('stat-delivered'); // Assuming you have this ID
+    const deliveredElem = document.getElementById('stat-delivered');
     if (deliveredElem) deliveredElem.innerText = deliveredCount;
 
-    // Revenue (Total money collected)
+    // 6. Revenue (Total money collected)
     const totalRevenue = allParcels.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
-    const revenueElem = document.getElementById('stat-revenue'); // Assuming you have this ID
+    const revenueElem = document.getElementById('stat-revenue');
     if (revenueElem) revenueElem.innerText = `UGX ${totalRevenue.toLocaleString()}`;
 };
 
