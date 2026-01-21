@@ -330,16 +330,13 @@
             <h3 id="stat-total" class="text-2xl font-bold text-slate-800">0</h3>
         </div>
     </div>
-<div class="mb-4 relative max-w-md">
-    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
-    </div>
+<div class="mb-4">
     <input 
         type="text" 
         id="table-search" 
         onkeyup="filterTable()" 
         placeholder="Search by Tracking ID..." 
-        class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+        class="p-2 border rounded-lg w-full max-w-md"
     >
 </div>
 
@@ -1081,11 +1078,20 @@ async function fetchParcels() {
 
 // Function to handle the filtering logic
 function filterTable() {
-    const searchTerm = document.getElementById('table-search').value.toLowerCase();
+    const searchInput = document.getElementById('table-search');
+    if (!searchInput) return;
+
+    const searchTerm = searchInput.value.toLowerCase();
+    console.log("Searching for:", searchTerm); // DEBUG 1
+    console.log("Total parcels available:", allParcels.length); // DEBUG 2
     
     const filtered = allParcels.filter(p => {
+        // We use || '' to prevent errors if tracking_number is missing
         const trackingID = (p.tracking_number || '').toLowerCase();
-        return trackingID.includes(searchTerm);
+        const senderName = (p.sender_name || '').toLowerCase();
+        
+        // This checks if the ID OR the Sender Name matches
+        return trackingID.includes(searchTerm) || senderName.includes(searchTerm);
     });
 
     renderTable(filtered);
