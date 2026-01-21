@@ -1183,6 +1183,9 @@ ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.
                         <button onclick="addNewParcelForCustomer('${p.sender_name}', '${p.sender_phone}', '${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
                             <i class="fa-solid fa-plus text-blue-600 w-4"></i> Add Item
                         </button>
+                        <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
+                           <i class="fa-solid fa-pen-to-square text-orange-500 w-4"></i> Edit Details
+                        </button>
                         <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
                             <i class="fa-solid fa-trash-can w-4"></i> Delete 
                         </button>
@@ -1302,6 +1305,24 @@ window.showParcelDetails = function(id) {
 // Function to close modal
 window.closeDetailsModal = function() {
     document.getElementById('details-modal').classList.add('hidden');
+};
+        window.editParcel = function(id) {
+    const parcel = allParcels.find(p => p._id === id);
+    if (!parcel) return;
+
+    // Close the action menu first
+    const menu = document.getElementById(`menu-${id}`);
+    if (menu) menu.classList.add('hidden');
+
+    // Option A: If you have a separate Edit Modal
+    // openEditModal(parcel); 
+
+    // Option B: Quick way to test if it's working
+    console.log("Editing parcel:", parcel.tracking_number);
+    
+    // Example: Populating a form (adjust IDs to match your edit form)
+    // document.getElementById('edit-sender-name').value = parcel.sender_name;
+    // document.getElementById('edit-modal').classList.remove('hidden');
 };
 /**
 
