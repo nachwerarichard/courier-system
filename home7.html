@@ -1247,9 +1247,11 @@ window.showParcelDetails = function(id) {
                                 <p class="font-medium text-slate-700">${item.description}</p>
                                 <p class="text-[10px] text-slate-500">Qty: ${item.quantity || 1}</p>
                                 <p class="text-[10px] text-slate-500">Rate: ${item.rate || 1}</p>
+                                <p class="text-[10px] text-slate-500">Rate: ${item.weight || 1}</p>
+                                <p class="text-[10px] text-slate-500">Rate: ${item.volume || 0}</p>
                             </div>
                             <div class="text-right">
-                                <p class="font-mono text-slate-600 text-xs"> Total: UGX ${(item.subtotal|| 0).toLocaleString()}</p>
+                                <p class="font-mono text-slate-600 text-xs"> Subtotal: UGX ${(item.subtotal|| 0).toLocaleString()}</p>
                             </div>
                         </div>
                     `).join('')}
