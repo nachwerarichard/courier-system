@@ -1266,10 +1266,12 @@ async function deleteParcel(id) {
  */
 function calculateParcelPrice() {
     const q = document.getElementById('temp_qty').value || 1;
-    const w = document.getElementById('weight').value || 1;
+    const w = document.getElementById('temp_weight').value || 1;
     const v = document.getElementById('volume').value || 1;
+    const r = document.getElementById('temp_rate').value || 1;
+
     // Calculation: Qty * Weight * Volume * Rate
-    const total = q * w * v * SHIPPING_RATE;
+    const total = q * w * v * r;
     document.getElementById('price').value = Math.round(total);
 }
 
