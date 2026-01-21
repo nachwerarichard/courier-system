@@ -535,9 +535,9 @@
 
         <div class="flex justify-between items-center p-4 border-b">
             <h3 class="font-bold text-slate-700">Parcel & Payment Report</h3>
-            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
-                <i class="fa-solid fa-file-export"></i> Export
-            </button>
+            <button onclick="exportReportToCSV()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-transform active:scale-95">
+    <i class="fa-solid fa-file-export"></i> Export to CSV
+</button>
         </div>
 
         <table class="w-full text-left">
@@ -2535,6 +2535,48 @@ async function generateReport() {
 ['reportFrom', 'reportTo', 'reportStation', 'reportStatus'].forEach(id => {
     document.getElementById(id).addEventListener('change', generateReport);
 });
+                    function exportReportToCSV() {
+    const table = document.getElementById('reports-table-body');
+    const rows = table.querySelectorAll('tr');
+    
+    if (rows.length === 0 || (rows.length === 1 && rows[0].innerText.includes("No records"))) {
+        alert("No data available to export.");
+        return;
+    }
+
+    // 1. Define CSV Headers
+    let csvContent = "Tracking #,Sender,Receiver,Origin,Destination,Status,Total Amount,Amount Paid,Balance,Date\n";
+
+    // 2. Loop through table rows to get data
+    rows.forEach(row => {
+        const cols = row.querySelectorAll('td');
+        const rowData = Array.from(cols).map(col => {
+            // Clean the text: remove commas (to avoid breaking CSV) and extra spaces
+            let text = col.innerText.replace(/,/g, '').replace(/\n/g, ' ').trim();
+            // Specifically for the route column, we split Origin and Destination
+            if (text.includes('→')) {
+                return text.split('→').map(s => s.trim()).join(',');
+            }
+            return text;
+        });
+        csvContent += rowData.join(",") + "\n";
+    });
+
+    // 3. Create a download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    // Create a filename with today's date
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Parcel_Report_${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 </script>
 
 </body>
