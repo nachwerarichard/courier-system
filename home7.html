@@ -850,7 +850,7 @@
         <div id="modal-content" class="p-8">
          </div>
     </div>
-</div>
+
 </div>
     <script>
         function showModal(id) {
@@ -1223,15 +1223,14 @@ window.showParcelDetails = function(id) {
     const modal = document.getElementById('details-modal');
     const content = document.getElementById('modal-content');
 
+    // We generate the entire content including the footer buttons
     content.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
             <div class="space-y-6">
                 <div>
                     <p class="text-blue-600 text-[10px] uppercase font-black mb-2 tracking-widest">Tracking Number</p>
                     <p class="text-xl font-mono font-bold text-slate-800">${parcel.tracking_number}</p>
                 </div>
-
                 <div class="grid grid-cols-1 gap-4">
                     <div>
                         <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Sender</p>
@@ -1244,7 +1243,6 @@ window.showParcelDetails = function(id) {
                         <p class="text-slate-500 text-xs">${parcel.receiver_phone || 'No Phone'}</p>
                     </div>
                 </div>
-
                 <div class="pt-4 border-t border-slate-100">
                     <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Route</p>
                     <p class="text-slate-700 font-medium text-sm">
@@ -1260,12 +1258,9 @@ window.showParcelDetails = function(id) {
                         <div class="flex justify-between items-start bg-slate-50 p-3 rounded-lg border border-slate-100">
                             <div>
                                 <p class="font-bold text-slate-700 text-sm">${item.description}</p>
-                                <p class="text-[10px] text-slate-500 uppercase">Quantity: ${item.quantity || 1}</p>
-                                <p class="text-[10px] text-slate-500 uppercase">Rate: ${item.rate || 0}</p>
-                                <p class="text-[10px] text-slate-500 uppercase">Weight: ${item.weight || 0}</p>
-                                <p class="text-[10px] text-slate-500 uppercase">Volume: ${item.volume || 0}</p>
+                                <p class="text-[10px] text-slate-500 uppercase">Qty: ${item.quantity || 1} | Wt: ${item.weight || 0}kg</p>
                             </div>
-                            <p class="text-right font-mono text-blue-600 text-xs font-bold">Subtotal: UGX ${(item.subtotal || 0).toLocaleString()}</p>
+                            <p class="text-right font-mono text-blue-600 text-xs font-bold">UGX ${(item.subtotal || 0).toLocaleString()}</p>
                         </div>
                     `).join('')}
                 </div>
@@ -1276,7 +1271,7 @@ window.showParcelDetails = function(id) {
                     <p class="text-slate-400 text-[10px] uppercase font-bold mb-4">Payment Summary</p>
                     <div class="space-y-3">
                         <div class="flex justify-between text-sm">
-                            <span class="text-slate-500">Total  Amount</span>
+                            <span class="text-slate-500">Total Amount</span>
                             <span class="font-semibold text-slate-800">UGX ${(parcel.total_amount || 0).toLocaleString()}</span>
                         </div>
                         <div class="flex justify-between text-sm">
@@ -1297,6 +1292,32 @@ window.showParcelDetails = function(id) {
                         ${parcel.status}
                     </p>
                 </div>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+            <div>
+                <button onclick="deleteParcel('${parcel._id}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-trash-can"></i> Delete
+                </button>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="updateStatus('${parcel._id}', 'Delivered')" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-medium hover:bg-black transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-truck-fast"></i> Deliver
+                </button>
+
+                <button onclick="openPaymentModal('${parcel._id}')" class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-money-bill-wave"></i> Add Payment
+                </button>
+
+                <button onclick="addNewParcelForCustomer('${parcel.sender_name}', '${parcel.sender_phone}', '${parcel._id}')" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Add Item
+                </button>
+
+                <button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300">
+                    Close
+                </button>
             </div>
         </div>
     `;
