@@ -2126,7 +2126,8 @@ document.getElementById('addItemForm').addEventListener('submit', async (e) => {
     });
     
     hideModal('item-modal');
-    fetchParcels();
+    await fetchParcels(); // Refresh global list
+    showParcelDetails(parcelId); // Instant refresh of the modal UI
 });
 
 // SUBMIT PAYMENT ONLY
@@ -2146,7 +2147,8 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
     });
     
     hideModal('payment-modal');
-    fetchParcels();
+    await fetchParcels(); // Refresh global list
+    showParcelDetails(parcelId); // Instant refresh of the modal UI
 });
 
         window.confirmDelivery = async function(id) {
@@ -2161,6 +2163,8 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
         // Close the modal and refresh the data
         closeDetailsModal();
         alert("Parcel successfully marked as Delivered.");
+        await fetchParcels(); // Refresh global list
+        showParcelDetails(parcelId); // Instant refresh of the modal UI
         
     } catch (err) {
         console.error("Delivery Update Error:", err);
