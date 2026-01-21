@@ -2107,49 +2107,96 @@ async function openPaymentModal(id) {
 // SUBMIT ITEM ONLY
 document.getElementById('addItemForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    const form = e.target;
     const id = document.getElementById('target_waybill_id').value;
+    
+    // 1. Calculate the subtotal locally for the payload
+    const qty = Number(document.getElementById('mini_qty').value);
+    const rate = Number(document.getElementById('mini_rate').value);
     
     const newItem = {
         description: document.getElementById('mini_desc').value,
-        quantity: Number(document.getElementById('mini_qty').value),
+        quantity: qty,
         weight: Number(document.getElementById('mini_weight').value),
-        rate: Number(document.getElementById('mini_rate').value),
-        subtotal: Number(document.getElementById('mini_qty').value) * Number(document.getElementById('mini_rate').value)
+        rate: rate,
+        subtotal: qty * rate
     };
 
-    // We use a special "PUSH" endpoint or handle it in your PUT route
-    await fetch(`${API_URL}/api/parcels/${id}/add-item`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newItem)
-    });
-    
-    hideModal('item-modal');
-    await fetchParcels(); // Refresh global list
-    showParcelDetails(parcelId); // Instant refresh of the modal UI
+    try {
+        const response = await fetch(`${API_URL}/api/parcels/${id}/add-item`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newItem)
+        });
+
+        if (response.ok) {
+            // 2. Clear the form fields immediately
+            form.reset();
+            
+            // 3. Close the "Add Item" small modal
+            hideModal('item-modal');
+            
+            // 4. Refresh the global data array (allParcels) 
+            // This is vital so the balance/total amounts are updated from the server
+            await fetchParcels(); 
+            
+            // 5. Re-render the "Delivery Details" modal instantly using the correct ID variable
+            showParcelDetails(id); 
+
+        } else {
+            const error = await response.json();
+            alert("Failed to add item: " + (error.error || "Unknown error"));
+        }
+    } catch (err) {
+        console.error("Item Addition Error:", err);
+        alert("Network error. Please try again.");
+    }
 });
 
 // SUBMIT PAYMENT ONLY
 document.getElementById('miniPaymentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // 1. Get the ID from the hidden input
     const id = document.getElementById('pay_waybill_id').value;
+    const form = e.target; // Reference to the form
     
     const paymentData = {
         amount_paid: Number(document.getElementById('mini_pay_amount').value),
         payment_method: document.getElementById('mini_pay_method').value
     };
 
-    await fetch(`${API_URL}/api/parcels/${id}/add-payment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(paymentData)
-    });
-    
-    hideModal('payment-modal');
-    await fetchParcels(); // Refresh global list
-    showParcelDetails(parcelId); // Instant refresh of the modal UI
-});
+    try {
+        const response = await fetch(`${API_URL}/api/parcels/${id}/add-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(paymentData)
+        });
 
+        if (response.ok) {
+            // 2. Clear the form fields immediately
+            form.reset();
+            
+            // 3. Close the payment entry modal
+            hideModal('payment-modal');
+            
+            // 4. Refresh the global data array (allParcels)
+            await fetchParcels(); 
+            
+            // 5. Re-render the "Delivery Details" modal instantly 
+            // Note: Use 'id' here to match your variable above
+            showParcelDetails(id); 
+
+        } else {
+            const error = await response.json();
+            alert("Payment failed: " + error.error);
+        }
+    } catch (err) {
+        console.error("Payment Error:", err);
+        alert("Network error. Please try again.");
+    }
+});
         window.confirmDelivery = async function(id) {
     if (!confirm("Are you sure you want to mark this parcel as DELIVERED? This action will update the status for the customer.")) {
         return;
