@@ -1254,7 +1254,7 @@ window.showParcelDetails = function(id) {
                                 <p class="text-[10px] text-slate-500 uppercase">Weight: ${item.weight || 0}</p>
                                 <p class="text-[10px] text-slate-500 uppercase">Volume: ${item.volume || 0}</p>
                             </div>
-                            <p class="font-mono text-blue-600 text-xs font-bold">Subtotal: UGX ${(item.subtotal || 0).toLocaleString()}</p>
+                            <p class="text-right font-mono text-blue-600 text-xs font-bold">Subtotal: UGX ${(item.subtotal || 0).toLocaleString()}</p>
                         </div>
                     `).join('')}
                 </div>
@@ -1265,7 +1265,7 @@ window.showParcelDetails = function(id) {
                     <p class="text-slate-400 text-[10px] uppercase font-bold mb-4">Payment Summary</p>
                     <div class="space-y-3">
                         <div class="flex justify-between text-sm">
-                            <span class="text-slate-500">Subtotal</span>
+                            <span class="text-slate-500">Total  Amount</span>
                             <span class="font-semibold text-slate-800">UGX ${(parcel.total_amount || 0).toLocaleString()}</span>
                         </div>
                         <div class="flex justify-between text-sm">
