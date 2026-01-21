@@ -849,9 +849,27 @@
         </div>
         <div id="modal-content" class="p-6">
             </div>
-        <div class="p-4 bg-slate-50 text-right">
-            <button onclick="closeDetailsModal()" class="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition-colors">Close</button>
-        </div>
+        <div class="p-4 bg-slate-50 flex justify-between items-center border-t border-slate-100">
+    <div>
+        <button onclick="deleteParcel('${parcel._id}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-trash-can"></i> Delete
+        </button>
+    </div>
+
+    <div class="flex gap-3">
+        <button onclick="closeDetailsModal()" class="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition-colors">
+            Close
+        </button>
+        
+        <button onclick="openPaymentModal('${parcel._id}')" class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-money-bill-wave"></i> Add Payment
+        </button>
+
+        <button onclick="addNewParcelForCustomer('${parcel.sender_name}', '${parcel.sender_phone}', '${parcel._id}')" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> Add Item
+        </button>
+    </div>
+</div>
     </div>
 </div>
     <script>
