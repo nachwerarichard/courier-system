@@ -2151,6 +2151,25 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
     hideModal('payment-modal');
     fetchParcels();
 });
+
+        window.confirmDelivery = async function(id) {
+    if (!confirm("Are you sure you want to mark this parcel as DELIVERED? This action will update the status for the customer.")) {
+        return;
+    }
+
+    try {
+        // We use the updateStatus function you already have
+        await updateStatus(id, 'Delivered');
+        
+        // Close the modal and refresh the data
+        closeDetailsModal();
+        alert("Parcel successfully marked as Delivered.");
+        
+    } catch (err) {
+        console.error("Delivery Update Error:", err);
+        alert("Failed to update delivery status.");
+    }
+};
 </script>
 
 </body>
