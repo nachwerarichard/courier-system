@@ -832,18 +832,18 @@
     </div>
 </div>
 
-                <div id="details-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div id="details-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-            <h3 class="text-lg font-bold text-slate-800">Delivery Details</h3>
+            <h3 class="text-lg font-bold text-slate-800">Delivery Waybill Details</h3>
             <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
         </div>
-        <div id="modal-content" class="p-6 space-y-4">
+        <div id="modal-content" class="p-6">
             </div>
         <div class="p-4 bg-slate-50 text-right">
-            <button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition-colors">Close</button>
+            <button onclick="closeDetailsModal()" class="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition-colors">Close</button>
         </div>
     </div>
 </div>
@@ -1205,7 +1205,6 @@ document.addEventListener('click', () => {
     const allMenus = document.querySelectorAll('[id^="menu-"]');
     allMenus.forEach(menu => menu.classList.add('hidden'));
 });
-        // Function to open modal and show data
 window.showParcelDetails = function(id) {
     const parcel = allParcels.find(p => p._id === id);
     if (!parcel) return;
@@ -1214,62 +1213,78 @@ window.showParcelDetails = function(id) {
     const content = document.getElementById('modal-content');
 
     content.innerHTML = `
-        <div class="grid grid-cols-2 gap-4 text-sm">
-            <div>
-                <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Sender</p>
-                <p class="font-semibold text-slate-700">${parcel.sender_name}</p>
-                <p class="text-slate-500 text-xs">${parcel.sender_phone || 'No Phone'}</p>
-            </div>
-            <div>
-                <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Receiver</p>
-                <p class="font-semibold text-slate-700">${parcel.receiver_name}</p>
-                <p class="text-slate-500 text-xs">${parcel.receiver_phone || 'No Phone'}</p>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <div class="space-y-6">
+                <div>
+                    <p class="text-blue-600 text-[10px] uppercase font-black mb-2 tracking-widest">Tracking Number</p>
+                    <p class="text-xl font-mono font-bold text-slate-800">${parcel.tracking_number}</p>
+                </div>
 
-            <div class="col-span-2 pt-3 border-t border-slate-100">
-                <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Route & Status</p>
-                <div class="flex justify-between items-center">
-                    <p class="text-slate-700 font-medium">
-                        ${parcel.origin} <i class="fa-solid fa-arrow-right mx-2 text-slate-300 text-xs"></i> ${parcel.destination}
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Sender</p>
+                        <p class="font-semibold text-slate-700">${parcel.sender_name}</p>
+                        <p class="text-slate-500 text-xs">${parcel.sender_phone || 'No Phone'}</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Receiver</p>
+                        <p class="font-semibold text-slate-700">${parcel.receiver_name}</p>
+                        <p class="text-slate-500 text-xs">${parcel.receiver_phone || 'No Phone'}</p>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100">
+                    <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Route</p>
+                    <p class="text-slate-700 font-medium text-sm">
+                        ${parcel.origin} <i class="fa-solid fa-arrow-right mx-1 text-slate-300"></i> ${parcel.destination}
                     </p>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${getStatusStyle(parcel.status)}">
-                        ${parcel.status}
-                    </span>
                 </div>
             </div>
 
-            <div class="col-span-2 pt-3 border-t border-slate-100">
-                <p class="text-slate-400 text-[10px] uppercase font-bold mb-2">Item Breakdown</p>
-                <div class="space-y-2">
+            <div class="border-x border-slate-100 px-6">
+                <p class="text-slate-400 text-[10px] uppercase font-bold mb-4">Package Contents</p>
+                <div class="space-y-3 max-h-[300px] overflow-y-auto pr-2">
                     ${parcel.items.map(item => `
-                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-100">
+                        <div class="flex justify-between items-start bg-slate-50 p-3 rounded-lg border border-slate-100">
                             <div>
-                                <p class="font-medium text-slate-700">${item.description}</p>
-                                <p class="text-[10px] text-slate-500">Qty: ${item.quantity || 1}</p>
-                                <p class="text-[10px] text-slate-500">Rate: ${item.rate || 1}</p>
-                                <p class="text-[10px] text-slate-500">Weight: ${item.weight || 0}</p>
-                                <p class="text-[10px] text-slate-500">Volume: ${item.volume || 0}</p>
+                                <p class="font-bold text-slate-700 text-sm">${item.description}</p>
+                                <p class="text-[10px] text-slate-500 uppercase">Quantity: ${item.quantity || 1}</p>
+                                <p class="text-[10px] text-slate-500 uppercase">Rate: ${rate.rate || 0}</p>
+                                <p class="text-[10px] text-slate-500 uppercase">Weight: ${item.weight || 0}</p>
+                                <p class="text-[10px] text-slate-500 uppercase">Volume: ${item.volume || 0}</p>
                             </div>
-                            <div class="text-right">
-                                <p class="font-mono text-slate-600 text-xs"> Subtotal: UGX ${(item.subtotal|| 0).toLocaleString()}</p>
-                            </div>
+                            <p class="font-mono text-blue-600 text-xs font-bold">Subtotal: UGX ${(item.subtotal || 0).toLocaleString()}</p>
                         </div>
                     `).join('')}
                 </div>
             </div>
 
-            <div class="col-span-2 mt-2 p-4 bg-blue-50 rounded-xl border border-blue-100 space-y-2">
-                <div class="flex justify-between text-slate-600">
-                    <span>Total Cost:</span>
-                    <span class="font-bold text-slate-800">UGX ${(parcel.total_amount || 0).toLocaleString()}</span>
+            <div class="flex flex-col justify-between">
+                <div>
+                    <p class="text-slate-400 text-[10px] uppercase font-bold mb-4">Payment Summary</p>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-500">Subtotal</span>
+                            <span class="font-semibold text-slate-800">UGX ${(parcel.total_amount || 0).toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-500">Amount Paid</span>
+                            <span class="font-semibold text-green-600">UGX ${((parcel.total_amount || 0) - (parcel.balance || 0)).toLocaleString()}</span>
+                        </div>
+                        <div class="pt-3 border-t border-slate-200 flex justify-between">
+                            <span class="font-bold text-slate-800">Balance Due</span>
+                            <span class="font-black text-red-600 text-lg">UGX ${(parcel.balance || 0).toLocaleString()}</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-between text-slate-600 text-xs">
-                    <span>Amount Paid:</span>
-                    <span class="text-green-600 font-medium"> UGX ${((parcel.total_amount || 0) - (parcel.balance || 0)).toLocaleString()}</span>
-                </div>
-                <div class="flex justify-between pt-2 border-t border-blue-200">
-                    <span class="font-bold text-blue-800">Remaining Balance:</span>
-                    <span class="font-black text-blue-900">UGX ${(parcel.balance || 0).toLocaleString()}</span>
+
+                <div class="mt-8 p-4 bg-slate-900 rounded-xl text-white">
+                    <p class="text-[10px] uppercase opacity-60 font-bold mb-1">Current Status</p>
+                    <p class="text-sm font-bold flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+                        ${parcel.status}
+                    </p>
                 </div>
             </div>
         </div>
