@@ -1106,6 +1106,7 @@ async function fetchParcels() {
         if (statTotal) statTotal.innerText = allParcels.length;
 
         renderTable(allParcels);
+        renderPaymentsTable();
     } catch (err) {
         console.error("Fetch error:", err);
     }
@@ -2282,6 +2283,56 @@ window.handleReactivate = async function(id) {
             fetchUsers(); // Refresh your table
         }
     } catch (err) { console.error(err); }
+};
+
+        window.renderPaymentsTable = function() {
+    const tableBody = document.getElementById('payments-table-body');
+    if (!tableBody) return;
+
+    // Use the global allParcels array (which you populate via fetchParcels)
+    tableBody.innerHTML = allParcels.map(p => {
+        // Calculate status color
+        let statusClass = "";
+        if (p.payment_status === 'Paid') statusClass = "bg-green-100 text-green-700";
+        else if (p.payment_status === 'Partial') statusClass = "bg-orange-100 text-orange-700";
+        else statusClass = "bg-red-100 text-red-700";
+
+        return `
+            <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                <td class="p-4 text-xs font-mono font-bold text-slate-600">
+                    PAY-${p._id.substring(p._id.length - 6).toUpperCase()}
+                </td>
+                <td class="p-4 text-xs font-medium text-blue-600">
+                    ${p.tracking_number}
+                </td>
+                <td class="p-4">
+                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${statusClass}">
+                        ${p.payment_status}
+                    </span>
+                </td>
+                <td class="p-4 text-xs text-slate-600">${p.payment_method}</td>
+                <td class="p-4 text-xs font-bold text-slate-800">
+                    UGX ${(p.total_amount || 0).toLocaleString()}
+                </td>
+                <td class="p-4 text-xs font-bold text-green-600">
+                    UGX ${(p.amount_paid || (p.total_amount - p.balance)).toLocaleString()}
+                </td>
+                <td class="p-4 text-xs font-bold text-red-600">
+                    UGX ${(p.balance || 0).toLocaleString()}
+                </td>
+                <td class="p-4 text-xs text-slate-600">
+                    ${p.receiver_name} </td>
+                <td class="p-4 text-xs text-slate-500">
+                    ${new Date(p.created_at).toLocaleDateString()}
+                </td>
+                <td class="p-4 text-right">
+                    <button onclick="showParcelDetails('${p._id}')" class="text-blue-600 hover:text-blue-800 text-xs font-bold">
+                        <i class="fa-solid fa-eye mr-1"></i> View
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 };
 </script>
 
