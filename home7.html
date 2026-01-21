@@ -586,9 +586,9 @@
                             <i class="fa-solid fa-circle-user"></i> Sender Details
                         </label>
                         <input type="hidden" id="client_id">
-                        <input list="senderList" id="senderName" placeholder="Search Name..." class="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                        <datalist id="senderList"></datalist>
-                        <input type="text" id="senderPhone" placeholder="Phone" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                        <input type="hidden" id="sender_client_id">
+                        <input list="senderList" id="senderName" placeholder="Search Name or Phone..." ...>
+                        <input type="text" id="senderPhone" placeholder="Phone Number" class="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                         <select id="origin" class="w-full border border-slate-200 p-3 rounded-lg text-sm outline-none">
                             <option value="">Origin Station</option>
                             <option value="Kampala">Kampala</option>
@@ -600,9 +600,10 @@
                         <label class="text-[10px] font-bold text-orange-600 uppercase tracking-widest flex items-center gap-2">
                             <i class="fa-solid fa-truck-ramp-box"></i> Receiver Details
                         </label>
-                        <input list="receiverList" id="receiverName" placeholder="Search Name..." class="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
-                        <datalist id="receiverList"></datalist>
-                        <input type="text" id="receiverPhone" placeholder="Phone" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                        <input type="hidden" id="receiver_client_id">
+
+<input list="receiverList" id="receiverName" placeholder="Search Name or Phone..." ...>
+<input type="text" id="receiverPhone" placeholder="Phone Number" class="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
                         <select id="destination" class="w-full border border-slate-200 p-3 rounded-lg text-sm outline-none">
                             <option value="">Destination Station</option>
                             <option value="Kampala">Kampala</option>
@@ -1397,41 +1398,80 @@ window.editParcel = function(id) {
 
  * CREATE: Submit Form to Backend
  */
-
-        document.getElementById('createParcelForm').addEventListener('submit', async (e) => {
+document.getElementById('createParcelForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // 1. Validation: Ensure there is at least one item in the list
+    // 1. Validation: Ensure there is at least one item
     if (currentConsignment.length === 0) {
         alert("Please add at least one parcel item to the list before saving.");
         return;
     }
 
-    // 2. Structure the data for a "Consignment" (Group of Parcels)
-    const parcelData = {
-        client_id: document.getElementById('client_id').value,
-        sender_name: document.getElementById('senderName').value,
-        sender_phone: document.getElementById('senderPhone').value,
-        origin: document.getElementById('origin').value,
-        receiver_name: document.getElementById('receiverName').value,
-        receiver_phone: document.getElementById('receiverPhone').value,
-        destination: document.getElementById('destination').value,
-
-        recorded_by: localStorage.getItem('userName') || 'Unknown Clerk',
-        // The list of all separate items for the same receipt
-        items: currentConsignment, 
+    try {
+        // --- NEW CUSTOMER AUTO-SAVE LOGIC ---
         
-        // Summary Financials
-        total_amount: Number(document.getElementById('totalAmount').value),
-        amount_paid: Number(document.getElementById('amountPaid').value),
-        balance: Number(document.getElementById('balance').value),
-        payment_status: document.getElementById('paymentStatus').value,
-        payment_method: document.getElementById('paymentType').value,
-        
-            };
+        // Prepare Customer Objects for Upsert
+        const senderPayload = {
+            full_name: document.getElementById('senderName').value,
+            phone: document.getElementById('senderPhone').value,
+            station: document.getElementById('origin').value
+        };
 
-try {
-        // Determine URL and Method based on mode
+        const receiverPayload = {
+            full_name: document.getElementById('receiverName').value,
+            phone: document.getElementById('receiverPhone').value,
+            station: document.getElementById('destination').value
+        };
+
+        // We use Promise.all to save/update both customers simultaneously
+        const [senderRes, receiverRes] = await Promise.all([
+            fetch(`${API_URL}/api/customers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(senderPayload)
+            }),
+            fetch(`${API_URL}/api/customers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(receiverPayload)
+            })
+        ]);
+
+        const senderData = await senderRes.json();
+        const receiverData = await receiverRes.json();
+
+        // Check if customers were saved correctly
+        if (!senderData._id || !receiverData._id) {
+            throw new Error("Failed to register customer details.");
+        }
+
+        // --- END CUSTOMER LOGIC ---
+
+        // 2. Structure the data for the Parcel
+        const parcelData = {
+            // Use the IDs returned from the Customer save
+            sender_id: senderData._id,
+            receiver_id: receiverData._id,
+            
+            sender_name: senderData.full_name,
+            sender_phone: senderData.phone,
+            origin: senderData.station,
+            
+            receiver_name: receiverData.full_name,
+            receiver_phone: receiverData.phone,
+            destination: receiverData.station,
+
+            recorded_by: localStorage.getItem('userName') || 'Unknown Clerk',
+            items: currentConsignment, 
+            
+            total_amount: Number(document.getElementById('totalAmount').value),
+            amount_paid: Number(document.getElementById('amountPaid').value),
+            balance: Number(document.getElementById('balance').value),
+            payment_status: document.getElementById('paymentStatus').value,
+            payment_method: document.getElementById('paymentType').value,
+        };
+
+        // 3. Determine URL and Method based on mode
         const url = isEditMode ? `${API_URL}/api/parcels/${editingId}` : `${API_URL}/api/parcels`;
         const method = isEditMode ? 'PUT' : 'POST';
 
@@ -1449,17 +1489,24 @@ try {
             editingId = null;
             currentConsignment = [];
             renderParcelList();
+            
+            // Reset IDs
+            document.getElementById('sender_client_id').value = "";
+            document.getElementById('receiver_client_id').value = "";
+            
             document.getElementById('createParcelForm').reset();
             hideModal('parcel-modal');
             
-            // Refresh main table
+            // Refresh main table & search options
             fetchParcels(); 
+            loadFormOptions(); // Refreshes datalists with the new customers
         } else {
             const errorData = await response.json();
             alert("Error: " + (errorData.error || "Unknown error"));
         }
     } catch (err) {
         console.error("Error saving:", err);
+        alert("An error occurred: " + err.message);
     }
 });
         function openNewParcelModal() {
@@ -1528,8 +1575,12 @@ async function deleteParcel(id) {
 function calculateParcelPrice() {
     const q = document.getElementById('temp_qty').value || 1;
     const w = document.getElementById('temp_weight').value || 1;
-    const v = document.getElementById('volume').value || 1;
+    const l = document.getElementById('length').value || 1;
+    const w = document.getElementById('width').value || 1;
+    const h = document.getElementById('height').value || 1;
     const r = document.getElementById('temp_rate').value || 1;
+    const v= l *w*h;
+    document.getElementById('volume').value = Math.round(v);
 
     // Calculation: Qty * Weight * Volume * Rate
     const total = q * w * v * r;
@@ -1629,7 +1680,7 @@ function hideModal(modalId) {
 }
         
 
-  async function loadFormOptions() {
+async function loadFormOptions() {
     try {
         const response = await fetch(`${API_URL}/api/customers`);
         const customers = await response.json();
@@ -1641,66 +1692,108 @@ function hideModal(modalId) {
         receiverList.innerHTML = "";
 
         customers.forEach(person => {
-    // Create for Sender List
-    const optSender = document.createElement('option');
-    optSender.value = person.full_name;
-    optSender.dataset.phone = person.phone;
-    optSender.dataset.id = person._id;
-    optSender.dataset.station = person.station;
-    senderList.appendChild(optSender);
+            // Include phone in the value so the user can search by either
+            const entryValue = `${person.full_name} (${person.phone})`;
+            
+            const opt = document.createElement('option');
+            opt.value = entryValue; 
+            opt.dataset.name = person.full_name;
+            opt.dataset.phone = person.phone;
+            opt.dataset.id = person._id;
+            opt.dataset.station = person.station;
 
-    // Create for Receiver List (New instance)
-    const optReceiver = document.createElement('option');
-    optReceiver.value = person.full_name;
-    optReceiver.dataset.phone = person.phone;
-    optReceiver.dataset.id = person._id;
-    optReceiver.dataset.station = person.station;
-    receiverList.appendChild(optReceiver);
-});
-    } catch (err) {
-        console.error("Fetch failed:", err);
-    }
+            senderList.appendChild(opt.cloneNode(true));
+            receiverList.appendChild(opt);
+        });
+    } catch (err) { console.error(err); }
 }
-// --- SENDER SELECTION ---
-document.getElementById('senderName').addEventListener('input', function(e) {
-    const val = e.target.value;
-    const options = document.querySelectorAll('#senderList option');
-    
-    // Clear fields if input is cleared
-    if (val === "") {
-        document.getElementById('senderPhone').value = "";
-        document.getElementById('client_id').value = "";
-        document.getElementById('origin').value = "";
-        return;
-    }
-
-    options.forEach(opt => {
-        if (opt.value === val) {
-            document.getElementById('senderPhone').value = opt.dataset.phone || "";
-            document.getElementById('client_id').value = opt.dataset.id || "";
-            document.getElementById('origin').value = opt.dataset.station || "";
-        }
-    });
-});
-
 // --- RECEIVER SELECTION ---
 document.getElementById('receiverName').addEventListener('input', function(e) {
     const val = e.target.value;
     const options = document.querySelectorAll('#receiverList option');
+    let matchFound = false;
+
+    options.forEach(opt => {
+        if (opt.value === val) {
+            matchFound = true;
+            // 1. Update the display name (remove the phone number from the input)
+            e.target.value = opt.dataset.name; 
+            
+            // 2. Auto-fill the other fields
+            document.getElementById('receiverPhone').value = opt.dataset.phone || "";
+            document.getElementById('destination').value = opt.dataset.station || "";
+            
+            // Note: If you want to track the receiver's database ID too, 
+            // you might need a hidden 'receiver_client_id' input
+            // document.getElementById('receiver_client_id').value = opt.dataset.id;
+        }
+    });
+
+    // 3. Logic for Manual Typing:
+    // If the user starts typing something that isn't a match, 
+    // we keep the manual text but ensure any previous ID is cleared.
+    if (!matchFound && val.length > 0) {
+        // Clear hidden ID if you are using one for receivers
+        // document.getElementById('receiver_client_id').value = "";
+    }
+});
+// Update the Selection Listener
+document.getElementById('senderName').addEventListener('input', function(e) {
+    const val = e.target.value;
+    const options = document.querySelectorAll('#senderList option');
     
     options.forEach(opt => {
         if (opt.value === val) {
-            // Safety checks using optional chaining or simple if-statements
-            const phoneEl = document.getElementById('receiverPhone');
-            const destEl = document.getElementById('destination');
-            const clientEl = document.getElementById('client_id');
-
-            if (phoneEl) phoneEl.value = opt.dataset.phone || "";
-            if (destEl) destEl.value = opt.dataset.station || "";
-            if (clientEl) clientEl.value = opt.dataset.id || "";
+            // When an option is picked, extract the clean data
+            e.target.value = opt.dataset.name; // Reset input to just the name
+            document.getElementById('senderPhone').value = opt.dataset.phone;
+            document.getElementById('client_id').value = opt.dataset.id;
+            document.getElementById('origin').value = opt.dataset.station;
         }
     });
 });
+
+        // Search by typing directly into the Phone field (Receiver)
+document.getElementById('receiverPhone').addEventListener('input', function(e) {
+    const phoneVal = e.target.value;
+    const options = document.querySelectorAll('#receiverList option');
+    
+    // Optional: Only start searching if phone length is at least 10 (standard for UGX)
+    if (phoneVal.length < 10) return;
+
+    options.forEach(opt => {
+        if (opt.dataset.phone === phoneVal) {
+            // Auto-fill Receiver Name and Destination if phone matches
+            document.getElementById('receiverName').value = opt.dataset.name;
+            document.getElementById('destination').value = opt.dataset.station;
+            
+            // If you added a receiver_id hidden field, update it here:
+            // const receiverIdEl = document.getElementById('receiver_id');
+            // if (receiverIdEl) receiverIdEl.value = opt.dataset.id;
+
+            // Visual feedback: briefly highlight the auto-filled name
+            document.getElementById('receiverName').classList.add('bg-orange-50');
+            setTimeout(() => {
+                document.getElementById('receiverName').classList.remove('bg-orange-50');
+            }, 1000);
+        }
+    });
+});
+        // Search by typing directly into the Phone field (Sender)
+document.getElementById('senderPhone').addEventListener('input', function(e) {
+    const phoneVal = e.target.value;
+    const options = document.querySelectorAll('#senderList option');
+    
+    options.forEach(opt => {
+        if (opt.dataset.phone === phoneVal) {
+            document.getElementById('senderName').value = opt.dataset.name;
+            document.getElementById('client_id').value = opt.dataset.id;
+            document.getElementById('origin').value = opt.dataset.station;
+        }
+    });
+});
+
+
         
 function calculatePaymentStatus() {
     const total = parseFloat(document.getElementById('totalAmount').value) || 0;
