@@ -973,9 +973,23 @@ let state = {
                         <td class="p-4"><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold uppercase">${u.role}</span></td>
                         <td class="p-4 text-sm">${u.station}</td>
                         <td class="p-4 text-sm text-gray-500">${u.email}</td>
-                        <td class="p-4 text-right">
-                            <button onclick="deleteUser('${u._id}')" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
+                        <td class="p-4 text-right relative">
+    <button onclick="toggleUserMenu(event, '${u._id}')" class="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+    </button>
+
+    <div id="user-menu-${u._id}" class="hidden absolute right-4 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-[100] py-1 text-left">
+        ${u.isActive !== false ? `
+            <button onclick="handleDeactivate('${u._id}')" class="w-full px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                <i class="fa-solid fa-user-slash w-4"></i> Deactivate User
+            </button>
+        ` : `
+            <button onclick="handleReactivate('${u._id}')" class="w-full px-4 py-2 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2">
+                <i class="fa-solid fa-user-check w-4"></i> Reactivate User
+            </button>
+        `}
+    </div>
+</td>
                     </tr>
                 `).join('');
             } catch (err) { console.error(err); }
@@ -2228,6 +2242,46 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
         console.error("Delivery Update Error:", err);
         alert("Failed to update delivery status.");
     }
+};
+
+        // 1. Toggle the dropdown menu
+window.toggleUserMenu = function(event, id) {
+    event.stopPropagation(); // Prevents the click from bubbling up
+    
+    // Close any other open menus first
+    document.querySelectorAll('[id^="user-menu-"]').forEach(menu => {
+        if (menu.id !== `user-menu-${id}`) menu.classList.add('hidden');
+    });
+
+    const menu = document.getElementById(`user-menu-${id}`);
+    menu.classList.toggle('hidden');
+
+    // Close menu when clicking anywhere else
+    document.onclick = () => menu.classList.add('hidden');
+};
+
+// 2. Deactivate Function
+window.handleDeactivate = async function(id) {
+    if (!confirm("Are you sure you want to deactivate this user? They will no longer be able to log in.")) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/users/${id}/deactivate`, { method: 'PATCH' });
+        if (response.ok) {
+            alert("User deactivated.");
+            fetchUsers(); // Refresh your table
+        }
+    } catch (err) { console.error(err); }
+};
+
+// 3. Reactivate Function
+window.handleReactivate = async function(id) {
+    try {
+        const response = await fetch(`${API_URL}/users/${id}/reactivate`, { method: 'PATCH' });
+        if (response.ok) {
+            alert("User reactivated successfully!");
+            fetchUsers(); // Refresh your table
+        }
+    } catch (err) { console.error(err); }
 };
 </script>
 
