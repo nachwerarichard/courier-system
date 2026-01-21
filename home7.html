@@ -1149,32 +1149,102 @@ async function fetchParcels() {
 
 // 3. Explicitly attach filterTable to the window
 window.filterTable = function() {
-    const searchTerm = document.getElementById('table-search').value.toLowerCase();
-    const filterDate = document.getElementById('table-date-filter').value; // Returns YYYY-MM-DD
+    // Check if elements exist to prevent errors
+    const searchInput = document.getElementById('table-search');
+    const dateInput = document.getElementById('table-date-filter');
     
-    // We filter the global 'allParcels' array (make sure this is updated by fetchParcels)
-    const filtered = allParcels.filter(p => {
-        // 1. Text Search Logic
-        const matchesText = 
-            p.tracking_number.toLowerCase().includes(searchTerm) || 
-            p.sender_name.toLowerCase().includes(searchTerm) ||
-            p.sender_phone.includes(searchTerm);
+    if (!searchInput || !allParcels) return;
 
-        // 2. Date Filter Logic
+    const searchTerm = searchInput.value.toLowerCase();
+    const filterDate = dateInput ? dateInput.value : ""; 
+    
+    const filtered = allParcels.filter(p => {
+        // 1. Safe Text Search (using || "" to handle null names/phones)
+        const matchesText = 
+            (p.tracking_number || "").toLowerCase().includes(searchTerm) || 
+            (p.sender_name || "").toLowerCase().includes(searchTerm) ||
+            (p.sender_phone || "").includes(searchTerm);
+
+        // 2. Safe Date Filter
         let matchesDate = true;
-        if (filterDate) {
-            // Extract YYYY-MM-DD from the parcel's created_at timestamp
-            const parcelDate = new Date(p.created_at).toISOString().split('T')[0];
-            matchesDate = (parcelDate === filterDate);
+        if (filterDate && p.created_at) {
+            try {
+                const parcelDate = new Date(p.created_at).toISOString().split('T')[0];
+                matchesDate = (parcelDate === filterDate);
+            } catch (e) {
+                matchesDate = false; // Ignore invalid dates
+            }
         }
 
         return matchesText && matchesDate;
     });
 
-    // 3. Render the filtered results to the table body
     renderTableRows(filtered); 
 };
+        function renderTableRows(parcelsToDisplay) {
+    const tableBody = document.getElementById('parcel-table-body');
+    
+    // 1. Safety check: make sure the table body exists in your HTML
+    if (!tableBody) {
+        console.error("Could not find element with ID 'parcel-table-body'");
+        return;
+    }
 
+    // 2. Clear existing rows
+    tableBody.innerHTML = '';
+
+    // 3. Handle empty results
+    if (parcelsToDisplay.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="p-10 text-center text-slate-400">
+                    <i class="fa-solid fa-box-open block text-3xl mb-2 opacity-20"></i>
+                    No parcels found matching your search.
+                </td>
+            </tr>`;
+        return;
+    }
+
+    // 4. Loop through the parcels and create rows
+    parcelsToDisplay.forEach(p => {
+        const row = `
+            <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                <td class="p-4 font-mono text-xs font-bold text-blue-600">
+                    ${p.tracking_number}
+                </td>
+                <td class="p-4">
+                    <p class="text-sm font-semibold text-slate-700">${p.sender_name}</p>
+                    <p class="text-[10px] text-slate-500">${p.sender_phone || 'No Phone'}</p>
+                </td>
+                <td class="p-4 text-sm text-slate-600">
+                    <div class="flex items-center gap-1">
+                        <span class="text-[10px] text-slate-400 uppercase">${p.origin}</span>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                        <span>${p.destination}</span>
+                    </div>
+                </td>
+                <td class="p-4 text-xs font-bold">
+                    <p class="${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
+                        UGX ${(p.balance || 0).toLocaleString()}
+                    </p>
+                    <p class="text-[9px] text-slate-400 uppercase">${p.payment_status || 'Unpaid'}</p>
+                </td>
+                <td class="p-4">
+                    <span class="text-[10px] font-bold uppercase px-2 py-1 rounded-full border border-slate-100 ${getStatusStyle(p.status)}">
+                        ${p.status}
+                    </span>
+                </td>
+                <td class="p-4 text-right">
+                    <button onclick="showParcelDetails('${p._id}')" 
+                            class="px-3 py-1 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-600 rounded-md transition-all text-xs font-medium">
+                        View
+                    </button>
+                </td>
+            </tr>
+        `;
+        tableBody.insertAdjacentHTML('beforeend', row);
+    });
+}
 // Helper to clear filters
 function clearTableFilters() {
     document.getElementById('table-search').value = "";
