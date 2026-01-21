@@ -680,6 +680,16 @@
                                 <label class="text-[9px] font-bold text-slate-400 uppercase">Status</label>
                                 <input type="text" id="paymentStatus" class="bg-slate-800 border-none p-2.5 rounded-lg text-xs font-bold text-yellow-400" readonly value="Unpaid">
                             </div>
+                            <div class="flex flex-col gap-1">
+    <label class="text-[9px] font-bold text-slate-400 uppercase">Current Status</label>
+    <select id="parcelStatus" class="bg-slate-800 border-none p-2 rounded-lg text-xs font-bold text-yellow-400 outline-none cursor-pointer hover:ring-1 hover:ring-yellow-400 transition-all">
+        <option value="At Dispatch">At Dispatch</option>
+        <option value="In Transit">In Transit</option>
+        <option value="Partially received">Partially Received</option>
+        <option value="Ready for Pickup">Ready for Pickup</option>
+        <option value="Delivered">Delivered</option>
+    </select>
+</div>
                         </div>
                     </div>
                 </div>
@@ -1471,6 +1481,7 @@ document.getElementById('createParcelForm').addEventListener('submit', async (e)
             balance: Number(document.getElementById('balance').value),
             payment_status: document.getElementById('paymentStatus').value,
             payment_method: document.getElementById('paymentType').value,
+            status: document.getElementById('parcelStatus').value,
         };
 
         // 3. Determine URL and Method based on mode
