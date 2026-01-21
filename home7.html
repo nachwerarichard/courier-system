@@ -330,14 +330,14 @@
             <h3 id="stat-total" class="text-2xl font-bold text-slate-800">0</h3>
         </div>
     </div>
-<div class="mb-4">
+<div class="mb-4 max-w-md">
     <input 
         type="text" 
         id="table-search" 
-        onkeyup="filterTable()" 
-        placeholder="Search by Tracking ID..." 
-        class="p-2 border rounded-lg w-full max-w-md"
-    >
+        oninput="window.filterTable()" 
+        placeholder="Search by Tracking ID or Sender..." 
+        class="w-full p-2 border border-slate-200 rounded-lg"
+    />
 </div>
 
 
@@ -1057,116 +1057,87 @@ let state = {
 /**
  * READ: Fetch and Display Parcels
  */
-let allParcels = []; // Global variable to hold the full list
+// 1. Make sure this is at the VERY TOP of your script file
+let allParcels = []; 
 
+// 2. Wrap your fetching logic
 async function fetchParcels() {
     try {
         const response = await fetch(`${API_URL}/api/parcels`);
         if (!response.ok) throw new Error("Network response was not ok");
         
-        allParcels = await response.json(); // Store data globally
+        allParcels = await response.json();
         
-        // Update total stats
         const statTotal = document.getElementById('stat-total');
-        if(statTotal) statTotal.innerText = allParcels.length;
+        if (statTotal) statTotal.innerText = allParcels.length;
 
-        renderTable(allParcels); // Call the render function
+        renderTable(allParcels);
     } catch (err) {
-        console.error("Failed to load parcels:", err);
+        console.error("Fetch error:", err);
     }
 }
 
-// Function to handle the filtering logic
-function filterTable() {
+// 3. Explicitly attach filterTable to the window
+window.filterTable = function() {
     const searchInput = document.getElementById('table-search');
     if (!searchInput) return;
 
-    const searchTerm = searchInput.value.toLowerCase();
-    console.log("Searching for:", searchTerm); // DEBUG 1
-    console.log("Total parcels available:", allParcels.length); // DEBUG 2
+    const term = searchInput.value.toLowerCase().trim();
     
+    // Filter the global array
     const filtered = allParcels.filter(p => {
-        // We use || '' to prevent errors if tracking_number is missing
-        const trackingID = (p.tracking_number || '').toLowerCase();
-        const senderName = (p.sender_name || '').toLowerCase();
-        
-        // This checks if the ID OR the Sender Name matches
-        return trackingID.includes(searchTerm) || senderName.includes(searchTerm);
+        const tracking = (p.tracking_number || '').toLowerCase();
+        const sender = (p.sender_name || '').toLowerCase();
+        return tracking.includes(term) || sender.includes(term);
     });
 
     renderTable(filtered);
-}
+};
 
-// Move your rendering logic into its own function
+// 4. The Render Function
 function renderTable(parcels) {
     const tbody = document.getElementById('parcel-table-body');
-    
+    if (!tbody) return;
+
+    if (parcels.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-slate-400">No parcels found matching your search.</td></tr>`;
+        return;
+    }
+
     tbody.innerHTML = parcels.map(p => {
         const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
         const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
 
         return `
-        <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
+        <tr class="hover:bg-slate-50 border-b border-slate-100">
             <td class="p-4">
                 <div class="font-mono text-blue-600 font-bold">${p.tracking_number || 'N/A'}</div>
-                <div class="text-[10px] text-slate-400">
-                    ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'No Date'}
-                </div>
             </td>
             <td class="p-4">
                 <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
-                <div class="text-[11px] text-slate-500 font-medium">
-                    <i class="fa-solid fa-box text-slate-300 mr-1"></i> ${firstItemDesc}${extraItems}
-                </div>
-                <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
+                <div class="text-[11px] text-slate-500 font-medium">${firstItemDesc}${extraItems}</div>
+            </td>
+            <td class="p-4 text-xs">
+                <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
+                →
+                <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
             </td>
             <td class="p-4">
-                <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
-                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
-                    <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
-                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
-                </div>
+                <div class="font-bold text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
             </td>
             <td class="p-4">
-                <div class="font-bold text-slate-800 text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
-                <div class="text-[10px] ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
-                    Bal: UGX ${(p.balance || 0).toLocaleString()}
-                </div>
-            </td>
-            <td class="p-4">
-                <select 
-                    onchange="updateStatus('${p._id}', this.value)" 
-                    class="text-[10px] font-bold uppercase px-2 py-1 rounded-full cursor-pointer border border-slate-200 outline-none ${getStatusStyle(p.status)}"
-                >
-                    <option value="At Dispatch" ${p.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
-                    <option value="In Transit" ${p.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
-                    <option value="Partially received" ${p.status === 'Partially received' ? 'selected' : ''}>Partially Received</option>
-                    <option value="Ready for Pickup" ${p.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
-                    <option value="Delivered" ${p.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                </select>
+                <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${getStatusStyle(p.status)}">
+                    ${p.status}
+                </span>
             </td>
             <td class="p-4 text-right">
-                <div class="relative inline-block text-left">
-                    <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600">
-                        <i class="fa-solid fa-ellipsis-vertical"></i>
-                    </button>
-                    <div id="menu-${p._id}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
-                        <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2">
-                            <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
-                        </button>
-                        <button onclick="addNewParcelForCustomer('${p.sender_name}', '${p.sender_phone}', '${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
-                            <i class="fa-solid fa-plus text-blue-600 w-4"></i> Add Item
-                        </button>
-                        <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                            <i class="fa-solid fa-trash-can w-4"></i> Delete 
-                        </button>
-                    </div>
-                </div>
+                <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
             </td>
         </tr>`;
     }).join('');
 }
-    
         // Function to toggle the three-dot menu
 function toggleActionMenu(event, id) {
     event.stopPropagation(); // Prevents clicking the button from closing itself immediately
