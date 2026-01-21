@@ -1265,7 +1265,7 @@ async function deleteParcel(id) {
  * UI & Calculation Helpers
  */
 function calculateParcelPrice() {
-    const q = document.getElementById('quantity').value || 1;
+    const q = document.getElementById('temp_qty').value || 1;
     const w = document.getElementById('weight').value || 1;
     const v = document.getElementById('volume').value || 1;
     // Calculation: Qty * Weight * Volume * Rate
