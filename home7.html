@@ -1548,53 +1548,6 @@ function getStatusStyle(status) {
 window.showSection = showSection;
 
         
-// Example function to add a payment row (frontend only)
-function addPaymentRow(payment) {
-    const tbody = document.getElementById('payments-table-body');
-    const row = document.createElement('tr');
-
-    // Destructure payment object
-    const {
-        payment_id,
-        parcel_id,
-        payment_status,
-        payment_type,
-        total_amount,
-        amount_paid,
-        balance,
-        received_by,
-        payment_date
-    } = payment;
-
-    row.innerHTML = `
-        <td class="p-4">${payment_id}</td>
-        <td class="p-4">${parcel_id}</td>
-        <td class="p-4">${payment_status}</td>
-        <td class="p-4">${payment_type || '-'}</td>
-        <td class="p-4">${total_amount.toFixed(2)}</td>
-        <td class="p-4">${amount_paid.toFixed(2)}</td>
-        <td class="p-4">${balance.toFixed(2)}</td>
-        <td class="p-4">${received_by}</td>
-        <td class="p-4">${payment_date}</td>
-        <td class="p-4 text-right">
-            <button class="text-red-500 hover:underline" onclick="this.closest('tr').remove()">Delete</button>
-        </td>
-    `;
-    tbody.appendChild(row);
-}
-
-// Example usage
-addPaymentRow({
-    payment_id: 1,
-    parcel_id: 101,
-    payment_status: 'Paid',
-    payment_type: 'Cash',
-    total_amount: 50000,
-    amount_paid: 50000,
-    balance: 0,
-    received_by: 'Staff A',
-    payment_date: new Date().toLocaleString()
-});
 
 // Open/Close Modal Functions
 function showModal(modalId) {
