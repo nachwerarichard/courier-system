@@ -1149,7 +1149,6 @@ async function fetchParcels() {
 
 // 3. Explicitly attach filterTable to the window
 window.filterTable = function() {
-    // Check if elements exist to prevent errors
     const searchInput = document.getElementById('table-search');
     const dateInput = document.getElementById('table-date-filter');
     
@@ -1159,11 +1158,12 @@ window.filterTable = function() {
     const filterDate = dateInput ? dateInput.value : ""; 
     
     const filtered = allParcels.filter(p => {
-        // 1. Safe Text Search (using || "" to handle null names/phones)
+        // 1. Expanded Text Search (Includes Destination)
         const matchesText = 
             (p.tracking_number || "").toLowerCase().includes(searchTerm) || 
             (p.sender_name || "").toLowerCase().includes(searchTerm) ||
-            (p.sender_phone || "").includes(searchTerm);
+            (p.sender_phone || "").includes(searchTerm) ||
+            (p.destination || "").toLowerCase().includes(searchTerm); // <--- ADDED THIS
 
         // 2. Safe Date Filter
         let matchesDate = true;
@@ -1172,7 +1172,7 @@ window.filterTable = function() {
                 const parcelDate = new Date(p.created_at).toISOString().split('T')[0];
                 matchesDate = (parcelDate === filterDate);
             } catch (e) {
-                matchesDate = false; // Ignore invalid dates
+                matchesDate = false;
             }
         }
 
