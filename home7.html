@@ -394,88 +394,85 @@
                         </table>
                     </div>
                 </section>
+
                 <section id="parcels-section" class="hidden p-6">
+
     <div class="flex justify-between items-center mb-6">
         <div>
             <h2 class="text-2xl font-bold text-slate-800">Parcels</h2>
             <p class="text-slate-500 text-sm">Manage and track all incoming and outgoing shipments.</p>
         </div>
-        
     </div>
 
+    <!-- Header Row: Button + Filters -->
+    <div class="flex flex-col lg:flex-row justify-between items-center gap-4 mb-8 p-1">
 
-<div class="flex flex-col lg:flex-row justify-between items-center gap-4 mb-8 p-1">
-
-    <!-- Add New Parcel Button -->
-    <div class="flex-shrink-0">
-        <button onclick="showModal('parcel-modal')" 
-                class="bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 shadow-lg transition-all flex items-center gap-2 font-bold text-sm">
-            <i class="fa-solid fa-plus"></i> Add New Parcel
-        </button>
-    </div>
-
-   <!-- Filters Row -->
-<div class="flex flex-wrap items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm flex-1 justify-center">
-
-    <!-- Destination Dropdown -->
-    <select id="ptable-destination-filter" onchange="window.filterPTable()" 
-            class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
-        <option value="">Destination</option>
-        <option value="Kampala">Kampala</option>
-        <option value="Mbale">Mbale</option>
-    </select>
-
-    <!-- Date Filter -->
-    <input type="date" id="ptable-date-filter" onchange="window.filterPTable()"
-           class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
-
-    <!-- Status Dropdown -->
-    <select id="ptable-status-filter" onchange="window.filterPTable()" 
-            class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
-        <option value="">Status</option>
-        <option value="At Dispatch">At Dispatch</option>
-        <option value="In Transit">In Transit</option>
-        <option value="Partially received">Partially Received</option>
-        <option value="Ready for Pickup">Ready for Pickup</option>
-        <option value="Delivered">Delivered</option>
-    </select>
-
-    <!-- Tracking ID Search -->
-    <div class="relative w-48">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
+        <!-- Add New Parcel Button -->
+        <div class="flex-shrink-0">
+            <button onclick="showModal('parcel-modal')" 
+                    class="bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 shadow-lg transition-all flex items-center gap-2 font-bold text-sm">
+                <i class="fa-solid fa-plus"></i> Add New Parcel
+            </button>
         </div>
-        <input type="text" id="ptable-search" oninput="window.filterPTable()" 
-               placeholder="Tracking ID..." 
-               class="w-full pl-9 pr-8 py-2.5 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
 
-        <button onclick="clearTablePFilters()" 
-                class="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-300 hover:text-red-500 transition-colors">
-            <i class="fa-solid fa-circle-xmark text-sm"></i>
-        </button>
-    </div>
+        <!-- Filters Row -->
+        <div class="flex flex-wrap items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm flex-1 justify-center">
 
-    <!-- Export & Print Buttons -->
-    <div class="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-sm">
-        <button onclick="exportToExcel()" 
-                class="flex items-center gap-2 px-3 py-2 text-green-700 hover:bg-white hover:shadow-sm rounded-lg text-[11px] font-bold transition-all">
-            <i class="fa-solid fa-file-excel"></i> Excel
-        </button>
-        <div class="w-[1px] h-4 bg-slate-200 mx-1"></div>
-        <button onclick="printReport()" 
-                class="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-white hover:shadow-sm rounded-lg text-[11px] font-bold transition-all">
-            <i class="fa-solid fa-print"></i> Print/PDF
-        </button>
-    </div>
+            <!-- Destination -->
+            <select id="ptable-destination-filter" onchange="window.filterPTable()" 
+                    class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+                <option value="">Destination</option>
+                <option value="Kampala">Kampala</option>
+                <option value="Mbale">Mbale</option>
+            </select>
 
-</div>
+            <!-- Date -->
+            <input type="date" id="ptable-date-filter" onchange="window.filterPTable()"
+                   class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
 
-   
-    
-<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="mb-4 relative max-w-md">
-    
-    
-</div>
+            <!-- Status -->
+            <select id="ptable-status-filter" onchange="window.filterPTable()" 
+                    class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+                <option value="">Status</option>
+                <option value="At Dispatch">At Dispatch</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Partially received">Partially Received</option>
+                <option value="Ready for Pickup">Ready for Pickup</option>
+                <option value="Delivered">Delivered</option>
+            </select>
+
+            <!-- Tracking Search -->
+            <div class="relative w-48">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
+                </div>
+                <input type="text" id="ptable-search" oninput="window.filterPTable()" 
+                       placeholder="Tracking ID..." 
+                       class="w-full pl-9 pr-8 py-2.5 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                <button onclick="clearTablePFilters()" 
+                        class="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-300 hover:text-red-500 transition-colors">
+                    <i class="fa-solid fa-circle-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Export & Print -->
+            <div class="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-sm">
+                <button onclick="exportToExcel()" 
+                        class="flex items-center gap-2 px-3 py-2 text-green-700 hover:bg-white hover:shadow-sm rounded-lg text-[11px] font-bold transition-all">
+                    <i class="fa-solid fa-file-excel"></i> Excel
+                </button>
+                <div class="w-[1px] h-4 bg-slate-200 mx-1"></div>
+                <button onclick="printReport()" 
+                        class="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-white hover:shadow-sm rounded-lg text-[11px] font-bold transition-all">
+                    <i class="fa-solid fa-print"></i> Print/PDF
+                </button>
+            </div>
+
+        </div>
+    </div> <!-- ✅ THIS WAS THE MISSING CLOSING DIV -->
+
+    <!-- Table Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
 
         <table class="w-full text-left">
             <thead class="bg-slate-50 border-b border-slate-200">
@@ -489,10 +486,13 @@
                 </tr>
             </thead>
             <tbody id="parcel-table-body" class="divide-y divide-slate-100">
-                </tbody>
+            </tbody>
         </table>
+
     </div>
+
 </section>
+
 
                 <!-- Settings Section -->
 <section id="settings-section" class="hidden p-6">
