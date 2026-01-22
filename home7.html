@@ -1458,7 +1458,6 @@ function renderTableRows(parcelsToDisplay) {
 
     // 3. Generate row HTML for all items
     const allRowsArray = parcelsToDisplay.map(p => {
-        const prefix = mainTableBody && dashboardTableBody ? (isDashboard ? 'dash' : 'main') : 'main';
         const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
         const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
         return `<tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
@@ -1495,32 +1494,27 @@ function renderTableRows(parcelsToDisplay) {
                     ${p.status}
                 </span>
             </td>
-<td class="p-4 text-right">
-    <div class="relative inline-block text-left">
-        <button onclick="toggleActionMenu(event, '${p._id}', '${prefix}')" class="p-2 text-slate-400 hover:text-slate-600">
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-        </button>
-        
-        <div id="${prefix}-menu-${p._id}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1 text-left">
-            
-            <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2">
-                <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
-            </button>
-            
-            <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
-               <i class="fa-solid fa-pen-to-square text-orange-500 w-4"></i> Update
-            </button>
-
-            <button onclick="showParcelDelivery('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
-               <i class="fa-solid fa-van-shuttle text-indigo-500 w-4"></i> Deliver
-            </button>
-
-            <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                <i class="fa-solid fa-trash-can w-4"></i> Delete 
-            </button>
-        </div>
-    </div>
-</td>
+            <td class="p-4 text-right">
+                <div class="relative inline-block text-left">
+                    <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+                    <div id="menu-${p._id}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
+                        <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
+                        </button>
+                        <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
+                           <i class="fa-solid fa-pen-to-square text-orange-500 w-4"></i> Update
+                        </button>
+                        <button onclick="showParcelDelivery('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
+                           <i class="fa-solid fa-van-shuttle text-indigo-500 w-4"></i> Deliver
+                        </button>
+                        <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can w-4"></i> Delete 
+                        </button>
+                    </div>
+                </div>
+            </td>
         </tr>
             
         `;
@@ -1598,7 +1592,7 @@ function renderTable(parcels) {
             </td>
             <td class="p-4 text-right">
                 <div class="relative inline-block text-left">
-                    <button onclick="togleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600">
+                    <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600">
                         <i class="fa-solid fa-ellipsis-vertical"></i>
                     </button>
                     <div id="menu-${p._id}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
@@ -1630,24 +1624,7 @@ function renderTable(parcels) {
         dashboardTbody.innerHTML = allRowsHtml.slice(0, 10).join('');
     }
 }
-     function togleActionMenu(event, id, prefix) {
-    event.stopPropagation();
-    
-    // Construct the unique ID we created in the HTML above
-    const menuId = `${prefix}-menu-${id}`;
-    const currentMenu = document.getElementById(menuId);
-
-    // Close every other menu on the page (prevents multiple menus being open)
-    const allMenus = document.querySelectorAll('[id*="-menu-"]');
-    allMenus.forEach(menu => {
-        if (menu.id !== menuId) menu.classList.add('hidden');
-    });
-
-    // Toggle the current one
-    if (currentMenu) {
-        currentMenu.classList.toggle('hidden');
-    }
-}   // Function to toggle the three-dot menu
+        // Function to toggle the three-dot menu
 function toggleActionMenu(event, id) {
     event.stopPropagation(); // Prevents clicking the button from closing itself immediately
     
