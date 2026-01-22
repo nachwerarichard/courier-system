@@ -1391,50 +1391,46 @@ function printReport() {
     printWindow.document.close();
     printWindow.print();
 }
-        function renderTableRows(parcelsToDisplay) {
-    const tableBody = document.getElementById('parcel-table-body');
-    
-    // 1. Safety check: make sure the table body exists in your HTML
-    if (!tableBody) {
-        console.error("Could not find element with ID 'parcel-table-body'");
-        return;
-    }
+function renderTableRows(parcelsToDisplay) {
+    // 1. Identify both table bodies
+    const mainTableBody = document.getElementById('parcel-table-body');
+    const dashboardTableBody = document.getElementById('dashboardparcel-table-body');
 
-    // 2. Clear existing rows
-    tableBody.innerHTML = '';
-
-    // 3. Handle empty results
-    if (parcelsToDisplay.length === 0) {
-        tableBody.innerHTML = `
+    // 2. Handle empty results
+    if (!parcelsToDisplay || parcelsToDisplay.length === 0) {
+        const emptyState = `
             <tr>
                 <td colspan="6" class="p-10 text-center text-slate-400">
                     <i class="fa-solid fa-box-open block text-3xl mb-2 opacity-20"></i>
                     No parcels found matching your search.
                 </td>
             </tr>`;
+        
+        if (mainTableBody) mainTableBody.innerHTML = emptyState;
+        if (dashboardTableBody) dashboardTableBody.innerHTML = emptyState;
         return;
     }
 
-    // 4. Loop through the parcels and create rows
-    parcelsToDisplay.forEach(p => {
-        const row = `
+    // 3. Generate row HTML for all items
+    const allRowsArray = parcelsToDisplay.map(p => {
+        return `
             <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
                 <td class="p-4 font-mono text-xs font-bold text-blue-600">
-                    ${p.tracking_number}
+                    ${p.tracking_number || 'N/A'}
                 </td>
                 <td class="p-4">
-                    <p class="text-sm font-semibold text-slate-700">${p.sender_name}</p>
+                    <p class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</p>
                     <p class="text-[10px] text-slate-500">${p.sender_phone || 'No Phone'}</p>
                 </td>
                 <td class="p-4 text-sm text-slate-600">
                     <div class="flex items-center gap-1">
-                        <span class="text-[10px] text-slate-400 uppercase">${p.origin}</span>
+                        <span class="text-[10px] text-slate-400 uppercase">${p.origin || '??'}</span>
                         <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
-                        <span>${p.destination}</span>
+                        <span>${p.destination || '??'}</span>
                     </div>
                 </td>
                 <td class="p-4 text-xs font-bold">
-                    <p class="${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
+                    <p class="${(p.balance || 0) > 0 ? 'text-red-500' : 'text-green-600'}">
                         UGX ${(p.balance || 0).toLocaleString()}
                     </p>
                     <p class="text-[9px] text-slate-400 uppercase">${p.payment_status || 'Unpaid'}</p>
@@ -1452,10 +1448,18 @@ function printReport() {
                 </td>
             </tr>
         `;
-        tableBody.insertAdjacentHTML('beforeend', row);
     });
+
+    // 4. Inject into Main Table (Full List)
+    if (mainTableBody) {
+        mainTableBody.innerHTML = allRowsArray.join('');
+    }
+
+    // 5. Inject into Dashboard Table (Limit to top 10)
+    if (dashboardTableBody) {
+        dashboardTableBody.innerHTML = allRowsArray.slice(0, 10).join('');
+    }
 }
-// Helper to clear filters
 function clearTableFilters() {
     document.getElementById('table-search').value = "";
     document.getElementById('table-date-filter').value = "";
