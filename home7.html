@@ -2774,39 +2774,41 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 
     const form = e.target;
 
-    // 1. Get parcel ID
     const id = document.getElementById('pay_waybill_id').value;
+    console.log("Submitting payment for parcel ID:", id);
 
-    // 2. Prepare payment payload
     const amountPaid = Number(document.getElementById('mini_pay_amount').value);
+    console.log("Amount being paid:", amountPaid);
+
     const paymentData = {
         amount_paid: amountPaid,
         payment_method: document.getElementById('mini_pay_method').value
     };
 
     try {
+        console.log("Sending payment request...");
         const response = await fetch(`${API_URL}/api/parcels/${id}/add-payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(paymentData)
         });
 
+        console.log("Server response status:", response.status);
+
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.error || "Payment failed");
         }
 
-        // 3. Reset form & close modal
+        console.log("Payment successful!");
+
         form.reset();
         hideModal('payment-modal');
 
-        // 4. Update any open amountpaid modal
+        console.log("Calling updateAmountPaidModalIfOpen...");
         updateAmountPaidModalIfOpen(amountPaid);
 
-        // 5. Recalculate payment status if needed
         calculatePaymentStatus();
-
-        // 6. Refresh parcels data
         await fetchParcels();
 
     } catch (err) {
@@ -2816,26 +2818,46 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 });
 
         function updateAmountPaidModalIfOpen(addedAmount) {
+    console.log("Checking for open parcel modal...");
+
     const modal = document.getElementById('parcel-modal');
 
-    if (!modal) return; // Modal not in DOM
+    if (!modal) {
+        console.warn("❌ parcel-modal NOT found in DOM");
+        return;
+    }
 
-    // Check if modal is visible (not hidden)
+    console.log("✅ parcel-modal found:", modal);
+
     const isVisible = !modal.classList.contains('hidden') && modal.offsetParent !== null;
-    if (!isVisible) return;
+    console.log("Modal visibility:", isVisible);
 
-    // Find where the amount is displayed inside the modal
+    if (!isVisible) {
+        console.warn("❌ parcel-modal exists but is NOT visible");
+        return;
+    }
+
     const amountDisplay = modal.querySelector('#amountpaid');
 
-    if (!amountDisplay) return;
+    if (!amountDisplay) {
+        console.warn("❌ #amountpaid NOT found inside parcel-modal");
+        return;
+    }
+
+    console.log("✅ #amountpaid found:", amountDisplay);
 
     const currentAmount = Number(amountDisplay.dataset.amount || 0);
-    const newAmount = currentAmount + addedAmount;
+    console.log("Current amount in modal:", currentAmount);
 
-    // Update UI
+    const newAmount = currentAmount + addedAmount;
+    console.log("New amount after payment:", newAmount);
+
     amountDisplay.textContent = `UGX ${newAmount.toLocaleString()}`;
     amountDisplay.dataset.amount = newAmount;
+
+    console.log("✅ amountpaid UI updated successfully!");
 }
+
 
       window.confirmDelivery = async function(id) {
     const parcel = allParcels.find(p => p._id === id);
