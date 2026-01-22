@@ -1398,7 +1398,62 @@ function renderTableRows(parcelsToDisplay) {
 
     // 2. Handle empty results
     if (!parcelsToDisplay || parcelsToDisplay.length === 0) {
-        const emptyState = `
+        const emptyState = `<tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
+            <td class="p-4">
+                <button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
+                    ${p.tracking_number || 'N/A'}
+                </button>                
+                <div class="text-[10px] text-slate-400">
+                    ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'No Date'}                
+                </div>
+            </td>
+            <td class="p-4">
+                <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
+                <div class="text-[11px] text-slate-500 font-medium">
+                    <i class="fa-solid fa-box text-slate-300 mr-1"></i> ${firstItemDesc}${extraItems}
+                </div>
+                <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
+            </td>
+            <td class="p-4">
+                <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
+                </div>
+            </td>
+            <td class="p-4">
+                <div class="font-bold text-slate-800 text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
+                <div class="text-[10px] ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
+                    Bal: UGX ${(p.balance || 0).toLocaleString()}
+                </div>
+            </td>
+            <td class="p-4">
+                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-100 inline-block shadow-sm ${getStatusStyle(p.status)}">
+                    ${p.status}
+                </span>
+            </td>
+            <td class="p-4 text-right">
+                <div class="relative inline-block text-left">
+                    <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+                    <div id="menu-${p._id}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
+                        <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
+                        </button>
+                        <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
+                           <i class="fa-solid fa-pen-to-square text-orange-500 w-4"></i> Update
+                        </button>
+                        <button onclick="showParcelDelivery('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
+                           <i class="fa-solid fa-van-shuttle text-indigo-500 w-4"></i> Deliver
+                        </button>
+                        <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can w-4"></i> Delete 
+                        </button>
+                    </div>
+                </div>
+            </td>
+        </tr>
             <tr>
                 <td colspan="6" class="p-10 text-center text-slate-400">
                     <i class="fa-solid fa-box-open block text-3xl mb-2 opacity-20"></i>
@@ -1414,39 +1469,7 @@ function renderTableRows(parcelsToDisplay) {
     // 3. Generate row HTML for all items
     const allRowsArray = parcelsToDisplay.map(p => {
         return `
-            <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
-                <td class="p-4 font-mono text-xs font-bold text-blue-600">
-                    ${p.tracking_number || 'N/A'}
-                </td>
-                <td class="p-4">
-                    <p class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</p>
-                    <p class="text-[10px] text-slate-500">${p.sender_phone || 'No Phone'}</p>
-                </td>
-                <td class="p-4 text-sm text-slate-600">
-                    <div class="flex items-center gap-1">
-                        <span class="text-[10px] text-slate-400 uppercase">${p.origin || '??'}</span>
-                        <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
-                        <span>${p.destination || '??'}</span>
-                    </div>
-                </td>
-                <td class="p-4 text-xs font-bold">
-                    <p class="${(p.balance || 0) > 0 ? 'text-red-500' : 'text-green-600'}">
-                        UGX ${(p.balance || 0).toLocaleString()}
-                    </p>
-                    <p class="text-[9px] text-slate-400 uppercase">${p.payment_status || 'Unpaid'}</p>
-                </td>
-                <td class="p-4">
-                    <span class="text-[10px] font-bold uppercase px-2 py-1 rounded-full border border-slate-100 ${getStatusStyle(p.status)}">
-                        ${p.status}
-                    </span>
-                </td>
-                <td class="p-4 text-right">
-                    <button onclick="showParcelDetails('${p._id}')" 
-                            class="px-3 py-1 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-600 rounded-md transition-all text-xs font-medium">
-                        View
-                    </button>
-                </td>
-            </tr>
+            
         `;
     });
 
