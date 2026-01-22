@@ -2888,13 +2888,14 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 // Print-only receipt using a temporary window
 function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
     const parcel = allParcels.find(p => p._id === parcelId);
-    if (!parcel) return;
+    if (!parcel) {
+        alert("Parcel not found for receipt.");
+        return;
+    }
 
-    // Format current date
     const date = new Date();
     const formattedDate = date.toLocaleString();
 
-    // Build receipt HTML
     const receiptHTML = `
     <html>
     <head>
@@ -2903,7 +2904,6 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
             body { font-family: Arial, sans-serif; padding: 20px; }
             h2 { color: #1e40af; }
             .header { display: flex; justify-content: space-between; align-items: center; }
-            .header img { height: 50px; }
             .section { margin-top: 20px; }
             .section h4 { font-size: 12px; color: #475569; margin-bottom: 5px; text-transform: uppercase; }
             .section p { margin: 2px 0; font-size: 14px; }
@@ -2943,8 +2943,6 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
         </div>
 
         <div class="section items">
-                    <h4>Package Content</h4>
-
             ${parcel.items.map(item => `
                 <div>
                     <span>${item.description} (Qty: ${item.quantity || 1}, Wt: ${item.weight || 0}kg)</span>
@@ -2954,25 +2952,32 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
         </div>
 
         <div class="section summary">
-            <h4>Payment Summary</h4>
             <div><span>Total Amount</span><span>UGX ${(parcel.total_amount || 0).toLocaleString()}</span></div>
             <div><span>Amount Paid</span><span>UGX ${amountPaid.toLocaleString()} (${paymentMethod})</span></div>
             <div><span>Balance Due</span><span>UGX ${(parcel.balance || 0).toLocaleString()}</span></div>
         </div>
-        
-            <h4>Status</h4>
+
         <div class="status">${parcel.status}</div>
     </body>
     </html>
     `;
 
-    // Open temporary print window
-    const printWindow = window.open('', 'PRINT', 'height=600,width=800');
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+    if (!printWindow) {
+        alert("Popup blocked! Please allow popups to print receipt.");
+        return;
+    }
+
+    printWindow.document.open();
     printWindow.document.write(receiptHTML);
     printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+
+    printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    };
 }
 
 
