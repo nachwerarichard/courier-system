@@ -1606,7 +1606,7 @@ let editingId = null;
         if (extraActions) extraActions.remove();
         
         // Clear the form
-        document.getElementById('parcel-form').reset();
+        document.getElementById('createParcelForm').reset();
         currentConsignment = [];
         renderParcelList();
     }
@@ -1701,7 +1701,7 @@ document.getElementById('createParcelForm').addEventListener('submit', async (e)
 
         if (response.ok) {
             alert(isEditMode ? "Parcel updated successfully!" : "Parcel added successfully!");
-            
+            document.getElementById('createParcelForm').reset();
             // Cleanup
             isEditMode = false;
             editingId = null;
@@ -1714,7 +1714,6 @@ document.getElementById('createParcelForm').addEventListener('submit', async (e)
             
             document.getElementById('createParcelForm').reset();
             hideModal('parcel-modal');
-            window.location.reload();
             // Refresh main table & search options
             fetchParcels(); 
             loadFormOptions(); // Refreshes datalists with the new customers
@@ -2488,7 +2487,7 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
             
             // 5. Re-render the "Delivery Details" modal instantly 
             // Note: Use 'id' here to match your variable above
-            showParcelDetails(id); 
+            editParcel(id); 
 
         } else {
             const error = await response.json();
