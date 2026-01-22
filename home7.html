@@ -1849,8 +1849,7 @@ window.closeDetailsModal = function() {
         let isEditMode = false;
 let editingId = null;
 
-
-        window.editParcel = function(id) {
+window.editParcel = function(id) {
     const parcel = allParcels.find(p => p._id === id);
     if (!parcel) return;
 
@@ -1884,23 +1883,22 @@ let editingId = null;
     
     // Create the extra actions HTML
     const extraActionsHtml = `
-    <div id="edit-actions" class="flex items-center gap-3 mr-auto">
-        <select onchange="updateStatus('${parcel._id}', this.value)" 
-            class="px-3 py-2 border rounded-lg text-xs font-bold uppercase transition-all ${getStatusStyle(parcel.status)} outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="At Dispatch" ${parcel.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
-            <option value="In Transit" ${parcel.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
-            <option value="Partially received" ${parcel.status === 'Partially received' ? 'selected' : ''}>Partially Received</option>
-            <option value="Ready for Pickup" ${parcel.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
-            <option value="Delivered" ${parcel.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-        </select>
-
-        <button onclick="openPaymentModal('${parcel._id}')" 
-            class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 border border-green-200 rounded-lg text-xs font-bold hover:bg-green-600 hover:text-white transition-all shadow-sm">
-            <i class="fa-solid fa-money-bill-wave"></i>
-            Add Payment
-        </button>
-    </div>
-`;
+        <div id="edit-actions" class="flex gap-2 mr-auto">
+            <select onchange="updateStatus('${parcel._id}', this.value)" 
+                class="px-3 py-2 border rounded-lg text-xs font-bold uppercase transition-all ${getStatusStyle(parcel.status)}">
+                <option value="At Dispatch" ${parcel.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
+                <option value="In Transit" ${parcel.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+                <option value="Partially received" ${parcel.status === 'Partially received' ? 'selected' : ''}>Partially Received</option>
+                <option value="Ready for Pickup" ${parcel.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
+                <option value="Delivered" ${parcel.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            </select>
+            
+            <button type="button" onclick="openPaymentModal('${parcel._id}')" 
+                class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-green-200 transition">
+                <i class="fa-solid fa-money-bill-wave"></i> Add Payment
+            </button>
+        </div>
+    `;
 
     // Remove existing edit-actions if they exist, then prepend new ones
     const oldActions = document.getElementById('edit-actions');
