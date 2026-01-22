@@ -992,10 +992,20 @@
     <input type="hidden" id="pay_waybill_id">
 
     <!-- Current Balance Display -->
-    <div class="bg-blue-50 p-4 rounded-lg flex justify-between items-center border border-blue-100">
-        <span class="text-xs font-bold text-blue-700 uppercase">Current Balance</span>
-        <span id="display_balance" class="text-lg font-black text-blue-800">0 UGX</span>
-    </div>
+<!-- Current Balance Display as readonly input -->
+<div class="flex flex-col">
+    <label for="display_balance" class="text-xs font-bold text-blue-700 uppercase mb-1">
+        Current Balance
+    </label>
+    <input 
+        type="text" 
+        id="display_balance" 
+        class="w-full border p-3 rounded-lg bg-blue-50 text-lg font-black text-blue-800 focus:ring-2 focus:ring-blue-500 outline-none" 
+        value="0 UGX" 
+        readonly
+        data-amount="0"
+    >
+</div>
 
     <!-- Amount to Add -->
     <div>
