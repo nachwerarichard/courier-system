@@ -1569,24 +1569,7 @@ window.showParcelDetails = function(id) {
             </div>
 
 <div class="flex gap-2 items-center">
-    <select 
-        onchange="updateStatus('${parcel._id}', this.value)" 
-        class="px-4 py-2 text-xs font-bold uppercase rounded-lg cursor-pointer border border-slate-200 outline-none transition-all shadow-sm ${getStatusStyle(parcel.status)}"
-    >
-        <option value="At Dispatch" ${parcel.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
-        <option value="In Transit" ${parcel.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
-        <option value="Partially received" ${parcel.status === 'Partially received' ? 'selected' : ''}>Partially Received</option>
-        <option value="Ready for Pickup" ${parcel.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
-        <option value="Delivered" ${parcel.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-    </select>
-
-    <button onclick="openPaymentModal('${parcel._id}')" class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2">
-        <i class="fa-solid fa-money-bill-wave"></i> Add Payment
-    </button>
-
-    <button onclick="addNewParcelForCustomer('${parcel.sender_name}', '${parcel.sender_phone}', '${parcel._id}')" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2">
-        <i class="fa-solid fa-plus"></i> Add Item
-    </button>
+    
 
     <button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300">
         Close
