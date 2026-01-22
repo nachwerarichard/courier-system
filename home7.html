@@ -2119,25 +2119,45 @@ document.getElementById('createParcelForm').addEventListener('submit', async (e)
     renderParcelList();
     document.getElementById('parcel-modal').classList.remove('hidden');
 }
-        async function updateStatus(id, newStatus) {
+       async function updateStatus(id, newStatus) {
     try {
+        // 1. Find the parcel in allParcels array
+        const parcel = allParcels.find(p => p._id === id);
+        if (!parcel) {
+            console.warn("Parcel not found:", id);
+            return;
+        }
+
+        console.log("Current parcel status:", parcel.status, "Requested new status:", newStatus);
+
+        // 2. Restrict changing to Delivered only if allowed
+        if (newStatus === "Delivered" && parcel.status !== "In Transit" && parcel.status !== "Ready for Pickup") {
+            alert(`Cannot mark as Delivered. Current status is "${parcel.status}".`);
+            return;
+        }
+
+        // 3. Proceed with the update
         const response = await fetch(`${API_URL}/api/parcels/${id}/status`, {
-            method: 'PATCH', // Using PATCH for partial updates
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus })
         });
 
-        if (!response.ok) throw new Error("Update failed");
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Update failed");
+        }
 
         console.log("Status updated successfully");
-        
-        // Optional: Refresh the table to apply new styles
-        fetchParcels(); 
+
+        // 4. Refresh parcels table to reflect the change
+        await fetchParcels();
 
     } catch (err) {
         console.error("Error updating status:", err);
     }
 }
+
 /**
  * DELETE: Remove Parcel
  */
