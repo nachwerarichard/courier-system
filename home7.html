@@ -2776,7 +2776,7 @@ async function openPaymentModal(id) {
         
         // Safety check for balance
         const balance = p.balance || 0;
-        document.getElementById('display_balance').innerText = `${balance.toLocaleString()} UGX`;
+        document.getElementById('display_balance').value = `${balance.toLocaleString()} UGX`;
         
         showModal('payment-modal');
     } catch (err) {
