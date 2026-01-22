@@ -1530,7 +1530,8 @@ window.closeDetailsModal = function() {
         let isEditMode = false;
 let editingId = null;
 
-window.editParcel = function(id) {
+
+        window.editParcel = function(id) {
     const parcel = allParcels.find(p => p._id === id);
     if (!parcel) return;
 
@@ -1539,9 +1540,10 @@ window.editParcel = function(id) {
 
     // 1. Change UI Titles
     document.querySelector('#parcel-modal h3').innerText = "Update Parcel Details";
-    document.querySelector('#parcel-modal button[type="submit"]').innerText = "Update Parcel";
+    const submitBtn = document.querySelector('#parcel-modal button[type="submit"]');
+    submitBtn.innerText = "Update Parcel";
 
-    // 2. Fill Basic Details
+    // 2. Fill Basic Details & Financials (Your existing code)
     document.getElementById('client_id').value = parcel.client_id || '';
     document.getElementById('senderName').value = parcel.sender_name || '';
     document.getElementById('senderPhone').value = parcel.sender_phone || '';
@@ -1549,21 +1551,66 @@ window.editParcel = function(id) {
     document.getElementById('receiverName').value = parcel.receiver_name || '';
     document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
     document.getElementById('destination').value = parcel.destination || '';
-
-    // 3. Fill Financials
     document.getElementById('totalAmount').value = parcel.total_amount || 0;
     document.getElementById('amountPaid').value = (parcel.total_amount - parcel.balance) || 0;
     document.getElementById('balance').value = parcel.balance || 0;
     document.getElementById('paymentStatus').value = parcel.payment_status || 'Unpaid';
     document.getElementById('paymentType').value = parcel.payment_method || 'Cash';
 
-    // 4. Load Items into the consignment list
     currentConsignment = [...parcel.items]; 
-    renderParcelList(); // This is your function that draws the items in the list
+    renderParcelList();
 
-    // 5. Show Modal
+    // 3. INJECT STATUS AND PAYMENT BUTTONS INTO FOOTER
+    const footer = document.querySelector('#parcel-modal .flex.justify-end.gap-3');
+    
+    // Create the extra actions HTML
+    const extraActionsHtml = `
+        <div id="edit-actions" class="flex gap-2 mr-auto">
+            <select onchange="updateStatus('${parcel._id}', this.value)" 
+                class="px-3 py-2 border rounded-lg text-xs font-bold uppercase transition-all ${getStatusStyle(parcel.status)}">
+                <option value="At Dispatch" ${parcel.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
+                <option value="In Transit" ${parcel.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+                <option value="Partially received" ${parcel.status === 'Partially received' ? 'selected' : ''}>Partially Received</option>
+                <option value="Ready for Pickup" ${parcel.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
+                <option value="Delivered" ${parcel.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            </select>
+            
+            <button type="button" onclick="openPaymentModal('${parcel._id}')" 
+                class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-green-200 transition">
+                <i class="fa-solid fa-money-bill-wave"></i> Add Payment
+            </button>
+        </div>
+    `;
+
+    // Remove existing edit-actions if they exist, then prepend new ones
+    const oldActions = document.getElementById('edit-actions');
+    if (oldActions) oldActions.remove();
+    footer.insertAdjacentHTML('afterbegin', extraActionsHtml);
+
+    // 4. Show Modal
     document.getElementById('parcel-modal').classList.remove('hidden');
 };
+        window.hideModal = function(id) {
+    document.getElementById(id).classList.add('hidden');
+    
+    if (id === 'parcel-modal') {
+        isEditMode = false;
+        editingId = null;
+        
+        // Reset Titles
+        document.querySelector('#parcel-modal h3').innerText = "Add New Parcel";
+        document.querySelector('#parcel-modal button[type="submit"]').innerText = "Add Parcel";
+        
+        // Remove the extra buttons we injected
+        const extraActions = document.getElementById('edit-actions');
+        if (extraActions) extraActions.remove();
+        
+        // Clear the form
+        document.getElementById('parcel-form').reset();
+        currentConsignment = [];
+        renderParcelList();
+    }
+}
 /**
 
  * CREATE: Submit Form to Backend
