@@ -202,18 +202,7 @@
                     </div>
 
                     <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                        <div class="p-4 border-b bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <h4 class="font-bold text-gray-700">Recent Shipments</h4>
-                            <div class="flex gap-2">
-                                <input type="text" id="tableSearch" placeholder="Search Tracking..." class="border rounded-lg px-3 py-1.5 text-sm">
-                                <select id="statusFilter" class="border rounded-lg px-3 py-1.5 text-sm">
-                                    <option value="All">All</option>
-                                    <option value="In Transit">In Transit</option>
-                                    <option value="Partially received">Partially received</option>
-                                    <option value="Delivered">Delivered</option>
-                                </select>
-                            </div>
-                        </div>
+                       
 
 
                          <div class="w-full lg:w-auto flex flex-col md:flex-row items-center gap-4">
@@ -228,7 +217,21 @@
                     class="w-full pl-3 pr-2 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-xs text-slate-600"
                 />
             </div>
-
+<div class="relative w-full md:w-auto">
+    <label class="absolute -top-2 left-3 bg-white px-1 text-[9px] font-bold text-slate-400 uppercase tracking-tight z-10">Status</label>
+    <select 
+        id="table-status-filter" 
+        onchange="window.filterTable()" 
+        class="w-full pl-3 pr-8 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-xs text-slate-600 appearance-none cursor-pointer"
+    >
+        <option value="">All Statuses</option>
+        <option value="At Dispatch">At Dispatch</option>
+        <option value="In Transit">In Transit</option>
+        <option value="Partially received">Partially Received</option>
+        <option value="Ready for Pickup">Ready for Pickup</option>
+        <option value="Delivered">Delivered</option>
+    </select>
+</div>
             <div class="relative w-full md:min-w-[300px]">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
@@ -240,10 +243,12 @@
                     placeholder="Search Tracking ID..." 
                     class="w-full pl-9 pr-8 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-xs"
                 />
+                
                 <button onclick="clearTableFilters()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300 hover:text-red-500 transition-colors">
                     <i class="fa-solid fa-circle-xmark text-sm"></i>
                 </button>
             </div>
+            
         </div>
 
         <div class="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-sm">
@@ -429,7 +434,21 @@
                     class="w-full pl-3 pr-2 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-xs text-slate-600"
                 />
             </div>
-
+<div class="relative w-full md:w-auto">
+    <label class="absolute -top-2 left-3 bg-white px-1 text-[9px] font-bold text-slate-400 uppercase tracking-tight z-10">Status</label>
+    <select 
+        id="table-status-filter" 
+        onchange="window.filterTable()" 
+        class="w-full pl-3 pr-8 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-xs text-slate-600 appearance-none cursor-pointer"
+    >
+        <option value="">All Statuses</option>
+        <option value="At Dispatch">At Dispatch</option>
+        <option value="In Transit">In Transit</option>
+        <option value="Partially received">Partially Received</option>
+        <option value="Ready for Pickup">Ready for Pickup</option>
+        <option value="Delivered">Delivered</option>
+    </select>
+</div>
             <div class="relative w-full md:min-w-[300px]">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
@@ -441,6 +460,7 @@
                     placeholder="Search Tracking ID..." 
                     class="w-full pl-9 pr-8 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-xs"
                 />
+
                 <button onclick="clearTableFilters()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300 hover:text-red-500 transition-colors">
                     <i class="fa-solid fa-circle-xmark text-sm"></i>
                 </button>
@@ -1289,35 +1309,47 @@ async function fetchParcels() {
 window.filterTable = function() {
     const searchInput = document.getElementById('table-search');
     const dateInput = document.getElementById('table-date-filter');
+    const statusInput = document.getElementById('table-status-filter'); // <--- NEW
     
     if (!searchInput || !allParcels) return;
 
     const searchTerm = searchInput.value.toLowerCase();
     const filterDate = dateInput ? dateInput.value : ""; 
+    const filterStatus = statusInput ? statusInput.value : ""; // <--- NEW
     
     const filtered = allParcels.filter(p => {
-        // 1. Expanded Text Search (Includes Destination)
+        // 1. Text Search
         const matchesText = 
             (p.tracking_number || "").toLowerCase().includes(searchTerm) || 
             (p.sender_name || "").toLowerCase().includes(searchTerm) ||
             (p.sender_phone || "").includes(searchTerm) ||
-            (p.destination || "").toLowerCase().includes(searchTerm); // <--- ADDED THIS
+            (p.destination || "").toLowerCase().includes(searchTerm);
 
-        // 2. Safe Date Filter
+        // 2. Date Filter
         let matchesDate = true;
         if (filterDate && p.created_at) {
             try {
                 const parcelDate = new Date(p.created_at).toISOString().split('T')[0];
                 matchesDate = (parcelDate === filterDate);
-            } catch (e) {
-                matchesDate = false;
-            }
+            } catch (e) { matchesDate = false; }
         }
 
-        return matchesText && matchesDate;
+        // 3. Status Filter (NEW)
+        const matchesStatus = filterStatus === "" || p.status === filterStatus;
+
+        return matchesText && matchesDate && matchesStatus; // All 3 must be true
     });
+
     currentFilteredData = filtered; 
     renderTableRows(filtered);
+    
+    // Optional: Update summary cards based on these specific filtered results
+};
+        window.clearTableFilters = function() {
+    document.getElementById('table-search').value = "";
+    document.getElementById('table-date-filter').value = "";
+    document.getElementById('table-status-filter').value = ""; // Reset dropdown
+    window.filterTable(); // Refresh table
 };
         function exportToExcel() {
     if (currentFilteredData.length === 0) return alert("No data to export");
