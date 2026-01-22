@@ -2817,8 +2817,9 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
     }
 });
 
+
         function updateAmountPaidModalIfOpen(addedAmount) {
-    console.log("Checking for open parcel modal...");
+    console.log("Checking for parcel modal (visible or not)...");
 
     const modal = document.getElementById('parcel-modal');
 
@@ -2828,14 +2829,6 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
     }
 
     console.log("✅ parcel-modal found:", modal);
-
-    const isVisible = !modal.classList.contains('hidden') && modal.offsetParent !== null;
-    console.log("Modal visibility:", isVisible);
-
-    if (!isVisible) {
-        console.warn("❌ parcel-modal exists but is NOT visible");
-        return;
-    }
 
     const amountDisplay = modal.querySelector('#amountpaid');
 
@@ -2855,9 +2848,10 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
     amountDisplay.textContent = `UGX ${newAmount.toLocaleString()}`;
     amountDisplay.dataset.amount = newAmount;
 
-    console.log("✅ amountpaid UI updated successfully!");
+    console.log("✅ amountpaid updated successfully (visible or not)!");
 }
 
+        
 
       window.confirmDelivery = async function(id) {
     const parcel = allParcels.find(p => p._id === id);
