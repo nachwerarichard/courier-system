@@ -2989,16 +2989,10 @@ function generatePaymentReceipt(parcelId) {
                 </div>
             </div>
         </div>
-        <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end">
-            <button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300">
-                Close
-            </button>
-        </div>
+        
     `;
 
-    // Show the modal
-    const modal = document.getElementById('details-modal');
-    modal.classList.remove('hidden');
+   
 
     // Wait a little to render, then print
     setTimeout(() => window.print(), 300);
