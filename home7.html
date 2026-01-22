@@ -1413,6 +1413,8 @@ function renderTableRows(parcelsToDisplay) {
 
     // 3. Generate row HTML for all items
     const allRowsArray = parcelsToDisplay.map(p => {
+        const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
+        const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
         return `<tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
             <td class="p-4">
                 <button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
