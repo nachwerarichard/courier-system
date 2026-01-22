@@ -2935,11 +2935,17 @@ function updateAmountPaidModalIfOpen(addedAmount) {
 
         
 
-      window.confirmDelivery = async function(id) {
+window.confirmDelivery = async function(id) {
     const parcel = allParcels.find(p => p._id === id);
 
     if (!parcel) {
         alert("Parcel not found.");
+        return;
+    }
+
+    // Check if already delivered
+    if (parcel.status === "Delivered") {
+        alert("This parcel has already been delivered.");
         return;
     }
 
@@ -2981,6 +2987,7 @@ function updateAmountPaidModalIfOpen(addedAmount) {
     }
 };
 
+        
         // 1. Toggle the dropdown menu
 window.toggleUserMenu = function(event, id) {
     event.stopPropagation(); // Prevents the click from bubbling up
