@@ -410,16 +410,16 @@
                 <label class="absolute -top-2 left-3 bg-white px-1 text-[9px] font-bold text-slate-400 uppercase tracking-tight z-10">Filter Date</label>
                 <input 
                     type="date" 
-                    id="table-date-filter" 
-                    onchange="window.filterTable()" 
+                    id="ptable-date-filter" 
+                    onchange="window.filterPTable()" 
                     class="w-full pl-3 pr-2 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-xs text-slate-600"
                 />
             </div>
 <div class="relative w-full md:w-auto">
     <label class="absolute -top-2 left-3 bg-white px-1 text-[9px] font-bold text-slate-400 uppercase tracking-tight z-10">Status</label>
     <select 
-        id="table-status-filter" 
-        onchange="window.filterTable()" 
+        id="ptable-status-filter" 
+        onchange="window.filterPTable()" 
         class="w-full pl-3 pr-8 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-xs text-slate-600 appearance-none cursor-pointer"
     >
         <option value="">All Statuses</option>
@@ -436,13 +436,13 @@
                 </div>
                 <input 
                     type="text" 
-                    id="table-search" 
-                    oninput="window.filterTable()" 
+                    id="ptable-search" 
+                    oninput="window.filterPTable()" 
                     placeholder="Search Tracking ID..." 
                     class="w-full pl-9 pr-8 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-xs"
                 />
 
-                <button onclick="clearTableFilters()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300 hover:text-red-500 transition-colors">
+                <button onclick="clearTablePFilters()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300 hover:text-red-500 transition-colors">
                     <i class="fa-solid fa-circle-xmark text-sm"></i>
                 </button>
             </div>
@@ -1331,6 +1331,51 @@ window.filterTable = function() {
     document.getElementById('table-date-filter').value = "";
     document.getElementById('table-status-filter').value = ""; // Reset dropdown
     window.filterTable(); // Refresh table
+};
+        window.filterPTable = function() {
+    const searchInput = document.getElementById('ptable-search');
+    const dateInput = document.getElementById('ptable-date-filter');
+    const statusInput = document.getElementById('ptable-status-filter'); // <--- NEW
+    
+    if (!searchInput || !allParcels) return;
+
+    const searchTerm = searchInput.value.toLowerCase();
+    const filterDate = dateInput ? dateInput.value : ""; 
+    const filterStatus = statusInput ? statusInput.value : ""; // <--- NEW
+    
+    const filtered = allParcels.filter(p => {
+        // 1. Text Search
+        const matchesText = 
+            (p.tracking_number || "").toLowerCase().includes(searchTerm) || 
+            (p.sender_name || "").toLowerCase().includes(searchTerm) ||
+            (p.sender_phone || "").includes(searchTerm) ||
+            (p.destination || "").toLowerCase().includes(searchTerm);
+
+        // 2. Date Filter
+        let matchesDate = true;
+        if (filterDate && p.created_at) {
+            try {
+                const parcelDate = new Date(p.created_at).toISOString().split('T')[0];
+                matchesDate = (parcelDate === filterDate);
+            } catch (e) { matchesDate = false; }
+        }
+
+        // 3. Status Filter (NEW)
+        const matchesStatus = filterStatus === "" || p.status === filterStatus;
+
+        return matchesText && matchesDate && matchesStatus; // All 3 must be true
+    });
+
+    currentFilteredData = filtered; 
+    renderTableRows(filtered);
+    
+    // Optional: Update summary cards based on these specific filtered results
+};
+        window.clearTablePFilters = function() {
+    document.getElementById('ptable-search').value = "";
+    document.getElementById('ptable-date-filter').value = "";
+    document.getElementById('ptable-status-filter').value = ""; // Reset dropdown
+    window.filterPTable(); // Refresh table
 };
         function exportToExcel() {
     if (currentFilteredData.length === 0) return alert("No data to export");
