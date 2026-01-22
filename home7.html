@@ -2818,38 +2818,30 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 });
 
 
+
         function updateAmountPaidModalIfOpen(addedAmount) {
-    console.log("Checking for parcel modal (visible or not)...");
+    console.log("Checking for #amountPaid input...");
 
-    const modal = document.getElementById('parcel-modal');
+    const amountInput = document.getElementById('amountPaid');
 
-    if (!modal) {
-        console.warn("❌ parcel-modal NOT found in DOM");
+    if (!amountInput) {
+        console.warn("❌ #amountPaid input NOT found in DOM");
         return;
     }
 
-    console.log("✅ parcel-modal found:", modal);
+    console.log("✅ #amountPaid input found:", amountInput);
 
-    const amountDisplay = modal.querySelector('#amountPaid');
-
-    if (!amountDisplay) {
-        console.warn("❌ #amountpaid NOT found inside parcel-modal");
-        return;
-    }
-
-    console.log("✅ #amountpaid found:", amountDisplay);
-
-    const currentAmount = Number(amountDisplay.dataset.amount || 0);
-    console.log("Current amount in modal:", currentAmount);
+    const currentAmount = Number(document.getElementById('amountPaid').value || 0);
+    console.log("Current amount in input:", currentAmount);
 
     const newAmount = currentAmount + addedAmount;
     console.log("New amount after payment:", newAmount);
 
-    amountDisplay.textContent = `UGX ${newAmount.toLocaleString()}`;
-    amountDisplay.dataset.amount = newAmount;
+    document.getElementById('amountPaid').value = newAmount;
 
-    console.log("✅ amountpaid updated successfully (visible or not)!");
+    console.log("✅ amountPaid input updated successfully!");
 }
+
 
         
 
