@@ -1398,7 +1398,22 @@ function renderTableRows(parcelsToDisplay) {
 
     // 2. Handle empty results
     if (!parcelsToDisplay || parcelsToDisplay.length === 0) {
-        const emptyState = `<tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
+        const emptyState = `
+            <tr>
+                <td colspan="6" class="p-10 text-center text-slate-400">
+                    <i class="fa-solid fa-box-open block text-3xl mb-2 opacity-20"></i>
+                    No parcels found matching your search.
+                </td>
+            </tr>`;
+        
+        if (mainTableBody) mainTableBody.innerHTML = emptyState;
+        if (dashboardTableBody) dashboardTableBody.innerHTML = emptyState;
+        return;
+    }
+
+    // 3. Generate row HTML for all items
+    const allRowsArray = parcelsToDisplay.map(p => {
+        return `<tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
             <td class="p-4">
                 <button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
                     ${p.tracking_number || 'N/A'}
@@ -1454,21 +1469,6 @@ function renderTableRows(parcelsToDisplay) {
                 </div>
             </td>
         </tr>
-            <tr>
-                <td colspan="6" class="p-10 text-center text-slate-400">
-                    <i class="fa-solid fa-box-open block text-3xl mb-2 opacity-20"></i>
-                    No parcels found matching your search.
-                </td>
-            </tr>`;
-        
-        if (mainTableBody) mainTableBody.innerHTML = emptyState;
-        if (dashboardTableBody) dashboardTableBody.innerHTML = emptyState;
-        return;
-    }
-
-    // 3. Generate row HTML for all items
-    const allRowsArray = parcelsToDisplay.map(p => {
-        return `
             
         `;
     });
