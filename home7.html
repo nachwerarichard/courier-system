@@ -2883,6 +2883,7 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
             const error = await response.json();
             throw new Error(error.error || "Payment failed");
         }
+         alert(`Payment successful! Amount Paid: UGX ${amountPaid.toLocaleString()} via ${paymentMethod}`);
 
         // Reset form & hide payment modal
         form.reset();
