@@ -2937,39 +2937,50 @@ function updateAmountPaidModalIfOpen(addedAmount) {
 
       window.confirmDelivery = async function(id) {
     const parcel = allParcels.find(p => p._id === id);
-    
+
+    if (!parcel) {
+        alert("Parcel not found.");
+        return;
+    }
+
     // Safety Check: Don't deliver if balance exists
-    if (parcel && parcel.balance > 0) {
+    if (parcel.balance > 0) {
         alert(`Cannot Deliver: This parcel has a pending balance of UGX ${parcel.balance.toLocaleString()}. Please clear payment first.`);
         return;
     }
 
+    // Status Check: Only allow if In Transit or Ready for Pickup
+    if (parcel.status !== "In Transit" && parcel.status !== "Ready for Pickup") {
+        alert(`Cannot mark as Delivered. Current status is "${parcel.status}".`);
+        return;
+    }
+
+    // Confirm with user
     if (!confirm("Are you sure you want to mark this parcel as DELIVERED?")) {
         return;
     }
 
     try {
-        // Use your existing updateStatus logic
+        // Update status to Delivered
         await updateStatus(id, 'Delivered');
-        
-        // 1. Refresh global data
-        await fetchParcels(); 
-        
-        // 2. Update dashboard numbers
+
+        // Refresh global data
+        await fetchParcels();
+
+        // Update dashboard stats if function exists
         if (typeof updateDashboardStats === 'function') updateDashboardStats();
 
-        // 3. Update the modal view if it's still open
-        if (typeof showParcelDetails === 'function') {
-            showParcelDetails(id); 
-        }
+        // Update modal view if still open
+        if (typeof showParcelDetails === 'function') showParcelDetails(id);
 
         alert("Parcel successfully marked as Delivered.");
-        
+
     } catch (err) {
         console.error("Delivery Update Error:", err);
         alert("Failed to update delivery status.");
     }
 };
+
         // 1. Toggle the dropdown menu
 window.toggleUserMenu = function(event, id) {
     event.stopPropagation(); // Prevents the click from bubbling up
