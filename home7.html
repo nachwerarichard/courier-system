@@ -338,7 +338,15 @@
             <i class="fa-solid fa-plus"></i> Add New Parcel
         </button>
     </div>
-
+<div class="flex gap-2 mb-4">
+    <button onclick="exportToExcel()" class="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 text-xs font-bold transition-all">
+        <i class="fa-solid fa-file-excel"></i> Excel (CSV)
+    </button>
+    
+    <button onclick="printReport()" class="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 text-xs font-bold transition-all">
+        <i class="fa-solid fa-print"></i> Print / PDF
+    </button>
+</div>
     <div class="w-full flex flex-col md:flex-row gap-3 max-w-2xl">
         <div class="relative min-w-[180px]">
             <input 
@@ -1178,9 +1186,68 @@ window.filterTable = function() {
 
         return matchesText && matchesDate;
     });
-
-    renderTableRows(filtered); 
+    currentFilteredData = filtered; 
+    renderTableRows(filtered);
 };
+        function exportToExcel() {
+    if (currentFilteredData.length === 0) return alert("No data to export");
+    
+    let csv = "Tracking ID,Sender,Destination,Balance,Status,Date\n";
+    currentFilteredData.forEach(p => {
+        csv += `${p.tracking_number},${p.sender_name},${p.destination},${p.balance},${p.status},${p.created_at.split('T')[0]}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Parcels_Export_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+}
+
+// --- PRINT & PDF ---
+// Most browsers "Export to PDF" via the Print menu
+function printReport() {
+    const printWindow = window.open('', '_blank');
+    let tableHtml = `
+        <html>
+        <head>
+            <title>Parcel Report</title>
+            <style>
+                table { width: 100%; border-collapse: collapse; font-family: sans-serif; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                th { background-color: #f2f2f2; }
+                h2 { font-family: sans-serif; }
+            </style>
+        </head>
+        <body>
+            <h2>Parcel Shipment Report - ${new Date().toLocaleDateString()}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tracking ID</th><th>Sender</th><th>Destination</th><th>Balance</th><th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    currentFilteredData.forEach(p => {
+        tableHtml += `
+            <tr>
+                <td>${p.tracking_number}</td>
+                <td>${p.sender_name}</td>
+                <td>${p.destination}</td>
+                <td>UGX ${p.balance.toLocaleString()}</td>
+                <td>${p.status}</td>
+            </tr>`;
+    });
+
+    tableHtml += `</tbody></table></body></html>`;
+    
+    printWindow.document.write(tableHtml);
+    printWindow.document.close();
+    printWindow.print();
+}
         function renderTableRows(parcelsToDisplay) {
     const tableBody = document.getElementById('parcel-table-body');
     
