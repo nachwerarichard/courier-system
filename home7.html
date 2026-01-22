@@ -2771,13 +2771,16 @@ document.getElementById('addItemForm').addEventListener('submit', async (e) => {
 // SUBMIT PAYMENT ONLY
 document.getElementById('miniPaymentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    // 1. Get the ID from the hidden input
+
+    const form = e.target;
+
+    // 1. Get parcel ID
     const id = document.getElementById('pay_waybill_id').value;
-    const form = e.target; // Reference to the form
-    
+
+    // 2. Prepare payment payload
+    const amountPaid = Number(document.getElementById('mini_pay_amount').value);
     const paymentData = {
-        amount_paid: Number(document.getElementById('mini_pay_amount').value),
+        amount_paid: amountPaid,
         payment_method: document.getElementById('mini_pay_method').value
     };
 
@@ -2788,28 +2791,52 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
             body: JSON.stringify(paymentData)
         });
 
-        if (response.ok) {
-            // 2. Clear the form fields immediately
-            form.reset();
-            
-            // 3. Close the payment entry modal
-            hideModal('payment-modal');
-            calculatePaymentStatus();
-            // 4. Refresh the global data array (allParcels)
-            await fetchParcels(); 
-            
-            // 5. Re-render the "Delivery Details" modal instantly 
-            // Note: Use 'id' here to match your variable above
-
-        } else {
+        if (!response.ok) {
             const error = await response.json();
-            alert("Payment failed: " + error.error);
+            throw new Error(error.error || "Payment failed");
         }
+
+        // 3. Reset form & close modal
+        form.reset();
+        hideModal('payment-modal');
+
+        // 4. Update any open amountpaid modal
+        updateAmountPaidModalIfOpen(amountPaid);
+
+        // 5. Recalculate payment status if needed
+        calculatePaymentStatus();
+
+        // 6. Refresh parcels data
+        await fetchParcels();
+
     } catch (err) {
         console.error("Payment Error:", err);
-        alert("Network error. Please try again.");
+        alert("Payment failed: " + err.message);
     }
 });
+
+        function updateAmountPaidModalIfOpen(addedAmount) {
+    const modal = document.getElementById('parcel-modal');
+
+    if (!modal) return; // Modal not in DOM
+
+    // Check if modal is visible (not hidden)
+    const isVisible = !modal.classList.contains('hidden') && modal.offsetParent !== null;
+    if (!isVisible) return;
+
+    // Find where the amount is displayed inside the modal
+    const amountDisplay = modal.querySelector('#amountpaid');
+
+    if (!amountDisplay) return;
+
+    const currentAmount = Number(amountDisplay.dataset.amount || 0);
+    const newAmount = currentAmount + addedAmount;
+
+    // Update UI
+    amountDisplay.textContent = `UGX ${newAmount.toLocaleString()}`;
+    amountDisplay.dataset.amount = newAmount;
+}
+
       window.confirmDelivery = async function(id) {
     const parcel = allParcels.find(p => p._id === id);
     
