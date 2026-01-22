@@ -2858,7 +2858,7 @@ document.getElementById('addItemForm').addEventListener('submit', async (e) => {
 
         // SUBMIT PAYMENT ONLY
 
-// SUBMIT PAYMENT ONLY + Generate Receipt
+// SUBMIT PAYMENT + Generate Printable Receipt
 document.getElementById('miniPaymentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -2883,7 +2883,6 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
         });
 
         console.log("Server response status:", response.status);
-
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.error || "Payment failed");
@@ -2891,16 +2890,16 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 
         console.log("Payment successful!");
 
-        // Reset form & hide modal
+        // Reset form & hide payment modal
         form.reset();
         hideModal('payment-modal');
 
-        // Update amounts in the parcel modal
+        // Update parcel modal amounts
         updateAmountPaidModalIfOpen(amountPaid);
         calculatePaymentStatus();
         await fetchParcels();
 
-        // Generate the receipt for printing
+        // Generate receipt for printing
         generatePaymentReceipt(id);
 
     } catch (err) {
@@ -2909,20 +2908,16 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
     }
 });
 
-// Generate Receipt in parcel-modal and print
-async function generatePaymentReceipt(parcelId) {
+// Generate Payment Receipt in the details-modal
+function generatePaymentReceipt(parcelId) {
     const parcel = allParcels.find(p => p._id === parcelId);
     if (!parcel) {
         console.warn("Parcel not found for receipt.");
         return;
     }
 
-    console.log("Generating receipt for parcel:", parcelId);
-
-    const modal = document.getElementById('parcel-modal');
-    const content = modal.querySelector('form#parcel-modal-content') || document.createElement('div');
-    content.id = 'parcel-modal-content';
-    content.className = 'p-6 overflow-y-auto';
+    const content = document.getElementById('modal-content');
+    if (!content) return;
 
     content.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -2994,23 +2989,27 @@ async function generatePaymentReceipt(parcelId) {
                 </div>
             </div>
         </div>
-
         <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end">
-            <button onclick="hideModal('parcel-modal')" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300">Close</button>
+            <button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300">
+                Close
+            </button>
         </div>
     `;
 
-    // Append to modal if not already
-    if (!modal.contains(content)) modal.appendChild(content);
-
-    // Show modal
+    // Show the modal
+    const modal = document.getElementById('details-modal');
     modal.classList.remove('hidden');
 
-    // Wait a tiny bit for modal to render
-    setTimeout(() => {
-        window.print();
-    }, 300);
+    // Wait a little to render, then print
+    setTimeout(() => window.print(), 300);
 }
+
+// Close receipt modal
+function closeDetailsModal() {
+    const modal = document.getElementById('details-modal');
+    modal.classList.add('hidden');
+}
+
 
         
 function updateAmountPaidModalIfOpen(addedAmount) {
