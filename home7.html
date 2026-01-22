@@ -173,16 +173,30 @@
                         </div>
 
                         <div class="bg-white rounded-xl shadow-sm border p-6">
-                            <h4 class="font-bold text-gray-700 mb-4">Quick Actions</h4>
-                            <div class="grid grid-cols-1 gap-3">
-                                <button onclick="showModal('parcel-modal')" class="flex items-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold shadow-md transition-all">
-                                    <i class="fa-solid fa-plus-circle"></i> Create New Parcel
-                                </button>
-                                <button class="flex items-center gap-3 w-full bg-white hover:bg-gray-50 border p-3 rounded-lg font-medium text-gray-700">
-                                    <i class="fa-solid fa-magnifying-glass text-slate-400"></i> Track Waybill
-                                </button>
-                            </div>
-                        </div>
+    <h4 class="font-bold text-gray-700 mb-4">Quick Actions</h4>
+    <div class="grid grid-cols-1 gap-3">
+        <button onclick="showModal('parcel-modal')" class="flex items-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold shadow-md transition-all">
+            <i class="fa-solid fa-plus-circle"></i> Create New Parcel
+        </button>
+
+        <div class="relative group" id="track-container">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+            </div>
+            <input 
+                type="text" 
+                id="quick-track-input" 
+                oninput="handleTrackAutocomplete(this.value)"
+                placeholder="Enter Tracking ID..." 
+                class="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                autocomplete="off"
+            >
+            
+            <div id="track-results" class="hidden absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                </div>
+        </div>
+    </div>
+</div>
                     </div>
 
                     <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
@@ -2977,6 +2991,52 @@ document.getElementById('report-pending').textContent = pendingCount;
     link.click();
     document.body.removeChild(link);
 }
+
+        window.handleTrackAutocomplete = function(val) {
+    const resultsDiv = document.getElementById('track-results');
+    const searchTerm = val.trim().toLowerCase();
+
+    // Hide if input is empty
+    if (searchTerm.length < 2) {
+        resultsDiv.classList.add('hidden');
+        return;
+    }
+
+    // Filter parcels (by ID, Tracking Number, or Sender Name)
+    const matches = allParcels.filter(p => 
+        (p.tracking_number || "").toLowerCase().includes(searchTerm) ||
+        (p.sender_name || "").toLowerCase().includes(searchTerm)
+    ).slice(0, 5); // Limit to top 5 for speed
+
+    if (matches.length > 0) {
+        resultsDiv.innerHTML = matches.map(p => `
+            <div onclick="selectTrackedParcel('${p._id}')" 
+                 class="p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-none transition-colors">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-blue-700">${p.tracking_number}</span>
+                    <span class="text-[10px] px-2 py-0.5 bg-slate-100 rounded text-slate-500">${p.status}</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-1">${p.sender_name} → ${p.destination}</div>
+            </div>
+        `).join('');
+        resultsDiv.classList.remove('hidden');
+    } else {
+        resultsDiv.classList.add('hidden');
+    }
+};
+
+window.selectTrackedParcel = function(id) {
+    document.getElementById('track-results').classList.add('hidden');
+    document.getElementById('quick-track-input').value = "";
+    showParcelDetails(id); // Opens your existing details modal
+};
+
+// Close dropdown if user clicks outside
+document.addEventListener('click', (e) => {
+    if (!document.getElementById('track-container').contains(e.target)) {
+        document.getElementById('track-results').classList.add('hidden');
+    }
+});
 </script>
 
 </body>
