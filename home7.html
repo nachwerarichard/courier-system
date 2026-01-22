@@ -1689,6 +1689,14 @@ function generateRows(parcels, tableType) {
     const currentMenu = document.getElementById(menuId);
     currentMenu.classList.toggle('hidden');
 }
+        document.addEventListener('click', (event) => {
+    const isMenuButton = event.target.closest('[id^="menu-"], button'); // any button/menu clicked
+    if (!isMenuButton) {
+        document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
+    }
+});
+
+        
 
 window.showParcelDetails = function(id) {
     const parcel = allParcels.find(p => p._id === id);
