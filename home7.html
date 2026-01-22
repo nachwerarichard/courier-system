@@ -2818,8 +2818,7 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 });
 
 
-
-        function updateAmountPaidModalIfOpen(addedAmount) {
+function updateAmountPaidModalIfOpen(addedAmount) {
     console.log("Checking for #amountPaid input...");
 
     const amountInput = document.getElementById('amountPaid');
@@ -2840,6 +2839,10 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
     document.getElementById('amountPaid').value = newAmount;
 
     console.log("✅ amountPaid input updated successfully!");
+
+    // ✅ Recalculate balance after updating amount
+    console.log("Calling calculateBalance()...");
+    calculateBalance();
 }
 
 
