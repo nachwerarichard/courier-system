@@ -1371,9 +1371,7 @@ ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.
                         <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2">
                             <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
                         </button>
-                        <button onclick="addNewParcelForCustomer('${p.sender_name}', '${p.sender_phone}', '${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
-                            <i class="fa-solid fa-plus text-blue-600 w-4"></i> Add Item
-                        </button>
+                        
                         <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
                            <i class="fa-solid fa-pen-to-square text-orange-500 w-4"></i> Update
                         </button>
@@ -1575,10 +1573,6 @@ let editingId = null;
                 <option value="Delivered" ${parcel.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
             </select>
             
-            <button type="button" onclick="openPaymentModal('${parcel._id}')" 
-                class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-green-200 transition">
-                <i class="fa-solid fa-money-bill-wave"></i> Add Payment
-            </button>
         </div>
     `;
 
@@ -2487,7 +2481,6 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
             
             // 5. Re-render the "Delivery Details" modal instantly 
             // Note: Use 'id' here to match your variable above
-            editParcel(id); 
 
         } else {
             const error = await response.json();
