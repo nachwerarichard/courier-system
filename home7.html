@@ -640,32 +640,58 @@
 
                 <div class="lg:col-span-2 space-y-6">
                     
-                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-3">
-    <label class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block">Add Item to Waybill</label>
-    
-    <div class="flex gap-2">
-        <input type="text" id="temp_desc" placeholder="Description (e.g., Box of clothes)" 
-               class="flex-grow border border-slate-200 p-3 rounded-lg text-sm outline-none bg-white focus:ring-2 focus:ring-blue-400">
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 space-y-4">
+    <div class="flex items-center justify-between border-b border-blue-100 pb-2">
+        <label class="text-[11px] font-bold text-blue-600 uppercase tracking-widest">Add Item to Waybill</label>
+        <span class="text-[10px] text-blue-400 italic">Step 2: Consignment Details</span>
     </div>
 
-    <div class="flex flex-wrap items-center gap-2">
-        <input type="number" id="temp_qty" oninput="calculateParcelPrice()" placeholder="Qty" class="w-16 border border-slate-200 p-3 rounded-lg text-sm bg-white">
-        <input type="number" id="temp_weight" oninput="calculateParcelPrice()" placeholder="Kg" class="w-16 border border-slate-200 p-3 rounded-lg text-sm bg-white">
+    <div class="space-y-1">
+        <label for="temp_desc" class="text-[10px] font-semibold text-slate-500 uppercase ml-1">Item Description</label>
+        <div class="flex gap-2">
+            <input type="text" id="temp_desc" placeholder="e.g., Box of electronics, clothes, spare parts" 
+                   class="flex-grow border border-slate-200 p-3 rounded-lg text-sm outline-none bg-white focus:ring-2 focus:ring-blue-400 transition-all">
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         
-        <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2">
-            <input type="number" id="length" oninput="calculateParcelPrice()" placeholder="L" class="w-12 p-2 text-xs outline-none">
-            <span class="text-slate-300 text-[10px]">×</span>
-            <input type="number" id="width"  oninput="calculateParcelPrice()" placeholder="W" class="w-12 p-2 text-xs outline-none">
-            <span class="text-slate-300 text-[10px]">×</span>
-            <input type="number" id="height" oninput="calculateParcelPrice()" placeholder="H" class="w-12 p-2 text-xs outline-none">
+        <div class="col-span-2 space-y-1">
+            <label class="text-[10px] font-semibold text-slate-500 uppercase ml-1">Dimensions & Quantity</label>
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-col">
+                    <input type="number" id="temp_qty" oninput="calculateParcelPrice()" placeholder="Qty" class="w-16 border border-slate-200 p-3 rounded-lg text-sm bg-white focus:border-blue-400 outline-none" title="Quantity">
+                </div>
+                
+                <div class="flex flex-col">
+                    <input type="number" id="temp_weight" oninput="calculateParcelPrice()" placeholder="Kg" class="w-16 border border-slate-200 p-3 rounded-lg text-sm bg-white focus:border-blue-400 outline-none" title="Weight in Kilograms">
+                </div>
+
+                <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 h-[46px]">
+                    <div class="text-[9px] text-slate-400 font-bold mr-1">LWH:</div>
+                    <input type="number" id="length" oninput="calculateParcelPrice()" placeholder="L" class="w-10 text-xs outline-none text-center" title="Length">
+                    <span class="text-slate-300 text-[10px]">×</span>
+                    <input type="number" id="width"  oninput="calculateParcelPrice()" placeholder="W" class="w-10 text-xs outline-none text-center" title="Width">
+                    <span class="text-slate-300 text-[10px]">×</span>
+                    <input type="number" id="height" oninput="calculateParcelPrice()" placeholder="H" class="w-10 text-xs outline-none text-center" title="Height">
+                </div>
+
+                <div class="flex flex-col">
+                    <input type="number" id="volume" placeholder="Vol" class="w-20 border border-slate-200 p-3 rounded-lg text-sm bg-slate-100 font-medium text-slate-600" readonly title="Calculated Volume">
+                </div>
+            </div>
         </div>
 
-        <input type="number" id="volume" placeholder="Vol" class="w-20 border border-slate-200 p-3 rounded-lg text-sm bg-slate-50 font-medium" readonly>
-        <input type="number" id="temp_rate" oninput="calculateParcelPrice()" placeholder="Rate" class="w-24 border border-slate-200 p-3 rounded-lg text-sm bg-white font-bold text-blue-700">
-        
-        <button type="button" onclick="addParcelToList()" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors flex-grow md:flex-grow-0">
-            <i class="fa-solid fa-plus mr-1"></i> Add
-        </button>
+        <div class="space-y-1">
+            <label for="temp_rate" class="text-[10px] font-semibold text-slate-500 uppercase ml-1">Unit Rate (UGX)</label>
+            <div class="flex items-center gap-2">
+                <input type="number" id="temp_rate" oninput="calculateParcelPrice()" placeholder="Rate" class="flex-grow border border-slate-200 p-3 rounded-lg text-sm bg-white font-bold text-blue-700 focus:ring-2 focus:ring-blue-400 outline-none">
+                
+                <button type="button" onclick="addParcelToList()" class="bg-blue-600 text-white p-3 px-5 rounded-lg hover:bg-blue-700 transition-all shadow-md active:scale-95">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
                     <div class="border border-slate-100 rounded-xl overflow-hidden flex flex-col bg-white">
