@@ -1588,24 +1588,12 @@ function clearTableFilters() {
     renderTableRows(allParcels);
 }
 // 4. The Render Function
-function renderTable(parcels) {
-    // 1. Identify both table bodies
-    const mainTbody = document.getElementById('parcel-table-body');
-    const dashboardTbody = document.getElementById('dashboardparcel-table-body');
+function generateRows(parcels, tableType) {
+    return parcels.map(p => {
+        const firstItemDesc = p.items?.[0]?.description || 'No description';
+        const extraItems = p.items?.length > 1 ? ` (+${p.items.length - 1} more)` : '';
 
-    // 2. Handle empty state
-    if (!parcels || parcels.length === 0) {
-        const emptyRow = `<tr><td colspan="6" class="p-10 text-center text-slate-400">No parcels found.</td></tr>`;
-        if (mainTbody) mainTbody.innerHTML = emptyRow;
-        if (dashboardTbody) dashboardTbody.innerHTML = emptyRow;
-        return;
-    }
-
-    // 3. Generate the rows for the items
-    // We map all parcels first to create a full list of row strings
-    const allRowsHtml = parcels.map(p => {
-        const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
-        const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
+        const menuId = `menu-${tableType}-${p._id}`;
 
         return `
         <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
@@ -1617,6 +1605,7 @@ function renderTable(parcels) {
                     ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'No Date'}                
                 </div>
             </td>
+
             <td class="p-4">
                 <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
                 <div class="text-[11px] text-slate-500 font-medium">
@@ -1624,6 +1613,7 @@ function renderTable(parcels) {
                 </div>
                 <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
             </td>
+
             <td class="p-4">
                 <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
                     <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
@@ -1631,71 +1621,75 @@ function renderTable(parcels) {
                     <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
                 </div>
             </td>
+
             <td class="p-4">
                 <div class="font-bold text-slate-800 text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
                 <div class="text-[10px] ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
                     Bal: UGX ${(p.balance || 0).toLocaleString()}
                 </div>
             </td>
+
             <td class="p-4">
                 <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-100 inline-block shadow-sm ${getStatusStyle(p.status)}">
                     ${p.status}
                 </span>
             </td>
+
             <td class="p-4 text-right">
                 <div class="relative inline-block text-left">
-                    <button onclick="toggleActionMenu(event, '${p._id}')" class="p-2 text-slate-400 hover:text-slate-600">
+                    <button onclick="toggleActionMenu(event, '${menuId}')" class="p-2 text-slate-400 hover:text-slate-600">
                         <i class="fa-solid fa-ellipsis-vertical"></i>
                     </button>
-                    <div id="menu-${p._id}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
-                        <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2">
+                    <div id="${menuId}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
+                        <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
                             <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
                         </button>
-                        <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
-                           <i class="fa-solid fa-pen-to-square text-orange-500 w-4"></i> Update
+                        <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-orange-500 w-4"></i> Update
                         </button>
-                        <button onclick="showParcelDelivery('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 flex items-center gap-2 border-b border-slate-100">
-                           <i class="fa-solid fa-van-shuttle text-indigo-500 w-4"></i> Deliver
+                        <button onclick="showParcelDelivery('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-van-shuttle text-indigo-500 w-4"></i> Deliver
                         </button>
                         <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                            <i class="fa-solid fa-trash-can w-4"></i> Delete 
+                            <i class="fa-solid fa-trash-can w-4"></i> Delete
                         </button>
                     </div>
                 </div>
             </td>
         </tr>`;
     });
-
-    // 4. Update Main Table (Shows everything passed to function)
-    if (mainTbody) {
-        mainTbody.innerHTML = allRowsHtml.join('');
-    }
-
-    // 5. Update Dashboard Table (Limited to top 10)
-    if (dashboardTbody) {
-        dashboardTbody.innerHTML = allRowsHtml.slice(0, 10).join('');
-    }
 }
-        // Function to toggle the three-dot menu
-function toggleActionMenu(event, id) {
-    event.stopPropagation(); // Prevents clicking the button from closing itself immediately
-    
-    // Close any other open menus first
+
+        function renderTable(parcels) {
+    const mainTbody = document.getElementById('parcel-table-body');
+    const dashboardTbody = document.getElementById('dashboardparcel-table-body');
+
+    if (!parcels || parcels.length === 0) {
+        const emptyRow = `<tr><td colspan="6" class="p-10 text-center text-slate-400">No parcels found.</td></tr>`;
+        if (mainTbody) mainTbody.innerHTML = emptyRow;
+        if (dashboardTbody) dashboardTbody.innerHTML = emptyRow;
+        return;
+    }
+
+    const mainRows = generateRows(parcels, 'main');
+    const dashboardRows = generateRows(parcels.slice(0, 10), 'dashboard');
+
+    if (mainTbody) mainTbody.innerHTML = mainRows.join('');
+    if (dashboardTbody) dashboardTbody.innerHTML = dashboardRows.join('');
+}
+
+        function toggleActionMenu(event, menuId) {
+    event.stopPropagation();
+
     const allMenus = document.querySelectorAll('[id^="menu-"]');
     allMenus.forEach(menu => {
-        if (menu.id !== `menu-${id}`) menu.classList.add('hidden');
+        if (menu.id !== menuId) menu.classList.add('hidden');
     });
 
-    // Toggle the clicked menu
-    const currentMenu = document.getElementById(`menu-${id}`);
+    const currentMenu = document.getElementById(menuId);
     currentMenu.classList.toggle('hidden');
 }
 
-// Close menus when clicking anywhere else on the page
-document.addEventListener('click', () => {
-    const allMenus = document.querySelectorAll('[id^="menu-"]');
-    allMenus.forEach(menu => menu.classList.add('hidden'));
-});
 window.showParcelDetails = function(id) {
     const parcel = allParcels.find(p => p._id === id);
     if (!parcel) return;
