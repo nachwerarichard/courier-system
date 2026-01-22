@@ -2943,6 +2943,7 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
         </div>
 
         <div class="section items">
+                    <h4>Package Content</h4>
             ${parcel.items.map(item => `
                 <div>
                     <span>${item.description} (Qty: ${item.quantity || 1}, Wt: ${item.weight || 0}kg)</span>
@@ -2952,11 +2953,13 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
         </div>
 
         <div class="section summary">
+                    <h4>Payment Summary</h4>
             <div><span>Total Amount</span><span>UGX ${(parcel.total_amount || 0).toLocaleString()}</span></div>
             <div><span>Amount Paid</span><span>UGX ${amountPaid.toLocaleString()} (${paymentMethod})</span></div>
             <div><span>Balance Due</span><span>UGX ${(parcel.balance || 0).toLocaleString()}</span></div>
         </div>
-
+        
+            <h4>Status</h4>
         <div class="status">${parcel.status}</div>
     </body>
     </html>
