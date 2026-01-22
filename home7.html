@@ -2855,7 +2855,8 @@ document.getElementById('addItemForm').addEventListener('submit', async (e) => {
     }
 });
 
-// SUBMIT PAYMENT ONLY
+
+        // SUBMIT PAYMENT ONLY
 document.getElementById('miniPaymentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -2867,9 +2868,12 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
     const amountPaid = Number(document.getElementById('mini_pay_amount').value);
     console.log("Amount being paid:", amountPaid);
 
+    const paymentMethod = document.getElementById('mini_pay_method').value;
+    console.log("Payment Method:", paymentMethod);
+
     const paymentData = {
         amount_paid: amountPaid,
-        payment_method: document.getElementById('mini_pay_method').value
+        payment_method: paymentMethod
     };
 
     try {
@@ -2889,20 +2893,68 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 
         console.log("Payment successful!");
 
+        // 1. Reset form and close modal
         form.reset();
         hideModal('payment-modal');
 
-        console.log("Calling updateAmountPaidModalIfOpen...");
+        // 2. Update displayed amounts in modal if open
         updateAmountPaidModalIfOpen(amountPaid);
-
         calculatePaymentStatus();
+
+        // 3. Refresh parcels data
         await fetchParcels();
+
+        // 4. Generate printable receipt
+        generatePaymentReceipt(id, amountPaid, paymentMethod);
 
     } catch (err) {
         console.error("Payment Error:", err);
         alert("Payment failed: " + err.message);
     }
 });
+
+// Function to generate a printable payment receipt
+function generatePaymentReceipt(parcelId, amountPaid, paymentMethod) {
+    const parcel = allParcels.find(p => p._id === parcelId);
+    if (!parcel) {
+        console.warn("Parcel not found for receipt generation");
+        return;
+    }
+
+    // Create receipt HTML
+    const receiptHtml = `
+        <html>
+        <head>
+            <title>Payment Receipt</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                h2 { text-align: center; margin-bottom: 20px; }
+                .details { margin-bottom: 10px; }
+                .details span { font-weight: bold; }
+                .amount { font-size: 1.5em; font-weight: bold; color: green; margin-top: 20px; }
+                .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: #555; }
+            </style>
+        </head>
+        <body>
+            <h2>Parcel Payment Receipt</h2>
+            <div class="details"><span>Tracking Number:</span> ${parcel.tracking_number || 'N/A'}</div>
+            <div class="details"><span>Sender:</span> ${parcel.sender_name || 'N/A'}</div>
+            <div class="details"><span>Receiver:</span> ${parcel.receiver_name || 'N/A'}</div>
+            <div class="details"><span>Payment Method:</span> ${paymentMethod}</div>
+            <div class="amount">Amount Paid: UGX ${amountPaid.toLocaleString()}</div>
+            <div class="footer">Date: ${new Date().toLocaleString()}</div>
+        </body>
+        </html>
+    `;
+
+    // Open a new window and print
+    const printWindow = window.open('', '_blank', 'width=400,height=600');
+    printWindow.document.write(receiptHtml);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+}
 
 
 function updateAmountPaidModalIfOpen(addedAmount) {
