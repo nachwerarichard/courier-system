@@ -2857,19 +2857,17 @@ document.getElementById('addItemForm').addEventListener('submit', async (e) => {
 
 
         // SUBMIT PAYMENT ONLY
+
+// SUBMIT PAYMENT ONLY + Generate Receipt
 document.getElementById('miniPaymentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const form = e.target;
-
     const id = document.getElementById('pay_waybill_id').value;
-    console.log("Submitting payment for parcel ID:", id);
-
     const amountPaid = Number(document.getElementById('mini_pay_amount').value);
-    console.log("Amount being paid:", amountPaid);
-
     const paymentMethod = document.getElementById('mini_pay_method').value;
-    console.log("Payment Method:", paymentMethod);
+
+    console.log("Submitting payment for parcel ID:", id, "Amount:", amountPaid);
 
     const paymentData = {
         amount_paid: amountPaid,
@@ -2893,18 +2891,16 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 
         console.log("Payment successful!");
 
-        // 1. Reset form and close modal
+        // Reset form & hide modal
         form.reset();
         hideModal('payment-modal');
 
-        // 2. Update displayed amounts in modal if open
+        // Update displayed amounts in parcel modal
         updateAmountPaidModalIfOpen(amountPaid);
         calculatePaymentStatus();
-
-        // 3. Refresh parcels data
         await fetchParcels();
 
-        // 4. Generate printable receipt
+        // === Generate Receipt ===
         generatePaymentReceipt(id, amountPaid, paymentMethod);
 
     } catch (err) {
@@ -2913,50 +2909,40 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
     }
 });
 
-// Function to generate a printable payment receipt
-function generatePaymentReceipt(parcelId, amountPaid, paymentMethod) {
+// Generate Receipt in the parcel modal and open print
+function generatePaymentReceipt(parcelId, amount, method) {
+    // Find the parcel data
     const parcel = allParcels.find(p => p._id === parcelId);
     if (!parcel) {
-        console.warn("Parcel not found for receipt generation");
+        console.warn("Parcel not found for receipt.");
         return;
     }
 
-    // Create receipt HTML
-    const receiptHtml = `
-        <html>
-        <head>
-            <title>Payment Receipt</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 20px; }
-                h2 { text-align: center; margin-bottom: 20px; }
-                .details { margin-bottom: 10px; }
-                .details span { font-weight: bold; }
-                .amount { font-size: 1.5em; font-weight: bold; color: green; margin-top: 20px; }
-                .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: #555; }
-            </style>
-        </head>
-        <body>
-            <h2>Parcel Payment Receipt</h2>
-            <div class="details"><span>Tracking Number:</span> ${parcel.tracking_number || 'N/A'}</div>
-            <div class="details"><span>Sender:</span> ${parcel.sender_name || 'N/A'}</div>
-            <div class="details"><span>Receiver:</span> ${parcel.receiver_name || 'N/A'}</div>
-            <div class="details"><span>Payment Method:</span> ${paymentMethod}</div>
-            <div class="amount">Amount Paid: UGX ${amountPaid.toLocaleString()}</div>
-            <div class="footer">Date: ${new Date().toLocaleString()}</div>
-        </body>
-        </html>
-    `;
+    console.log("Generating receipt for parcel:", parcelId);
 
-    // Open a new window and print
-    const printWindow = window.open('', '_blank', 'width=400,height=600');
-    printWindow.document.write(receiptHtml);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+    // Fill parcel-modal fields for receipt
+    document.getElementById('senderName').value = parcel.sender_name || '';
+    document.getElementById('senderPhone').value = parcel.sender_phone || '';
+    document.getElementById('receiverName').value = parcel.receiver_name || '';
+    document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
+    document.getElementById('destination').value = parcel.destination || '';
+    document.getElementById('amountPaid').value = amount;
+    document.getElementById('paymentType').value = method;
+    document.getElementById('balance').value = parcel.balance || 0;
+    document.getElementById('paymentStatus').value = parcel.status || "Unpaid";
+    document.getElementById('totalAmount').value = parcel.total_amount || 0;
+
+    // Show the parcel modal as receipt
+    const modal = document.getElementById('parcel-modal');
+    modal.classList.remove('hidden');
+
+    // Wait a tiny bit to ensure modal renders, then print
+    setTimeout(() => {
+        window.print();
+    }, 300);
 }
 
-
+        
 function updateAmountPaidModalIfOpen(addedAmount) {
     console.log("Checking for #amountPaid input...");
 
