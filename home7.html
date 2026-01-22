@@ -2515,49 +2515,61 @@ window.handleReactivate = async function(id) {
     });
 };
 window.updateDashboardStats = async function() {
-    // --- 1. PREVIOUS STATUS CARDS ---
-    const totalParcels = allParcels.length;
-    document.getElementById('stat-total').innerText = totalParcels;
-    document.getElementById('stat-transit').innerText = allParcels.filter(p => p.status === 'In Transit').length;
-    document.getElementById('stat-pickup').innerText = allParcels.filter(p => p.status === 'Ready for Pickup').length;
-    document.getElementById('stat-partial').innerText = allParcels.filter(p => p.status === 'Partially received').length;
-    document.getElementById('stat-delivered').innerText = allParcels.filter(p => p.status === 'Delivered').length;
+    // 1. Get Today's Date String (YYYY-MM-DD)
+    const todayStr = new Date().toISOString().split('T')[0];
 
-    // --- 2. FINANCIAL OVERVIEW ---
+    // 2. Filter allParcels for TODAY ONLY
+    const todayParcels = allParcels.filter(p => {
+        if (!p.created_at) return false;
+        return p.created_at.split('T')[0] === todayStr;
+    });
+
+    // --- 1. STATUS CARDS (Today Only) ---
+    document.getElementById('stat-total').innerText = todayParcels.length;
+    document.getElementById('stat-transit').innerText = todayParcels.filter(p => p.status === 'In Transit').length;
+    document.getElementById('stat-pickup').innerText = todayParcels.filter(p => p.status === 'Ready for Pickup').length;
+    document.getElementById('stat-partial').innerText = todayParcels.filter(p => p.status === 'Partially received').length;
+    document.getElementById('stat-delivered').innerText = todayParcels.filter(p => p.status === 'Delivered').length;
+
+    // --- 2. FINANCIAL CALCULATIONS (Today Only) ---
+    let revToday = 0;
+    let balToday = 0;
+    let countPaid = 0;
+    let countPartial = 0;
+    let countUnpaid = 0;
+
+    todayParcels.forEach(p => {
+        // Revenue Today = Total Amount - Balance (The actual money collected)
+        const total = p.total_amount || 0;
+        const balance = p.balance || 0;
+        const paid = total - balance;
+
+        revToday += paid;
+        balToday += balance;
+
+        // Payment status counts
+        if (p.payment_status === 'Paid') countPaid++;
+        else if (p.payment_status === 'Partial') countPartial++;
+        else countUnpaid++;
+    });
+
+    // Update UI for Financials
+    document.getElementById('rev-today').innerText = `UGX ${revToday.toLocaleString()}`;
+    document.getElementById('bal-total').innerText = `UGX ${balToday.toLocaleString()}`;
+
+    // Update Payment Breakdown
+    document.getElementById('breakdown-paid').innerText = countPaid;
+    document.getElementById('breakdown-partial').innerText = countPartial;
+    document.getElementById('breakdown-unpaid').innerText = countUnpaid;
+
+    // --- 3. PROGRESS BARS (Based on Today's Volume) ---
+    const totalToday = todayParcels.length || 1; // Avoid division by zero
     
-   try {
-        const response = await fetch(`${API_URL}/api/stats/financial`);
-        if (!response.ok) throw new Error("Failed to fetch stats");
-        
-        const data = await response.json();
+    document.getElementById('bar-paid').style.width = `${(countPaid / totalToday) * 100}%`;
+    document.getElementById('bar-partial').style.width = `${(countPartial / totalToday) * 100}%`;
+    document.getElementById('bar-unpaid').style.width = `${(countUnpaid / totalToday) * 100}%`;
 
-        // --- 1. Top Cards (Using data from aggregate) ---
-        // Note: You can still use allParcels.filter for statuses if you prefer, 
-        // but the backend 'totalCount' is more efficient.
-        document.getElementById('stat-total').innerText = data.totalCount || 0;
-
-        // --- 2. Financial Overview ---
-        document.getElementById('rev-today').innerText = `UGX ${(data.totalRevenue || 0).toLocaleString()}`;
-        document.getElementById('bal-total').innerText = `UGX ${(data.totalBalance || 0).toLocaleString()}`;
-
-        // --- 3. Payment Status Breakdown ---
-        document.getElementById('breakdown-paid').innerText = data.countPaid || 0;
-        document.getElementById('breakdown-partial').innerText = data.countPartial || 0;
-        document.getElementById('breakdown-unpaid').innerText = data.countUnpaid || 0;
-
-        // --- 4. Progress Bars ---
-        const total = data.totalCount || 1; // Avoid division by zero
-        const paidPct = ((data.countPaid || 0) / total) * 100;
-        const partialPct = ((data.countPartial || 0) / total) * 100;
-        const unpaidPct = ((data.countUnpaid || 0) / total) * 100;
-
-        document.getElementById('bar-paid').style.width = `${paidPct}%`;
-        document.getElementById('bar-partial').style.width = `${partialPct}%`;
-        document.getElementById('bar-unpaid').style.width = `${unpaidPct}%`;
-
-    } catch (err) {
-        console.error("Error loading dashboard stats:", err);
-    }
+    console.log(`Dashboard updated for: ${todayStr}`);
 };
         // Function to generate the report
 async function generateReport() {
