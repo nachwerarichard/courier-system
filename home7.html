@@ -537,6 +537,10 @@
             <p class="text-slate-500 text-xs uppercase font-bold">Total Revenue</p>
             <h3 id="report-total-revenue" class="text-2xl font-bold text-slate-800">UGX 0</h3>
         </div>
+         <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Total Revenue</p>
+            <h3 id="report-total-balance" class="text-2xl font-bold text-slate-800">UGX 0</h3>
+        </div>
 
         <div class="bg-white p-4 rounded-xl border">
             <p class="text-slate-500 text-xs uppercase font-bold">Delivered</p>
@@ -2665,24 +2669,31 @@ async function generateReport() {
             return matchesDate && matchesStation && matchesStatus;
         });
 
-        // 4. Update Summary Cards
-        let totalRevenue = 0;
-        let totalPaid = 0;
-        let deliveredCount = 0;
-        let pendingCount = 0;
+      // --- 4. Update Summary Cards ---
+let totalRevenue = 0;   // Total value of all waybills
+let totalPaid = 0;      // Money actually collected
+let totalBalance = 0;   // Money still owed
+let deliveredCount = 0;
+let pendingCount = 0;
 
-        filteredParcels.forEach(p => {
-            totalRevenue += (p.total_amount || 0);
-            totalPaid += ((p.total_amount || 0) - (p.balance || 0));
-            if (p.status === 'Delivered') deliveredCount++;
-            else pendingCount++;
-        });
+filteredParcels.forEach(p => {
+    const total = (p.total_amount || 0);
+    const balance = (p.balance || 0);
+    
+    totalRevenue += total;
+    totalPaid += (total - balance);
+    totalBalance += balance; // <--- Add this to the sum
 
-        document.getElementById('report-total-parcels').textContent = filteredParcels.length;
-        document.getElementById('report-total-revenue').textContent = `UGX ${totalPaid.toLocaleString()}`;
-        document.getElementById('report-delivered').textContent = deliveredCount;
-        document.getElementById('report-pending').textContent = pendingCount;
+    if (p.status === 'Delivered') deliveredCount++;
+    else pendingCount++;
+});
 
+// Update the UI
+document.getElementById('report-total-parcels').textContent = filteredParcels.length;
+document.getElementById('report-total-revenue').textContent = `UGX ${totalPaid.toLocaleString()}`;
+document.getElementById('report-total-balance').textContent = `UGX ${totalBalance.toLocaleString()}`; // <--- Update the display
+document.getElementById('report-delivered').textContent = deliveredCount;
+document.getElementById('report-pending').textContent = pendingCount;
         // 5. Populate Table
         const tableBody = document.getElementById('reports-table-body');
         tableBody.innerHTML = filteredParcels.length ? "" : `<tr><td colspan="9" class="p-10 text-center text-slate-400 italic">No records found for the selected filters.</td></tr>`;
