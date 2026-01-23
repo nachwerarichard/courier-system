@@ -1,0 +1,3513 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courier System Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        #login-overlay { transition: opacity 0.3s ease-in-out; }
+        .active-link { @apply bg-blue-600 text-white shadow-lg; }
+        /* Custom scrollbar for better UI */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-900">
+
+    <div id="login-overlay" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="inline-flex w-16 h-16 bg-blue-600 rounded-xl items-center justify-center text-white text-3xl font-bold mb-4">C</div>
+                <h2 class="text-2xl font-black text-slate-800">COURIER<span class="text-blue-600">SYS</span></h2>
+                <p class="text-slate-500 text-sm">Please enter your credentials to continue</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Staff ID / Email</label>
+                    <input type="text" id="username" required class="w-full border p-3 rounded-lg outline-blue-500 bg-gray-50" placeholder="admin@courier.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Password</label>
+                    <input type="password" id="password" required class="w-full border p-3 rounded-lg outline-blue-500 bg-gray-50" placeholder="••••••••">
+                </div>
+                <div id="login-error" class="hidden text-red-500 text-xs font-bold bg-red-50 p-3 rounded-lg">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Invalid credentials.
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transition-all transform active:scale-95">
+                    Sign In to Dashboard
+                </button>
+            </form>
+            <div class="mt-6 text-center text-xs text-slate-400">
+                Authorized Personnel Only • 2026 CourierSys v2.0
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content" class="hidden">
+        <header class="bg-white border-b px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded flex items-center justify-center text-white font-bold">C</div>
+                <h1 class="font-bold text-xl tracking-tight text-slate-800">COURIER<span class="text-blue-600">SYS</span></h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="text-right border-r pr-4">
+                    <p id="staff-name" class="font-semibold text-sm">--</p>
+                    <p id="staff-station" class="text-xs text-blue-600 font-medium italic"></p>
+                </div>
+                <div class="text-right hidden md:block">
+                    <p id="current-date" class="text-xs text-gray-500"></p>
+                    <p id="current-time" class="text-xs font-mono"></p>
+                </div>
+                <button onclick="handleLogout()" class="bg-gray-100 hover:bg-red-50 text-red-600 p-2 rounded-full transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex h-screen overflow-hidden">
+            <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col">
+                <nav class="flex-1 p-4 space-y-1">
+                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Main Menu</p>
+<a href="#" onclick="showSection('dashboard-section', this)"
+   class="nav-item flex items-center gap-3 p-3 bg-blue-600 text-white rounded-lg section">
+   <i class="fa-solid fa-chart-line w-5"></i> Dashboard
+</a>
+
+<a href="#" onclick="showSection('parcels-section', this)"
+   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
+   <i class="fa-solid fa-box w-5"></i> Parcels
+</a>
+                    <a href="#" onclick="showSection('senders-section', this)"
+   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
+   <i class="fa-solid fa-users w-5"></i> Customers
+</a>
+
+
+<a href="#" onclick="showSection('payment-section', this)"
+   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
+   <i class="fa-solid fa-receipt w-5"></i> Payments
+</a>
+
+                    
+                    <div id="admin-menu" class="hidden pt-4 border-t border-slate-800 mt-4">
+                        <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Administration</p>
+                        <a href="#" onclick="showSection('reports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
+                            <i class="fa-solid fa-file-invoice-dollar w-5"></i> Reports
+                        </a>
+                        <a href="#" onclick="showSection('users-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
+                            <i class="fa-solid fa-user-shield w-5 text-orange-400"></i> Users
+                        </a>
+                        <a href="#" onclick="showSection('settings-section')"  class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-gears w-5"></i> System Settings</a>
+                    </div>
+                </nav>
+            </aside>
+
+            <main class="flex-1 overflow-y-auto p-6 pb-24">
+                
+                <section id="dashboard-section">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+
+    <!-- Total Today -->
+    <div class="bg-slate-800 text-white p-5 rounded-xl shadow-sm">
+        <p class="text-slate-300 text-xs font-bold uppercase tracking-wider">Total Today</p>
+        <h3 id="stat-total" class="text-2xl font-black mt-1">0</h3>
+    </div>
+
+    <!-- At Dispatch -->
+    <div class="bg-slate-500 text-white p-5 rounded-xl shadow-sm">
+        <p class="text-slate-200 text-xs font-bold uppercase tracking-wider">At Dispatch</p>
+        <h3 id="stat-dispatch" class="text-2xl font-black mt-1">0</h3>
+    </div>
+
+    <!-- In Transit -->
+    <div class="bg-green-600 text-white p-5 rounded-xl shadow-sm">
+        <p class="text-green-100 text-xs font-bold uppercase tracking-wider">In Transit</p>
+        <h3 id="stat-transit" class="text-2xl font-black mt-1">0</h3>
+    </div>
+
+    <!-- Pickup Ready -->
+    <div class="bg-blue-600 text-white p-5 rounded-xl shadow-sm">
+        <p class="text-blue-100 text-xs font-bold uppercase tracking-wider">Pickup Ready</p>
+        <h3 id="stat-pickup" class="text-2xl font-black mt-1">0</h3>
+    </div>
+
+    <!-- Partially Received -->
+    <div class="bg-purple-600 text-white p-5 rounded-xl shadow-sm">
+        <p class="text-purple-100 text-xs font-bold uppercase tracking-wider">Partially Received</p>
+        <h3 id="stat-partial" class="text-2xl font-black mt-1">0</h3>
+    </div>
+
+    <!-- Delivered -->
+    <div class="bg-orange-500 text-white p-5 rounded-xl shadow-sm">
+        <p class="text-orange-100 text-xs font-bold uppercase tracking-wider">Delivered</p>
+        <h3 id="stat-delivered" class="text-2xl font-black mt-1">0</h3>
+    </div>
+
+</div>
+
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border p-6">
+                            <h4 class="font-bold text-gray-700 mb-4">Financial Overview</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                                        <p class="text-xs font-bold text-green-700 uppercase">Revenue Collected</p>
+                                        <p id="rev-today" class="text-2xl font-black text-green-800">UGX 0</p>
+                                    </div>
+                                    <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                                        <p class="text-xs font-bold text-red-700 uppercase">Outstanding</p>
+                                        <p id="bal-total" class="text-2xl font-black text-red-800">UGX 0</p>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-xs font-bold text-gray-500 uppercase mb-3">Payment Stats</p>
+                                    <div class="space-y-4" id="payment-bars">
+                                         <div>
+                                        <div class="flex justify-between text-xs mb-1"><span>Paid</span><span id="breakdown-paid">0</span></div>
+<div id="bar-paid" class="bg-green-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1"><span>Partial</span><span id="breakdown-partial">0</span></div>
+<div id="bar-partial" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1"><span>Unpaid</span><span id="breakdown-unpaid">0</span></div>
+<div id="bar-unpaid" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>                                    </div>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+    <h4 class="font-bold text-gray-700 mb-4">Quick Actions</h4>
+    <div class="grid grid-cols-1 gap-3">
+        <button onclick="showModal('parcel-modal')" class="flex items-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold shadow-md transition-all">
+            <i class="fa-solid fa-plus-circle"></i> Create New Parcel
+        </button>
+<button onclick="showModal('userModal')" class="flex items-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold shadow-md transition-all">
+            <i class="fa-solid fa-plus-circle"></i> Add New Customer
+        </button>
+        <div class="relative group" id="track-container">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+            </div>
+            <input 
+                type="text" 
+                id="quick-track-input" 
+                oninput="handleTrackAutocomplete(this.value)"
+                placeholder="Enter Tracking ID..." 
+                class="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                autocomplete="off"
+            >
+            
+            <div id="track-results" class="hidden absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                </div>
+        </div>
+    </div>
+</div>
+                    </div>
+
+                       
+<div class="bg-white rounded-2xl shadow-md shadow-slate-100/50 border border-slate-200 p-8 m-4">
+    
+                         <div class="flex flex-col lg:flex-row justify-between items-center gap-4 mb-6">
+    
+    <div class="flex items-center gap-3">
+        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+        <h2 class="text-lg font-bold text-slate-800 tracking-tight">Recent Shipments</h2>
+    </div>
+
+    <div class="w-full lg:w-auto flex flex-col md:flex-row items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+        
+        <div class="relative w-full md:w-auto">
+            <select 
+    id="table-status-filter" 
+    onchange="window.filterTable()" 
+    class="w-full pl-3 pr-8 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-xs text-slate-600 cursor-pointer"
+>
+
+                <option value="">Status</option>
+                <option value="At Dispatch">At Dispatch</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Partially received">Partially Received</option>
+                <option value="Ready for Pickup">Ready for Pickup</option>
+                <option value="Delivered">Delivered</option>
+            </select>
+        </div>
+
+        <div class="relative w-full md:min-w-[320px]">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
+            </div>
+            <input 
+                type="text" 
+                id="table-search" 
+                oninput="window.filterTable()" 
+                placeholder="Search Tracking ID or Sender..." 
+                class="w-full pl-9 pr-8 py-2.5 border border-slate-100 bg-slate-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-xs"
+            />
+            
+            <button onclick="clearTableFilters()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300 hover:text-red-500 transition-colors">
+                <i class="fa-solid fa-circle-xmark text-sm"></i>
+            </button>
+        </div>
+    </div>
+</div>
+   
+    
+<div class="mb-4 relative max-w-md">
+    
+    
+</div>
+
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Tracking ID</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Sender</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Destination</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Status</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="dashboardparcel-table-body" class="divide-y divide-slate-100">
+                </tbody>
+        </table>
+    </div>
+                    
+                    
+                </section>
+
+
+                <!-- Payments Section -->
+<section id="payment-section" class="hidden p-6">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-800">Payments</h2>
+            <p class="text-slate-500 text-sm">View and manage all payment transactions.</p>
+        </div>
+    </div>
+<div class="mb-4 flex gap-4">
+    <div class="relative flex-grow max-w-md">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" id="paymentSearch" onkeyup="filterPayments()" placeholder="Search tracking number or customer..." 
+               class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+    </div>
+</div>
+    <!-- Payments Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment ID</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Parcel ID</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment Status</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment Type</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Total Amount</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Amount Paid</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Balance</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Received By</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment Date</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="payments-table-body" class="divide-y divide-slate-100">
+                <!-- Payment rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+                <!-- Senders Section -->
+<section id="senders-section" class="hidden p-6">
+
+    <!-- Header + Add Sender Button -->
+    <div class="flex justify-between items-center mb-6">
+        
+        <button onclick="showModal('userModal')"
+                class="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> Add Customer
+        </button>
+    </div>
+
+
+    <div class="bg-white p-6 rounded-xl shadow-md">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+        <h2 class="text-xl font-bold text-gray-800">Registered Customers</h2>
+        <input type="text" id="customerSearch"
+       oninput="filterCustomers()"
+       placeholder="Search by name or phone..."
+       class="border p-2 rounded-lg w-full md:w-64 outline-none focus:ring-2 focus:ring-blue-500">
+
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 border-b">
+                    <th class="p-3 text-xs font-bold uppercase text-gray-500">Full Name</th>
+                    <th class="p-3 text-xs font-bold uppercase text-gray-500">Phone</th>
+                    <th class="p-3 text-xs font-bold uppercase text-gray-500">ID Number</th>
+                    <th class="p-3 text-xs font-bold uppercase text-gray-500">Station</th>
+                    <th class="p-3 text-xs font-bold uppercase text-gray-500 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="customerTableBody">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+</section>
+
+
+
+
+
+                <section id="users-section" class="hidden">
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h4 class="font-bold text-xl text-gray-800">System Staff</h4>
+                                <p class="text-sm text-gray-500">Manage access for clerks and supervisors</p>
+                            </div>
+                            <button onclick="showModal('staffModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm">
+                                <i class="fa-solid fa-user-plus mr-2"></i>Register Staff
+                            </button>
+                        </div>
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 text-[10px] uppercase text-gray-400">
+                                <tr>
+                                    <th class="p-4">Name</th>
+                                    <th class="p-4">Role</th>
+                                    <th class="p-4">Station</th>
+                                    <th class="p-4">Email</th>
+                                    <th class="p-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="parcels-section" class="hidden p-6">
+
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-800">Parcels</h2>
+            <p class="text-slate-500 text-sm">Manage and track all incoming and outgoing shipments.</p>
+        </div>
+    </div>
+<!-- Header Row: Button + Filters -->
+<div class="flex flex-row items-center gap-4 mb-8 p-1">
+
+    <!-- Add New Parcel Button -->
+    <div class="flex-shrink-0">
+        <button onclick="showModal('parcel-modal')" 
+                class="bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 shadow-lg transition-all flex items-center gap-2 font-bold text-sm">
+            <i class="fa-solid fa-plus"></i> Add New Parcel
+        </button>
+    </div>
+
+    <!-- Filters Row -->
+    <div class="flex flex-nowrap items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm flex-1 overflow-x-auto">
+
+        <!-- Destination -->
+        <select id="ptable-destination-filter" onchange="window.filterPTable()" 
+                class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+            <option value="">Destination</option>
+            <option value="Kampala">Kampala</option>
+            <option value="Mbale">Mbale</option>
+        </select>
+
+        <!-- Date -->
+        <input type="date" id="ptable-date-filter" onchange="window.filterPTable()"
+               class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+
+        <!-- Status -->
+        <select id="ptable-status-filter" onchange="window.filterPTable()" 
+                class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+            <option value="">Status</option>
+            <option value="At Dispatch">At Dispatch</option>
+            <option value="In Transit">In Transit</option>
+            <option value="Partially received">Partially Received</option>
+            <option value="Ready for Pickup">Ready for Pickup</option>
+            <option value="Delivered">Delivered</option>
+        </select>
+
+        <!-- Tracking Search -->
+        <div class="relative w-48 flex-shrink-0">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
+            </div>
+            <input type="text" id="ptable-search" oninput="window.filterPTable()" 
+                   placeholder="Tracking ID..." 
+                   class="w-full pl-9 pr-8 py-2.5 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            <button onclick="clearTablePFilters()" 
+                    class="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-300 hover:text-red-500 transition-colors">
+                <i class="fa-solid fa-circle-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Export & Print -->
+        <div class="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-sm flex-shrink-0">
+            <button onclick="exportToExcel()" 
+                    class="flex items-center gap-2 px-3 py-2 text-green-700 hover:bg-white hover:shadow-sm rounded-lg text-[11px] font-bold transition-all">
+                <i class="fa-solid fa-file-excel"></i> Excel
+            </button>
+            <div class="w-[1px] h-4 bg-slate-200 mx-1"></div>
+            <button onclick="printReport()" 
+                    class="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-white hover:shadow-sm rounded-lg text-[11px] font-bold transition-all">
+                <i class="fa-solid fa-print"></i> Print/PDF
+            </button>
+        </div>
+
+    </div>
+</div>
+ <!-- ✅ THIS WAS THE MISSING CLOSING DIV -->
+
+    <!-- Table Section -->
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-visible">
+
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Tracking ID</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Sender</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Destination</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Payment</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Status</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="parcel-table-body" class="divide-y divide-slate-100">
+            </tbody>
+        </table>
+
+    </div>
+
+</section>
+
+
+                <!-- Settings Section -->
+<section id="settings-section" class="hidden p-6">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-800">Settings</h2>
+        <p class="text-slate-500 text-sm">Manage system configuration and preferences.</p>
+    </div>
+
+    <!-- Settings Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Company / System Info -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-building text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Company Info</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Update company name, logo and contacts.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage
+            </button>
+        </div>
+
+        <!-- Stations -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-location-dot text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Stations</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Add or manage Kampala, Mbale and other stations.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage
+            </button>
+        </div>
+
+        <!-- Pricing & Rates -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-tags text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Pricing & Rates</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Set delivery rates by weight, volume and route.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage
+            </button>
+        </div>
+
+        <!-- User Profile -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-user text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">My Profile</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Update your name, phone and password.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Edit Profile
+            </button>
+        </div>
+
+        <!-- Users & Roles -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-users-gear text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Users & Roles</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Create staff accounts and assign permissions.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Manage Users
+            </button>
+        </div>
+
+        <!-- Security -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                <h3 class="font-bold text-slate-700">Security</h3>
+            </div>
+            <p class="text-slate-500 text-sm mb-4">Change password, enable activity logs and backups.</p>
+            <button class="text-blue-600 font-semibold hover:underline">
+                Security Settings
+            </button>
+        </div>
+
+    </div>
+
+</section>
+
+                <!-- Reports Section -->
+<section id="reports-section" class="hidden p-6">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-800">Reports</h2>
+        <p class="text-slate-500 text-sm">View operational and financial reports.</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        <input type="date" id="reportFrom"
+               class="border p-3 rounded-lg"
+               placeholder="From Date">
+
+        <input type="date" id="reportTo"
+               class="border p-3 rounded-lg"
+               placeholder="To Date">
+
+        <select id="reportStation" class="border p-3 rounded-lg">
+            <option value="">All Stations</option>
+            <option value="Kampala">Kampala</option>
+            <option value="Mbale">Mbale</option>
+        </select>
+
+        <select id="reportStatus" class="border p-3 rounded-lg">
+            <option value="">All Status</option>
+            <option value="At Dispatch">At Dispatch</option>
+            <option value="In Transit">In Transit</option>
+            <option value="Ready for Pickup">Ready for Pickup</option>
+            <option value="Partially received">Partially Received</option>
+            <option value="Delivered">Delivered</option>
+        </select>
+
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Total Parcels</p>
+            <h3 id="report-total-parcels" class="text-2xl font-bold text-slate-800">0</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Total Revenue</p>
+            <h3 id="report-total-revenue" class="text-2xl font-bold text-slate-800">UGX 0</h3>
+        </div>
+         <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Total Balance</p>
+            <h3 id="report-total-balance" class="text-2xl font-bold text-slate-800">UGX 0</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Delivered</p>
+            <h3 id="report-delivered" class="text-2xl font-bold text-slate-800">0</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Pending</p>
+            <h3 id="report-pending" class="text-2xl font-bold text-slate-800">0</h3>
+        </div>
+
+    </div>
+
+    <!-- Report Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="font-bold text-slate-700">Parcel & Payment Report</h3>
+            <button onclick="exportReportToCSV()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-transform active:scale-95">
+    <i class="fa-solid fa-file-export"></i> Export to CSV
+</button>
+        </div>
+
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Tracking #</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Sender</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Receiver</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Route</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Status</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Total</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Paid</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Balance</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Date</th>
+                </tr>
+            </thead>
+
+            <tbody id="reports-table-body" class="divide-y divide-slate-100">
+                <!-- Report rows will be inserted here -->
+            </tbody>
+        </table>
+
+    </div>
+
+</section>
+
+
+
+<div id="parcel-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col">
+        
+        <div class="p-6 border-b flex justify-between items-center bg-white rounded-t-2xl">
+            <div>
+                <h3 class="text-lg font-bold text-blue-600 uppercase">New Parcel Booking</h3>
+                <p class="text-xs text-slate-500">Create a single waybill for multiple items.</p>
+            </div>
+            <button onclick="hideModal('parcel-modal')" class="text-slate-400 hover:text-slate-600 text-3xl">&times;</button>
+        </div>
+
+        <form id="createParcelForm" class="p-6 overflow-y-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-1 space-y-6 border-r border-slate-100 pr-6">
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-circle-user"></i> Sender Details
+                        </label>
+                        <input type="hidden" id="client_id">
+                        <input type="hidden" id="sender_client_id">
+                        <input list="senderList"  type="text" class="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="senderName" placeholder="Search Name or Phone..." ...>
+                        <datalist id="senderList"></datalist>
+                        <input type="text" id="senderPhone" placeholder="Phone Number" class="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        <select id="origin" class="w-full border border-slate-200 p-3 rounded-lg text-sm outline-none">
+                            <option value="">Origin Station</option>
+                            <option value="Kampala">Kampala</option>
+                            <option value="Mbale">Mbale</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-3 pt-4 border-t border-slate-50">
+                        <label class="text-[10px] font-bold text-orange-600 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-truck-ramp-box"></i> Receiver Details
+                        </label>
+                        <input type="hidden" id="receiver_client_id">
+
+<input list="receiverList" type="text" class="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm" id="receiverName" placeholder="Search Name or Phone..." ...>
+                        <datalist id="receiverList"></datalist>
+<input type="text" id="receiverPhone" placeholder="Phone Number" class="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
+                        <select id="destination" class="w-full border border-slate-200 p-3 rounded-lg text-sm outline-none">
+                            <option value="">Destination Station</option>
+                            <option value="Kampala">Kampala</option>
+                            <option value="Mbale">Mbale</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-6">
+                    
+
+<div class="bg-blue-50 p-5 rounded-2xl border border-blue-100 space-y-6">
+    <div>
+        <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">Item Description</label>
+        <input type="text" id="temp_desc" placeholder="e.g., Electronic Parts Box" 
+               class="w-full border border-slate-200 p-3 rounded-xl text-sm outline-none bg-white focus:ring-2 focus:ring-blue-400 shadow-sm transition-all">
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:flex lg:flex-wrap items-end gap-4">
+        
+        <div class="flex gap-3">
+            <div class="flex-1">
+                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Qty</label>
+                <input type="number" id="temp_qty" oninput="calculateParcelPrice()" placeholder="0" 
+                       class="w-full border border-slate-200 p-3 rounded-xl text-sm bg-white focus:border-blue-400 outline-none">
+            </div>
+            <div class="flex-1">
+                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Weight (Kg)</label>
+                <input type="number" id="temp_weight" oninput="calculateParcelPrice()" placeholder="0.0" 
+                       class="w-full border border-slate-200 p-3 rounded-xl text-sm bg-white focus:border-blue-400 outline-none">
+            </div>
+        </div>
+
+        <div class="col-span-2 flex items-center gap-2">
+            <div class="flex-1">
+                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Length (cm)</label>
+                <input type="number" id="length" oninput="calculateParcelPrice()" placeholder="L" 
+                       class="w-full border border-slate-200 p-3 rounded-xl text-sm bg-white focus:border-blue-400 outline-none text-center">
+            </div>
+            <span class="text-slate-300 mt-5 font-light">×</span>
+            <div class="flex-1">
+                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Width (cm)</label>
+                <input type="number" id="width" oninput="calculateParcelPrice()" placeholder="W" 
+                       class="w-full border border-slate-200 p-3 rounded-xl text-sm bg-white focus:border-blue-400 outline-none text-center">
+            </div>
+            <span class="text-slate-300 mt-5 font-light">×</span>
+            <div class="flex-1">
+                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Height (cm)</label>
+                <input type="number" id="height" oninput="calculateParcelPrice()" placeholder="H" 
+                       class="w-full border border-slate-200 p-3 rounded-xl text-sm bg-white focus:border-blue-400 outline-none text-center">
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <div>
+                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Volume (CBM)</label>
+                <input type="number" id="volume" placeholder="0" 
+                       class="w-24 border border-slate-200 p-3 rounded-xl text-sm bg-slate-100 font-bold text-slate-500 cursor-not-allowed" readonly>
+            </div>
+            <div>
+                <label class="text-[9px] font-bold text-blue-600 uppercase block mb-1">Rate (UGX)</label>
+                <input type="number" id="temp_rate" oninput="calculateParcelPrice()" placeholder="Rate" 
+                       class="w-32 border-2 border-blue-200 p-3 rounded-xl text-sm bg-white font-black text-blue-700 focus:ring-4 focus:ring-blue-100 outline-none">
+            </div>
+        </div>
+        
+        <button type="button" onclick="addParcelToList()" 
+                class="bg-blue-600 text-white px-8 py-3.5 rounded-xl hover:bg-blue-700 transition-all flex items-center justify-center shadow-lg shadow-blue-200 font-bold text-sm h-[46px]">
+            <i class="fa-solid fa-plus mr-2"></i> ADD ITEM
+        </button>
+    </div>
+</div>
+                    
+                    
+                    <div class="border border-slate-100 rounded-xl overflow-hidden flex flex-col bg-white">
+                        <div class="bg-slate-50 px-4 py-2 text-[10px] font-bold text-slate-500 flex justify-between uppercase">
+                            <span>Items in this Shipment</span>
+                            <span id="item-count">0 Items</span>
+                        </div>
+                        <div id="parcelListContainer" class="p-2 space-y-2 min-h-[120px] max-h-[200px] overflow-y-auto">
+                            <p class="text-center text-slate-400 text-xs py-10 italic">No items added yet.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner">
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Method</label>
+                                <select id="paymentType" class="bg-slate-800 border-none p-2.5 rounded-lg text-xs text-white outline-none">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Mobile Money">M-Money</option>
+                                    <option value="Bank">Bank</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Total (UGX)</label>
+                                <input type="number" id="totalAmount" class="bg-slate-800 border-none p-2.5 rounded-lg text-xs font-bold text-blue-400" readonly value="0">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Amount Paid</label>
+                                <input type="number" id="amountPaid" oninput="calculateBalance()" class="bg-slate-800 border-none p-2.5 rounded-lg text-xs font-bold text-green-400" placeholder="0">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Balance</label>
+                                <input type="number" id="balance" class="bg-slate-800 border-none p-2.5 rounded-lg text-xs font-bold text-red-400" readonly value="0">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Status</label>
+                                <input type="text" id="paymentStatus" class="bg-slate-800 border-none p-2.5 rounded-lg text-xs font-bold text-yellow-400" readonly value="Unpaid">
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-100">
+                <button type="button" onclick="hideModal('parcel-modal')" class="px-8 py-3 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-100 transition">
+                    Discard
+                </button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-lg text-sm font-bold shadow-lg transition transform active:scale-95">
+                    Add Parcel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+    <div id="staffModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+            <h2 class="text-xl font-black mb-4">Register New Staff</h2>
+            <form id="staffForm" class="space-y-4">
+                <input type="text" id="staffName" placeholder="Full Name" class="w-full border p-3 rounded-lg" required>
+                <input type="email" id="staffEmail" placeholder="Email Address" class="w-full border p-3 rounded-lg" required>
+                <input type="password" id="staffPass" placeholder="Password" class="w-full border p-3 rounded-lg" required>
+                <div class="grid grid-cols-2 gap-4">
+                    <select id="staffRole" class="border p-3 rounded-lg">
+                        <option value="clerk">Clerk</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                    <select id="staffStation" class="border p-3 rounded-lg">
+                        <option value="Kampala">Kampala</option>
+                        <option value="Mbale">Mbale</option>
+                        <option value="Gulu">Gulu</option>
+                        <option value="Mbarara">Mbarara</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold shadow-lg">Save Staff Member</button>
+                <button type="button" onclick="hideModal('staffModal')" class="w-full text-gray-400 text-sm mt-2">Close</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="userModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modalTitle" class="text-lg font-bold text-blue-600 uppercase">Add New Customer</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+
+        <form id="quickUserForm" class="space-y-4">
+            <input type="hidden" id="modalCustomerId">
+
+            <div>
+                <label class="text-xs font-semibold text-gray-500 uppercase">Full Name</label>
+                <input type="text" id="modalFullName" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            </div>
+
+            <div>
+                <label class="text-xs font-semibold text-gray-500 uppercase">Phone Number</label>
+                <input type="text" id="modalPhone" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase">ID Number</label>
+                    <input type="text" id="modalID" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Optional">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase">Home Station</label>
+                    <select id="modalStation" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        <option value="Kampala">Kampala</option>
+                        <option value="Mbale">Mbale</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex space-x-3 pt-4">
+                <button type="button" onclick="closeModal()" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold">
+                    Save Customer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="item-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[110]">
+    <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-blue-600 uppercase">Add Item to Waybill</h3>
+            <button onclick="hideModal('item-modal')" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+
+        <form id="addItemForm" class="space-y-4">
+            <input type="hidden" id="target_waybill_id">
+            
+            <div>
+                <label class="text-xs font-semibold text-gray-500 uppercase">Item Description</label>
+                <input type="text" id="mini_desc" placeholder="e.g. Spare parts" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase">Quantity</label>
+                    <input type="number" id="mini_qty" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase">Weight (Kg)</label>
+                    <input type="number" id="mini_weight" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Optional">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-xs font-semibold text-gray-500 uppercase">Rate (UGX)</label>
+                <input type="number" id="mini_rate" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            </div>
+
+            <div class="flex space-x-3 pt-4">
+                <button type="button" onclick="hideModal('item-modal')" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold">
+                    Add to Receipt
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="payment-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[110]">
+    <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-green-600 uppercase">Collect Payment</h3>
+            <button onclick="hideModal('payment-modal')" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+
+        <form id="miniPaymentForm" class="space-y-4">
+    <!-- Hidden parcel ID -->
+    <input type="hidden" id="pay_waybill_id">
+
+    <!-- Current Balance Display -->
+<!-- Current Balance Display as readonly input -->
+<div class="flex flex-col">
+    <label for="display_balance" class="text-xs font-bold text-blue-700 uppercase mb-1">
+        Current Balance
+    </label>
+    <input 
+        type="text" 
+        id="display_balance" 
+        class="w-full border p-3 rounded-lg bg-blue-50 text-lg font-black text-blue-800 focus:ring-2 focus:ring-blue-500 outline-none" 
+        value="0 UGX" 
+        readonly
+        data-amount="0"
+    >
+</div>
+
+    <!-- Amount to Add -->
+    <div>
+        <label class="text-xs font-semibold text-gray-500 uppercase">Amount to Add (UGX)</label>
+        <input 
+            type="number" 
+            id="mini_pay_amount" 
+            class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-xl font-bold text-green-600" 
+            required
+            min="1"
+        >
+    </div>
+
+    <!-- Payment Method -->
+    <div>
+        <label class="text-xs font-semibold text-gray-500 uppercase">Payment Method</label>
+        <select 
+            id="mini_pay_method" 
+            class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
+            required
+        >
+            <option value="Cash">Cash</option>
+            <option value="Mobile Money">Mobile Money</option>
+            <option value="Bank">Bank Transfer</option>
+        </select>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex space-x-3 pt-4">
+        <button 
+            type="button" 
+            onclick="hideModal('payment-modal')" 
+            class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+        >
+            Cancel
+        </button>
+        <button 
+            type="submit" 
+            class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-bold"
+        >
+            Confirm Payment
+        </button>
+    </div>
+</form>
+
+    </div>
+</div>
+<div id="details-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-slate-800">Delivery Waybill Details</h3>
+            <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <div id="modal-content" class="p-8">
+         </div>
+    </div>
+
+</div>
+                <div id="delivery-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-slate-800">Delivery Waybill Details</h3>
+            <button onclick="closeDeliveryModal()" class="text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <div id="delivery-content" class="p-8">
+         </div>
+    </div>
+
+</div>
+    <script>
+let currentFilteredData = [];
+        
+        function showModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function hideModal(id) {
+    document.getElementById(id).classList.add('hidden');
+    // Clear forms on hide if desired
+    if(id === 'item-modal') document.getElementById('addItemForm').reset();
+    if(id === 'payment-modal') document.getElementById('miniPaymentForm').reset();
+}
+// Reuse modal functions
+
+
+
+function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+
+    if (!modal) {
+        console.error('Modal not found:', modalId);
+        return;
+    }
+
+    modal.classList.add('hidden');
+}
+
+function showSection(sectionId, clickedLink) {
+
+    // Hide all sections
+    document.querySelectorAll('section').forEach(section => {
+        section.classList.add('hidden');
+    });
+
+    // Find the requested section
+    const targetSection = document.getElementById(sectionId);
+
+    if (!targetSection) {
+        console.error('Section not found:', sectionId);
+        return;
+    }
+
+    targetSection.classList.remove('hidden');
+
+    // Reset nav styles
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('bg-blue-600', 'text-white');
+        item.classList.add('hover:bg-slate-800');
+    });
+
+    // Activate clicked nav item
+    clickedLink.classList.add('bg-blue-600', 'text-white');
+    clickedLink.classList.remove('hover:bg-slate-800');
+}
+
+        const API_URL = "https://patrinahhotelmgtsys.onrender.com";
+        
+let state = {
+            currentUser: null,
+
+        };
+
+        // --- AUTH LOGIC ---
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('login-error');
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (res.ok) {
+                    const userData = await res.json();
+                    localStorage.setItem('courier_user', JSON.stringify(userData));
+                    showDashboard(userData);
+                } else {
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error("Connection failed", err);
+                alert("Server connection failed. Check your internet.");
+            }
+        });
+
+        function showDashboard(user) {
+            state.currentUser = user;
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            
+            document.getElementById('staff-name').innerText = user.full_name;
+            document.getElementById('staff-station').innerText = `Station: ${user.station}`;
+            
+            if(user.role === 'admin') {
+                document.getElementById('admin-menu').classList.remove('hidden');
+            }
+            
+            updateDateTime();
+            fetchParcels();
+            refreshCustomerTable();
+            if(user.role === 'admin') loadUsers();
+        }
+
+        // --- NAVIGATION ---
+
+
+
+        // --- STAFF MANAGEMENT ---
+        async function loadUsers() {
+            try {
+                const res = await fetch(`${API_URL}/users`);
+                const users = await res.json();
+                const tbody = document.getElementById('userTableBody');
+                tbody.innerHTML = users.map(u => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-4 font-bold text-slate-700">${u.full_name}</td>
+                        <td class="p-4"><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold uppercase">${u.role}</span></td>
+                        <td class="p-4 text-sm">${u.station}</td>
+                        <td class="p-4 text-sm text-gray-500">${u.email}</td>
+                        <td class="p-4 text-right relative">
+    <button onclick="toggleUserMenu(event, '${u._id}')" class="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+    </button>
+
+    <div id="user-menu-${u._id}" class="hidden absolute right-4 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-[100] py-1 text-left">
+        ${u.isActive !== false ? `
+            <button onclick="handleDeactivate('${u._id}')" class="w-full px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                <i class="fa-solid fa-user-slash w-4"></i> Deactivate User
+            </button>
+        ` : `
+            <button onclick="handleReactivate('${u._id}')" class="w-full px-4 py-2 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2">
+                <i class="fa-solid fa-user-check w-4"></i> Reactivate User
+            </button>
+        `}
+    </div>
+</td>
+                    </tr>
+                `).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        document.getElementById('staffForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                full_name: document.getElementById('staffName').value,
+                email: document.getElementById('staffEmail').value,
+                password: document.getElementById('staffPass').value,
+                role: document.getElementById('staffRole').value,
+                station: document.getElementById('staffStation').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if(res.ok) {
+                    alert("Staff Registered!");
+                    hideModal('staffModal');
+                    loadUsers();
+                    e.target.reset();
+                }
+            } catch (err) { alert("Error saving staff"); }
+        });
+
+        async function deleteUser(id) {
+            if(!confirm("Delete this staff member?")) return;
+            await fetch(`${API_URL}/users/${id}`, { method: 'DELETE' });
+            loadUsers();
+        }
+
+        // --- PARCEL LOGIC ---
+        function renderParcels() {
+            const tbody = document.getElementById('parcelTableBody');
+            tbody.innerHTML = state.parcels.map(p => `
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-6 py-4 font-mono font-bold text-blue-600">${p.tracking}</td>
+                    <td class="px-6 py-4">
+                        <div class="font-bold">${p.sender}</div>
+                        <div class="text-[10px] text-gray-400">To: ${p.receiver}</div>
+                    </td>
+                    <td class="px-6 py-4 text-xs font-medium">${p.destination}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${getStatusStyle(p.status)}">${p.status}</span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button class="text-xs font-bold text-slate-400 hover:text-blue-600 uppercase">Manage</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+       // function calculateFinancials() {
+            //const rev = state.parcels.reduce((sum, p) => sum + (p.amount - p.balance), 0);
+            //const bal = state.parcels.reduce((sum, p) => sum + p.balance, 0);
+            //document.getElementById('rev-today').innerText = `UGX ${rev.toLocaleString()}`;
+            //document.getElementById('bal-total').innerText = `UGX ${bal.toLocaleString()}`;
+            
+            // Counters
+            //document.getElementById('stat-total').innerText = state.parcels.length;
+            //document.getElementById('stat-transit').innerText = state.parcels.filter(p => p.status === 'In Transit').length;
+            //document.getElementById('stat-pickup').innerText = state.parcels.filter(p => p.status === 'Ready for Pickup').length;
+            //document.getElementById('stat-delivered').innerText = state.parcels.filter(p => p.status === 'Delivered').length;
+        //}
+
+        function getStatusStyle(status) {
+            if(status === 'In Transit') return 'bg-green-100 text-green-700';
+            if(status === 'Ready for Pickup') return 'bg-blue-100 text-blue-700';
+            return 'bg-gray-100 text-gray-600';
+        }
+
+        // --- UTILS ---
+        function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('current-date').innerText = now.toLocaleDateString('en-GB', { dateStyle: 'long' });
+            document.getElementById('current-time').innerText = now.toLocaleTimeString();
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('courier_user');
+            location.reload();
+        }
+
+        window.onload = () => {
+            const saved = localStorage.getItem('courier_user');
+            if(saved) showDashboard(JSON.parse(saved));
+            setInterval(updateDateTime, 1000);
+        };
+    
+
+/**
+ * READ: Fetch and Display Parcels
+ */
+// 1. Make sure this is at the VERY TOP of your script file
+let allParcels = []; 
+
+// 2. Wrap your fetching logic
+async function fetchParcels() {
+    try {
+        const response = await fetch(`${API_URL}/api/parcels`);
+        if (!response.ok) throw new Error("Network response was not ok");
+        
+        allParcels = await response.json();
+        
+        
+
+        renderTable(allParcels);
+        renderPaymentsTable();
+        await updateDashboardStats();
+    } catch (err) {
+        console.error("Fetch error:", err);
+    }
+}
+
+// 3. Explicitly attach filterTable to the window
+window.filterTable = function() {
+    const searchInput = document.getElementById('table-search');
+    const dateInput = document.getElementById('table-date-filter');
+    const statusInput = document.getElementById('table-status-filter'); // <--- NEW
+    
+    if (!searchInput || !allParcels) return;
+
+    const searchTerm = searchInput.value.toLowerCase();
+    const filterDate = dateInput ? dateInput.value : ""; 
+    const filterStatus = statusInput ? statusInput.value : ""; // <--- NEW
+    
+    const filtered = allParcels.filter(p => {
+        // 1. Text Search
+        const matchesText = 
+            (p.tracking_number || "").toLowerCase().includes(searchTerm) || 
+            (p.sender_name || "").toLowerCase().includes(searchTerm) ||
+            (p.sender_phone || "").includes(searchTerm) ||
+            (p.destination || "").toLowerCase().includes(searchTerm);
+
+        // 2. Date Filter
+        let matchesDate = true;
+        if (filterDate && p.created_at) {
+            try {
+                const parcelDate = new Date(p.created_at).toISOString().split('T')[0];
+                matchesDate = (parcelDate === filterDate);
+            } catch (e) { matchesDate = false; }
+        }
+
+        // 3. Status Filter (NEW)
+        const matchesStatus = filterStatus === "" || p.status === filterStatus;
+
+        return matchesText && matchesDate && matchesStatus; // All 3 must be true
+    });
+
+    currentFilteredData = filtered; 
+    renderTableRows(filtered);
+    
+    // Optional: Update summary cards based on these specific filtered results
+};
+        window.clearTableFilters = function() {
+    document.getElementById('table-search').value = "";
+    document.getElementById('table-date-filter').value = "";
+    document.getElementById('table-status-filter').value = ""; // Reset dropdown
+    window.filterTable(); // Refresh table
+};
+// Filter parcels based on multiple criteria
+window.filterPTable = function() {
+    const destinationInput = document.getElementById('ptable-destination-filter');
+    const dateInput = document.getElementById('ptable-date-filter');
+    const statusInput = document.getElementById('ptable-status-filter');
+    const searchInput = document.getElementById('ptable-search');
+
+    if (!searchInput || !allParcels) return;
+
+    const searchTerm = searchInput.value.toLowerCase();
+    const filterDestination = destinationInput ? destinationInput.value.toLowerCase() : "";
+    const filterDate = dateInput ? dateInput.value : "";
+    const filterStatus = statusInput ? statusInput.value : "";
+
+    const filtered = allParcels.filter(p => {
+        // 1. Destination filter
+        const matchesDestination = filterDestination === "" || (p.destination || "").toLowerCase().includes(filterDestination);
+
+        // 2. Date Filter
+        let matchesDate = true;
+        if (filterDate && p.created_at) {
+            try {
+                const parcelDate = new Date(p.created_at).toISOString().split('T')[0];
+                matchesDate = (parcelDate === filterDate);
+            } catch (e) { matchesDate = false; }
+        }
+
+        // 3. Status Filter
+        const matchesStatus = filterStatus === "" || p.status === filterStatus;
+
+        // 4. Text Search (Tracking ID, Sender Name/Phone, Destination)
+        const matchesText = 
+            (p.tracking_number || "").toLowerCase().includes(searchTerm) ||
+            (p.sender_name || "").toLowerCase().includes(searchTerm) ||
+            (p.sender_phone || "").includes(searchTerm) ||
+            (p.destination || "").toLowerCase().includes(searchTerm);
+
+        // All conditions must be true
+        return matchesDestination && matchesDate && matchesStatus && matchesText;
+    });
+
+    currentFilteredData = filtered; 
+    renderTableRows(filtered);
+
+    // Optional: update dashboard/summary cards here if needed
+};
+
+// Clear all filters
+window.clearTablePFilters = function() {
+    document.getElementById('ptable-destination-filter').value = "";
+    document.getElementById('ptable-date-filter').value = "";
+    document.getElementById('ptable-status-filter').value = "";
+    document.getElementById('ptable-search').value = "";
+    window.filterPTable(); // Refresh table
+};
+
+        function exportToExcel() {
+    if (currentFilteredData.length === 0) return alert("No data to export");
+    
+    let csv = "Tracking ID,Sender,Destination,Balance,Status,Date\n";
+    currentFilteredData.forEach(p => {
+        csv += `${p.tracking_number},${p.sender_name},${p.destination},${p.balance},${p.status},${p.created_at.split('T')[0]}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Parcels_Export_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+}
+
+// --- PRINT & PDF ---
+// Most browsers "Export to PDF" via the Print menu
+function printReport() {
+    const printWindow = window.open('', '_blank');
+    let tableHtml = `
+        <html>
+        <head>
+            <title>Parcel Report</title>
+            <style>
+                table { width: 100%; border-collapse: collapse; font-family: sans-serif; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                th { background-color: #f2f2f2; }
+                h2 { font-family: sans-serif; }
+            </style>
+        </head>
+        <body>
+            <h2>Parcel Shipment Report - ${new Date().toLocaleDateString()}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tracking ID</th><th>Sender</th><th>Destination</th><th>Balance</th><th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    currentFilteredData.forEach(p => {
+        tableHtml += `
+            <tr>
+                <td>${p.tracking_number}</td>
+                <td>${p.sender_name}</td>
+                <td>${p.destination}</td>
+                <td>UGX ${p.balance.toLocaleString()}</td>
+                <td>${p.status}</td>
+            </tr>`;
+    });
+
+    tableHtml += `</tbody></table></body></html>`;
+    
+    printWindow.document.write(tableHtml);
+    printWindow.document.close();
+    printWindow.print();
+}
+function renderTableRows(parcelsToDisplay,tableTypes) {
+    // 1. Identify both table bodies
+    const mainTableBody = document.getElementById('parcel-table-body');
+    const dashboardTableBody = document.getElementById('dashboardparcel-table-body');
+
+    // 2. Handle empty results
+    if (!parcelsToDisplay || parcelsToDisplay.length === 0) {
+        const emptyState = `
+            <tr>
+                <td colspan="6" class="p-10 text-center text-slate-400">
+                    <i class="fa-solid fa-box-open block text-3xl mb-2 opacity-20"></i>
+                    No parcels found matching your search.
+                </td>
+            </tr>`;
+        
+        if (mainTableBody) mainTableBody.innerHTML = emptyState;
+        if (dashboardTableBody) dashboardTableBody.innerHTML = emptyState;
+        return;
+    }
+
+    // 3. Generate row HTML for all items
+    const allRowsArray = parcelsToDisplay.map(p => {
+        const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
+        const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
+
+        const menuId = `parcelmenu-${tableTypes}-${p._id}`;
+
+        return `
+        <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
+            <td class="p-4">
+                <button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
+                    ${p.tracking_number || 'N/A'}
+                </button>                
+                <div class="text-[10px] text-slate-400">
+                    ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'No Date'}                
+                </div>
+            </td>
+
+            <td class="p-4">
+                <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
+                <div class="text-[11px] text-slate-500 font-medium">
+                    <i class="fa-solid fa-box text-slate-300 mr-1"></i> ${firstItemDesc}${extraItems}
+                </div>
+                <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
+            </td>
+
+            <td class="p-4">
+                <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
+                </div>
+            </td>
+
+            <td class="p-4">
+                <div class="font-bold text-slate-800 text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
+                <div class="text-[10px] ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
+                    Bal: UGX ${(p.balance || 0).toLocaleString()}
+                </div>
+            </td>
+
+            <td class="p-4">
+                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-100 inline-block shadow-sm ${getStatusStyle(p.status)}">
+                    ${p.status}
+                </span>
+            </td>
+
+            <td class="p-4 text-right">
+                <div class="relative inline-block text-left">
+                    <button onclick="toggleActionParcelMenu(event, '${menuId}')" class="p-2 text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+                    <div id="${menuId}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
+                        <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
+                        </button>
+                        <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-orange-500 w-4"></i> Update
+                        </button>
+                        <button onclick="showParcelDelivery('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-van-shuttle text-indigo-500 w-4"></i> Deliver
+                        </button>
+                        <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can w-4"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </td>
+        </tr>`;
+        
+        
+    });
+
+    // 4. Inject into Main Table (Full List)
+    if (mainTableBody) {
+        mainTableBody.innerHTML = allRowsArray.join('');
+    }
+
+    // 5. Inject into Dashboard Table (Limit to top 10)
+    if (dashboardTableBody) {
+        dashboardTableBody.innerHTML = allRowsArray.slice(0, 10).join('');
+    }
+}
+function clearTableFilters() {
+    document.getElementById('table-search').value = "";
+    document.getElementById('table-date-filter').value = "";
+    renderTableRows(allParcels);
+}
+// 4. The Render Function
+function generateRows(parcels, tableType) {
+    return parcels.map(p => {
+        const firstItemDesc = p.items?.[0]?.description || 'No description';
+        const extraItems = p.items?.length > 1 ? ` (+${p.items.length - 1} more)` : '';
+
+        const menuId = `menu-${tableType}-${p._id}`;
+
+        return `
+        <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
+            <td class="p-4">
+                <button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
+                    ${p.tracking_number || 'N/A'}
+                </button>                
+                <div class="text-[10px] text-slate-400">
+                    ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'No Date'}                
+                </div>
+            </td>
+
+            <td class="p-4">
+                <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
+                <div class="text-[11px] text-slate-500 font-medium">
+                    <i class="fa-solid fa-box text-slate-300 mr-1"></i> ${firstItemDesc}${extraItems}
+                </div>
+                <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
+            </td>
+
+            <td class="p-4">
+                <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
+                </div>
+            </td>
+
+            <td class="p-4">
+                <div class="font-bold text-slate-800 text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
+                <div class="text-[10px] ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
+                    Bal: UGX ${(p.balance || 0).toLocaleString()}
+                </div>
+            </td>
+
+            <td class="p-4">
+                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-100 inline-block shadow-sm ${getStatusStyle(p.status)}">
+                    ${p.status}
+                </span>
+            </td>
+
+            <td class="p-4 text-right">
+                <div class="relative inline-block text-left">
+                    <button onclick="toggleActionMenu(event, '${menuId}')" class="p-2 text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+                    <div id="${menuId}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
+                        <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
+                        </button>
+                        <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-orange-500 w-4"></i> Update
+                        </button>
+                        <button onclick="showParcelDelivery('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-van-shuttle text-indigo-500 w-4"></i> Deliver
+                        </button>
+                        <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can w-4"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </td>
+        </tr>`;
+    });
+}
+
+        function renderTable(parcels) {
+    const mainTbody = document.getElementById('parcel-table-body');
+    const dashboardTbody = document.getElementById('dashboardparcel-table-body');
+
+    if (!parcels || parcels.length === 0) {
+        const emptyRow = `<tr><td colspan="6" class="p-10 text-center text-slate-400">No parcels found.</td></tr>`;
+        if (mainTbody) mainTbody.innerHTML = emptyRow;
+        if (dashboardTbody) dashboardTbody.innerHTML = emptyRow;
+        return;
+    }
+
+    const mainRows = generateRows(parcels, 'main');
+    const dashboardRows = generateRows(parcels.slice(0, 10), 'dashboard');
+
+    if (mainTbody) mainTbody.innerHTML = mainRows.join('');
+    if (dashboardTbody) dashboardTbody.innerHTML = dashboardRows.join('');
+}
+
+        function toggleActionMenu(event, menuId) {
+    event.stopPropagation();
+
+    const allMenus = document.querySelectorAll('[id^="menu-"]');
+    allMenus.forEach(menu => {
+        if (menu.id !== menuId) menu.classList.add('hidden');
+    });
+
+    const currentMenu = document.getElementById(menuId);
+    currentMenu.classList.toggle('hidden');
+}
+document.addEventListener('click', (event) => {
+    const isMenuButton = event.target.closest('[id^="menu-"], button'); // any button/menu clicked
+    if (!isMenuButton) {
+        document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
+    }
+});
+        function toggleActionParcelMenu(event, menuId) {
+    event.stopPropagation();
+
+    // Close all other menus first
+    const allMenus = document.querySelectorAll('[id^="parcelmenu-"]');
+    allMenus.forEach(menu => {
+        if (menu.id !== menuId) menu.classList.add('hidden');
+    });
+
+    // Toggle the current menu
+    const currentMenu = document.getElementById(menuId);
+    if (currentMenu) currentMenu.classList.toggle('hidden');
+}
+
+     
+     
+
+       document.addEventListener('click', (event) => {
+    const clickedMenuOrButton = event.target.closest('[id^="parcelmenu-"], [data-menu-button]');
+    if (!clickedMenuOrButton) {
+        document.querySelectorAll('[id^="parcelmenu-"]').forEach(menu => menu.classList.add('hidden'));
+    }
+});
+
+       document.addEventListener('click', (event) => {
+    const clickedMenuOrButton = event.target.closest('[id^="menu-"], [data-menu-button]');
+    if (!clickedMenuOrButton) {
+        document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
+    }
+});
+        
+
+window.showParcelDetails = function(id) {
+    const parcel = allParcels.find(p => p._id === id);
+    if (!parcel) return;
+
+    const modal = document.getElementById('details-modal');
+    const content = document.getElementById('modal-content');
+
+    // We generate the entire content including the footer buttons
+    content.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="space-y-6">
+                <div>
+                    <p class="text-blue-600 text-[10px] uppercase font-black mb-2 tracking-widest">Tracking Number</p>
+                    <p class="text-xl font-mono font-bold text-slate-800">${parcel.tracking_number}</p>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Sender</p>
+                        <p class="font-semibold text-slate-700">${parcel.sender_name}</p>
+                        <p class="text-slate-500 text-xs">${parcel.sender_phone || 'No Phone'}</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Receiver</p>
+                        <p class="font-semibold text-slate-700">${parcel.receiver_name}</p>
+                        <p class="text-slate-500 text-xs">${parcel.receiver_phone || 'No Phone'}</p>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-slate-100">
+                    <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Route</p>
+                    <p class="text-slate-700 font-medium text-sm">
+                        ${parcel.origin} <i class="fa-solid fa-arrow-right mx-1 text-slate-300"></i> ${parcel.destination}
+                    </p>
+                </div>
+            </div>
+
+            <div class="border-x border-slate-100 px-6">
+                <p class="text-slate-400 text-[10px] uppercase font-bold mb-4">Package Contents</p>
+                <div class="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                    ${parcel.items.map(item => `
+                        <div class="flex justify-between items-start bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <div>
+                                <p class="font-bold text-slate-700 text-sm">${item.description}</p>
+                                <p class="text-[10px] text-slate-500 uppercase">Qty: ${item.quantity || 1} | Wt: ${item.weight || 0}kg</p>
+                            </div>
+                            <p class="text-right font-mono text-blue-600 text-xs font-bold">UGX ${(item.subtotal || 0).toLocaleString()}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="flex flex-col justify-between">
+                <div>
+                    <p class="text-slate-400 text-[10px] uppercase font-bold mb-4">Payment Summary</p>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-500">Total Amount</span>
+                            <span class="font-semibold text-slate-800">UGX ${(parcel.total_amount || 0).toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-500">Amount Paid</span>
+                            <span class="font-semibold text-green-600">UGX ${((parcel.total_amount || 0) - (parcel.balance || 0)).toLocaleString()}</span>
+                        </div>
+                        <div class="pt-3 border-t border-slate-200 flex justify-between">
+                            <span class="font-bold text-slate-800">Balance Due</span>
+                            <span class="font-black text-red-600 text-lg">UGX ${(parcel.balance || 0).toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-slate-900 rounded-xl text-white">
+                    <p class="text-[10px] uppercase opacity-60 font-bold mb-1">Current Status</p>
+                    <p class="text-sm font-bold flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+                        ${parcel.status}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+            <div>
+
+            </div>
+
+<div class="flex gap-2 items-center">
+   
+    <button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300">
+        Close
+    </button>
+</div>
+        </div>
+    `;
+
+    modal.classList.remove('hidden');
+};
+        window.showParcelDelivery = function(id) {
+    const parcel = allParcels.find(p => p._id === id);
+    if (!parcel) return;
+
+    const modal = document.getElementById('delivery-modal');
+    const content = document.getElementById('delivery-content');
+
+    // We generate the entire content including the footer buttons
+    content.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="space-y-6">
+                <div>
+                    <p class="text-blue-600 text-[10px] uppercase font-black mb-2 tracking-widest">Tracking Number</p>
+                    <p class="text-xl font-mono font-bold text-slate-800">${parcel.tracking_number}</p>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Sender</p>
+                        <p class="font-semibold text-slate-700">${parcel.sender_name}</p>
+                        <p class="text-slate-500 text-xs">${parcel.sender_phone || 'No Phone'}</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Receiver</p>
+                        <p class="font-semibold text-slate-700">${parcel.receiver_name}</p>
+                        <p class="text-slate-500 text-xs">${parcel.receiver_phone || 'No Phone'}</p>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-slate-100">
+                    <p class="text-slate-400 text-[10px] uppercase font-bold mb-1">Route</p>
+                    <p class="text-slate-700 font-medium text-sm">
+                        ${parcel.origin} <i class="fa-solid fa-arrow-right mx-1 text-slate-300"></i> ${parcel.destination}
+                    </p>
+                </div>
+            </div>
+
+            <div class="border-x border-slate-100 px-6">
+                <p class="text-slate-400 text-[10px] uppercase font-bold mb-4">Package Contents</p>
+                <div class="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                    ${parcel.items.map(item => `
+                        <div class="flex justify-between items-start bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <div>
+                                <p class="font-bold text-slate-700 text-sm">${item.description}</p>
+                                <p class="text-[10px] text-slate-500 uppercase">Qty: ${item.quantity || 1} | Wt: ${item.weight || 0}kg</p>
+                            </div>
+                            <p class="text-right font-mono text-blue-600 text-xs font-bold">UGX ${(item.subtotal || 0).toLocaleString()}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="flex flex-col justify-between">
+                <div>
+                    <p class="text-slate-400 text-[10px] uppercase font-bold mb-4">Payment Summary</p>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-500">Total Amount</span>
+                            <span class="font-semibold text-slate-800">UGX ${(parcel.total_amount || 0).toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-500">Amount Paid</span>
+                            <span class="font-semibold text-green-600">UGX ${((parcel.total_amount || 0) - (parcel.balance || 0)).toLocaleString()}</span>
+                        </div>
+                        <div class="pt-3 border-t border-slate-200 flex justify-between">
+                            <span class="font-bold text-slate-800">Balance Due</span>
+                            <span class="font-black text-red-600 text-lg">UGX ${(parcel.balance || 0).toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-slate-900 rounded-xl text-white">
+                    <p class="text-[10px] uppercase opacity-60 font-bold mb-1">Current Status</p>
+                    <p class="text-sm font-bold flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+                        ${parcel.status}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+            <div>
+                <button onclick="confirmDelivery('${parcel._id}')" 
+        class="px-4 py-2 bg-green-50 text-green-600 rounded-lg font-medium hover:bg-green-100 transition-colors flex items-center gap-2 border border-green-200">
+    <i class="fa-solid fa-truck-fast"></i> Mark as Delivered
+</button>
+            </div>
+
+<div class="flex gap-2 items-center">
+   
+    <button onclick="closeDeliverysModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300">
+        Close
+    </button>
+</div>
+        </div>
+    `;
+
+    modal.classList.remove('hidden');
+};
+// Function to close modal
+window.closeDetailsModal = function() {
+    document.getElementById('details-modal').classList.add('hidden');
+};
+        window.closeDeliveryModal = function() {
+    document.getElementById('delivery-modal').classList.add('hidden');
+};
+        let isEditMode = false;
+let editingId = null;
+
+window.editParcel = function(id) {
+    const parcel = allParcels.find(p => p._id === id);
+    if (!parcel) return;
+
+    isEditMode = true;
+    editingId = id;
+
+    // 1. Change UI Titles
+    document.querySelector('#parcel-modal h3').innerText = "Update Parcel Details";
+    const submitBtn = document.querySelector('#parcel-modal button[type="submit"]');
+    submitBtn.innerText = "Update Parcel";
+
+    // 2. Fill Basic Details & Financials (Your existing code)
+    document.getElementById('client_id').value = parcel.client_id || '';
+    document.getElementById('senderName').value = parcel.sender_name || '';
+    document.getElementById('senderPhone').value = parcel.sender_phone || '';
+    document.getElementById('origin').value = parcel.origin || '';
+    document.getElementById('receiverName').value = parcel.receiver_name || '';
+    document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
+    document.getElementById('destination').value = parcel.destination || '';
+    document.getElementById('totalAmount').value = parcel.total_amount || 0;
+    document.getElementById('amountPaid').value = (parcel.total_amount - parcel.balance) || 0;
+    document.getElementById('balance').value = parcel.balance || 0;
+    document.getElementById('paymentStatus').value = parcel.payment_status || 'Unpaid';
+    document.getElementById('paymentType').value = parcel.payment_method || 'Cash';
+
+    currentConsignment = [...parcel.items]; 
+    renderParcelList();
+
+    // 3. INJECT STATUS AND PAYMENT BUTTONS INTO FOOTER
+    const footer = document.querySelector('#parcel-modal .flex.justify-end.gap-3');
+    
+    // Create the extra actions HTML
+    const extraActionsHtml = `
+        <div id="edit-actions" class="flex gap-2 mr-auto">
+            <select onchange="updateStatus('${parcel._id}', this.value)" 
+                class="px-3 py-2 border rounded-lg text-xs font-bold uppercase transition-all ${getStatusStyle(parcel.status)}">
+                <option value="At Dispatch" ${parcel.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
+                <option value="In Transit" ${parcel.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+                <option value="Partially received" ${parcel.status === 'Partially received' ? 'selected' : ''}>Partially Received</option>
+                <option value="Ready for Pickup" ${parcel.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
+                <option value="Delivered" ${parcel.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            </select>
+            
+            <button type="button" onclick="openPaymentModal('${parcel._id}')" 
+                class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-green-200 transition">
+                <i class="fa-solid fa-money-bill-wave"></i> Add Payment
+            </button>
+        </div>
+    `;
+
+    // Remove existing edit-actions if they exist, then prepend new ones
+    const oldActions = document.getElementById('edit-actions');
+    if (oldActions) oldActions.remove();
+    footer.insertAdjacentHTML('afterbegin', extraActionsHtml);
+
+    // 4. Show Modal
+    document.getElementById('parcel-modal').classList.remove('hidden');
+};
+        window.hideModal = function(id) {
+    document.getElementById(id).classList.add('hidden');
+    
+    if (id === 'parcel-modal') {
+        isEditMode = false;
+        editingId = null;
+        
+        // Reset Titles
+        document.querySelector('#parcel-modal h3').innerText = "Add New Parcel";
+        document.querySelector('#parcel-modal button[type="submit"]').innerText = "Add Parcel";
+        
+        // Remove the extra buttons we injected
+        const extraActions = document.getElementById('edit-actions');
+        if (extraActions) extraActions.remove();
+        
+        // Clear the form
+        document.getElementById('createParcelForm').reset();
+        currentConsignment = [];
+        renderParcelList();
+    }
+}
+/**
+
+ * CREATE: Submit Form to Backend
+ */
+document.getElementById('createParcelForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // 1. Validation: Ensure there is at least one item
+    if (currentConsignment.length === 0) {
+        alert("Please add at least one parcel item to the list before saving.");
+        return;
+    }
+
+    try {
+        // --- NEW CUSTOMER AUTO-SAVE LOGIC ---
+        
+        // Prepare Customer Objects for Upsert
+        const senderPayload = {
+            full_name: document.getElementById('senderName').value,
+            phone: document.getElementById('senderPhone').value,
+            station: document.getElementById('origin').value
+        };
+
+        const receiverPayload = {
+            full_name: document.getElementById('receiverName').value,
+            phone: document.getElementById('receiverPhone').value,
+            station: document.getElementById('destination').value
+        };
+
+        // We use Promise.all to save/update both customers simultaneously
+        const [senderRes, receiverRes] = await Promise.all([
+            fetch(`${API_URL}/api/customers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(senderPayload)
+            }),
+            fetch(`${API_URL}/api/customers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(receiverPayload)
+            })
+        ]);
+
+        const senderData = await senderRes.json();
+        const receiverData = await receiverRes.json();
+
+        // Check if customers were saved correctly
+        if (!senderData._id || !receiverData._id) {
+            throw new Error("Failed to register customer details.");
+        }
+
+        // --- END CUSTOMER LOGIC ---
+
+        // 2. Structure the data for the Parcel
+        const parcelData = {
+            // Use the IDs returned from the Customer save
+            sender_id: senderData._id,
+            receiver_id: receiverData._id,
+            
+            sender_name: senderData.full_name,
+            sender_phone: senderData.phone,
+            origin: senderData.station,
+            
+            receiver_name: receiverData.full_name,
+            receiver_phone: receiverData.phone,
+            destination: receiverData.station,
+
+            recorded_by: document.getElementById('staff-name')?.innerText || 'Unknown Clerk',
+            items: currentConsignment, 
+            
+            total_amount: Number(document.getElementById('totalAmount').value),
+            amount_paid: Number(document.getElementById('amountPaid').value),
+            balance: Number(document.getElementById('balance').value),
+            payment_status: document.getElementById('paymentStatus').value,
+            payment_method: document.getElementById('paymentType').value,
+        };
+
+        // 3. Determine URL and Method based on mode
+        const url = isEditMode ? `${API_URL}/api/parcels/${editingId}` : `${API_URL}/api/parcels`;
+        const method = isEditMode ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(parcelData)
+        });
+
+        if (response.ok) {
+            alert(isEditMode ? "Parcel updated successfully!" : "Parcel added successfully!");
+            document.getElementById('createParcelForm').reset();
+            // Cleanup
+            isEditMode = false;
+            editingId = null;
+            currentConsignment = [];
+            renderParcelList();
+            
+            // Reset IDs
+            document.getElementById('sender_client_id').value = "";
+            document.getElementById('receiver_client_id').value = "";
+            
+            document.getElementById('createParcelForm').reset();
+            hideModal('parcel-modal');
+            // Refresh main table & search options
+            fetchParcels(); 
+            loadFormOptions(); // Refreshes datalists with the new customers
+        } else {
+            const errorData = await response.json();
+            alert("Error: " + (errorData.error || "Unknown error"));
+        }
+    } catch (err) {
+        console.error("Error saving:", err);
+        alert("An error occurred: " + err.message);
+    }
+});
+        function openNewParcelModal() {
+    isEditMode = false;
+    editingId = null;
+    currentConsignment = [];
+    
+    // Reset Titles
+    document.querySelector('#parcel-modal h3').innerText = "New Parcel Booking";
+    document.querySelector('#parcel-modal button[type="submit"]').innerText = "Add Parcel";
+    
+    document.getElementById('createParcelForm').reset();
+    renderParcelList();
+    document.getElementById('parcel-modal').classList.remove('hidden');
+}
+       async function updateStatus(id, newStatus) {
+    try {
+        // 1. Find the parcel in allParcels array
+        const parcel = allParcels.find(p => p._id === id);
+        if (!parcel) {
+            console.warn("Parcel not found:", id);
+            return;
+        }
+
+        console.log("Current parcel status:", parcel.status, "Requested new status:", newStatus);
+
+        // 2. Restrict changing to Delivered only if allowed
+        if (newStatus === "Delivered" && parcel.status !== "In Transit" && parcel.status !== "Ready for Pickup") {
+            alert(`Cannot mark as Delivered. Current status is "${parcel.status}".`);
+            return;
+        }
+
+        // 3. Proceed with the update
+        const response = await fetch(`${API_URL}/api/parcels/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Update failed");
+        }
+
+        console.log("Status updated successfully");
+
+        // 4. Refresh parcels table to reflect the change
+        await fetchParcels();
+
+    } catch (err) {
+        console.error("Error updating status:", err);
+    }
+}
+
+/**
+ * DELETE: Remove Parcel
+ */
+
+async function deleteParcel(id) {
+    if (!confirm("Are you sure you want to delete this parcel?")) return;
+
+    try {
+        // Fix: Added '/api/parcels/' before the id
+        const response = await fetch(`${API_URL}/api/parcels/${id}`, { 
+            method: 'DELETE' 
+        });
+
+        if (!response.ok) {
+            throw new Error(`Delete failed with status: ${response.status}`);
+        }
+
+        console.log(`Parcel ${id} deleted successfully`);
+        
+        // Refresh the list after deleting
+        fetchParcels(); 
+
+    } catch (error) {
+        console.error("Error deleting parcel:", error);
+        alert("Could not delete the parcel.");
+    }
+}
+
+/**
+ * UI & Calculation Helpers
+ */
+function calculateParcelPrice() {
+    const q = document.getElementById('temp_qty').value || 1;
+    const w = document.getElementById('temp_weight').value || 1;
+    const l = document.getElementById('length').value || 1;
+    const wi = document.getElementById('width').value || 1;
+    const h = document.getElementById('height').value || 1;
+    const r = document.getElementById('temp_rate').value || 1;
+    const v= l *wi*h;
+    document.getElementById('volume').value = Math.round(v);
+
+    // Calculation: Qty * Weight * Volume * Rate
+    const total = q * w * v * r;
+    document.getElementById('totalAmount').value = Math.round(total);
+}
+
+function openParcelModal() {
+    document.getElementById('parcel-form').reset();
+    calculateParcelPrice();
+    document.getElementById('parcel-modal').classList.remove('hidden');
+}
+
+
+function closeParcelModal() {
+    document.getElementById('parcel-modal').classList.add('hidden');
+}
+function getStatusStyle(status) {
+    switch(status) {
+        case 'Delivered': return 'bg-green-100 text-green-700';
+        case 'In Transit': return 'bg-blue-100 text-blue-700';
+        case 'Ready for Pickup': return 'bg-purple-100 text-purple-700';
+        case 'Partially received': return 'bg-red-100 text-red-700';
+        default: return 'bg-amber-100 text-amber-700';
+    }
+}
+
+window.showSection = showSection;
+
+        
+
+// Open/Close Modal Functions
+function showModal(modalId) {
+    document.getElementById(modalId)?.classList.remove('hidden');
+}
+
+function hideModal(modalId) {
+    document.getElementById(modalId)?.classList.add('hidden');
+}
+
+// Handle Receiver Form Submission
+
+
+        // Ensure API_URL is defined at the top of your script
+// const API_URL = "https://patrinahhotelmgtsys.onrender.com";
+
+
+        async function fetchSenders() {
+    try {
+        const response = await fetch(`${API_URL}/api/senders`);
+        const senders = await response.json();
+        
+        const tbody = document.getElementById('senders-table-body');
+        if (!tbody) return; // Exit if the table doesn't exist on the current page
+
+        tbody.innerHTML = senders.map(s => `
+            <tr class="border-b hover:bg-slate-50">
+                            <td class="p-3 font-medium text-slate-700">${s.full_name}</td>
+
+                <td class="p-3 font-medium text-slate-700">${s.full_name}</td>
+                <td class="p-3 text-slate-600">${s.phone}</td>
+                <td class="p-3 text-slate-600">${s.id_number || '<span class="text-slate-300 italic">None</span>'}</td>
+                <td class="p-3">
+                    <span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-full font-semibold">
+                        ${s.station}
+                    </span>
+                </td>
+                <td class="p-3 text-right">
+                    <button onclick="deleteSender('${s._id}')" class="text-red-400 hover:text-red-600 transition-colors">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error("Failed to fetch senders:", err);
+    }
+}
+        async function deleteSender(id) {
+    if (!confirm("Are you sure you want to delete this sender? This action cannot be undone.")) return;
+
+    try {
+        const response = await fetch(`${API_URL}/api/senders/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert("Sender deleted");
+            fetchSenders(); // Refresh the list immediately
+        } else {
+            const error = await response.json();
+            alert("Delete failed: " + error.error);
+        }
+    } catch (err) {
+        console.error("Error deleting sender:", err);
+        alert("Server error while deleting.");
+    }
+}
+        
+
+async function loadFormOptions() {
+    try {
+        const response = await fetch(`${API_URL}/api/customers`);
+        const customers = await response.json();
+
+        const senderList = document.getElementById('senderList');
+        const receiverList = document.getElementById('receiverList');
+        
+        senderList.innerHTML = "";
+        receiverList.innerHTML = "";
+
+        customers.forEach(person => {
+            // Include phone in the value so the user can search by either
+            const entryValue = `${person.full_name} (${person.phone})`;
+            
+            const opt = document.createElement('option');
+            opt.value = entryValue; 
+            opt.dataset.name = person.full_name;
+            opt.dataset.phone = person.phone;
+            opt.dataset.id = person._id;
+            opt.dataset.station = person.station;
+
+            senderList.appendChild(opt.cloneNode(true));
+            receiverList.appendChild(opt);
+        });
+    } catch (err) { console.error(err); }
+}
+// --- RECEIVER SELECTION ---
+document.getElementById('receiverName').addEventListener('input', function(e) {
+    const val = e.target.value;
+    const options = document.querySelectorAll('#receiverList option');
+    let matchFound = false;
+
+    options.forEach(opt => {
+        if (opt.value === val) {
+            matchFound = true;
+            // 1. Update the display name (remove the phone number from the input)
+            e.target.value = opt.dataset.name; 
+            
+            // 2. Auto-fill the other fields
+            document.getElementById('receiverPhone').value = opt.dataset.phone || "";
+            document.getElementById('destination').value = opt.dataset.station || "";
+            
+            // Note: If you want to track the receiver's database ID too, 
+            // you might need a hidden 'receiver_client_id' input
+            // document.getElementById('receiver_client_id').value = opt.dataset.id;
+        }
+    });
+
+    // 3. Logic for Manual Typing:
+    // If the user starts typing something that isn't a match, 
+    // we keep the manual text but ensure any previous ID is cleared.
+    if (!matchFound && val.length > 0) {
+        // Clear hidden ID if you are using one for receivers
+        // document.getElementById('receiver_client_id').value = "";
+    }
+});
+// Update the Selection Listener
+document.getElementById('senderName').addEventListener('input', function(e) {
+    const val = e.target.value;
+    const options = document.querySelectorAll('#senderList option');
+    
+    options.forEach(opt => {
+        if (opt.value === val) {
+            // When an option is picked, extract the clean data
+            e.target.value = opt.dataset.name; // Reset input to just the name
+            document.getElementById('senderPhone').value = opt.dataset.phone;
+            document.getElementById('client_id').value = opt.dataset.id;
+            document.getElementById('origin').value = opt.dataset.station;
+        }
+    });
+});
+
+        // Search by typing directly into the Phone field (Receiver)
+document.getElementById('receiverPhone').addEventListener('input', function(e) {
+    const phoneVal = e.target.value;
+    const options = document.querySelectorAll('#receiverList option');
+    
+    // Optional: Only start searching if phone length is at least 10 (standard for UGX)
+    if (phoneVal.length < 10) return;
+
+    options.forEach(opt => {
+        if (opt.dataset.phone === phoneVal) {
+            // Auto-fill Receiver Name and Destination if phone matches
+            document.getElementById('receiverName').value = opt.dataset.name;
+            document.getElementById('destination').value = opt.dataset.station;
+            
+            // If you added a receiver_id hidden field, update it here:
+            // const receiverIdEl = document.getElementById('receiver_id');
+            // if (receiverIdEl) receiverIdEl.value = opt.dataset.id;
+
+            // Visual feedback: briefly highlight the auto-filled name
+            document.getElementById('receiverName').classList.add('bg-orange-50');
+            setTimeout(() => {
+                document.getElementById('receiverName').classList.remove('bg-orange-50');
+            }, 1000);
+        }
+    });
+});
+        // Search by typing directly into the Phone field (Sender)
+document.getElementById('senderPhone').addEventListener('input', function(e) {
+    const phoneVal = e.target.value;
+    const options = document.querySelectorAll('#senderList option');
+    
+    options.forEach(opt => {
+        if (opt.dataset.phone === phoneVal) {
+            document.getElementById('senderName').value = opt.dataset.name;
+            document.getElementById('client_id').value = opt.dataset.id;
+            document.getElementById('origin').value = opt.dataset.station;
+        }
+    });
+});
+
+
+        
+function calculatePaymentStatus() {
+    const total = parseFloat(document.getElementById('totalAmount').value) || 0;
+    const paid = parseFloat(document.getElementById('amountPaid').value) || 0;
+    const statusField = document.getElementById('paymentStatus');
+
+    if (paid === 0) {
+        statusField.value = "Unpaid";
+    } else if (paid >= total && total > 0) {
+        statusField.value = "Paid";
+    } else {
+        statusField.value = "Partial";
+    }
+}
+
+// Attach listeners to the amount fields
+document.getElementById('totalAmount').addEventListener('input', calculatePaymentStatus);
+document.getElementById('amountPaid').addEventListener('input', calculatePaymentStatus);
+        
+        document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // We no longer care about 'type' for the database, 
+    // but we use it to know which input to fill on the UI.
+    const type = document.getElementById('modalCustomerId').value; 
+    
+    const userData = {
+        full_name: document.getElementById('modalFullName').value,
+        phone: document.getElementById('modalPhone').value,
+        id_number: document.getElementById('modalID').value,
+        station: document.getElementById('modalStation').value
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/api/customers`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+
+        if (response.ok) {
+            const newCustomer = await response.json();
+            
+            // Refresh the shared datalists
+            await loadFormOptions(); 
+            
+            // Auto-fill the specific side of the form user was working on
+            if (type === 'sender') {
+                document.getElementById('senderName').value = newCustomer.full_name;
+                document.getElementById('senderPhone').value = newCustomer.phone;
+                document.getElementById('origin').value = newCustomer.station;
+                document.getElementById('client_id').value = newCustomer._id;
+            } else {
+                document.getElementById('receiverName').value = newCustomer.full_name;
+                document.getElementById('destination').value = newCustomer.station;
+            }
+            
+            closeModal();
+        }
+    } catch (err) {
+        console.error("Save failed:", err);
+    }
+});
+
+loadFormOptions();
+
+        // Function to show the modal and set the context (Sender or Receiver)
+function openUserModal(type) {
+    const modal = document.getElementById('userModal');
+    const title = document.getElementById('modalTitle');
+    const typeInput = document.getElementById('modalCustomerId');
+
+    typeInput.value = type;
+    title.innerText = type === 'sender' ? 'Add New Sender' : 'Add New Receiver';
+    
+    modal.classList.remove('hidden');
+}
+
+// Function to hide the modal and reset fields
+function closeModal() {
+    document.getElementById('userModal').classList.add('hidden');
+    document.getElementById('quickUserForm').reset();
+}
+
+// Close modal if user clicks outside the white box
+window.onclick = function(event) {
+    const modal = document.getElementById('userModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+        
+
+        async function refreshCustomerTable() {
+    try {
+        const response = await fetch(`${API_URL}/api/customers`);
+        const customers = await response.json();
+        const tableBody = document.getElementById('customerTableBody');
+        
+        tableBody.innerHTML = ""; // Clear current rows
+
+        customers.forEach(customer => {
+            const row = `
+                <tr class="border-b hover:bg-gray-50 transition">
+                    <td class="p-3 font-medium text-gray-800">${customer.full_name}</td>
+                    <td class="p-3 text-gray-600">${customer.phone}</td>
+                    <td class="p-3 text-gray-600">${customer.id_number || 'N/A'}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${
+                            customer.station === 'Kampala' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                        }">
+                            ${customer.station}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right">
+                        <button onclick="editCustomer('${customer._id}')" class="text-blue-600 hover:underline mr-2">Edit</button>
+                        <button onclick="deleteCustomer('${customer._id}')" class="text-red-600 hover:underline">Delete</button>
+                    </td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+    } catch (err) {
+        console.error("Failed to load table:", err);
+    }
+}
+
+// Simple search filter function
+
+function filterTble() {
+    const filter = document.getElementById("customerSearch").value.toLowerCase();
+    const rows = document.querySelectorAll("#customerTableBody tr");
+
+    rows.forEach(row => {
+        const name = row.children[0]?.innerText.toLowerCase() || "";
+        const phone = row.children[1]?.innerText.toLowerCase() || "";
+
+        row.style.display = (name.includes(filter) || phone.includes(filter)) ? "" : "none";
+    });
+}
+
+
+
+// Initial load
+refreshCustomerTable();
+
+        async function deleteCustomer(id) {
+    if (confirm("Are you sure you want to delete this customer? This will not delete their past parcels.")) {
+        try {
+            const response = await fetch(`${API_URL}/api/customers/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                // Refresh both the table and the datalists on the booking form
+                refreshCustomerTable();
+                loadFormOptions();
+            } else {
+                alert("Failed to delete customer");
+            }
+        } catch (err) {
+            console.error("Error deleting:", err);
+        }
+    }
+}
+        async function editCustomer(id) {
+    try {
+        const response = await fetch(`${API_URL}/api/customers/${id}`);
+        const customer = await response.json();
+
+        // 1. Open the modal and change title
+        document.getElementById('userModal').classList.remove('hidden');
+        document.getElementById('modalTitle').innerText = "Edit Customer Details";
+        
+        // 2. Fill the fields with current data
+        document.getElementById('modalCustomerId').value = customer._id;
+        document.getElementById('modalFullName').value = customer.full_name;
+        document.getElementById('modalPhone').value = customer.phone;
+        document.getElementById('modalID').value = customer.id_number || "";
+        document.getElementById('modalStation').value = customer.station;
+
+    } catch (err) {
+        alert("Error fetching customer data");
+    }
+}
+        document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const customerId = document.getElementById('modalCustomerId').value;
+    const userData = {
+        full_name: document.getElementById('modalFullName').value,
+        phone: document.getElementById('modalPhone').value,
+        id_number: document.getElementById('modalID').value,
+        station: document.getElementById('modalStation').value
+    };
+
+    // Determine if we are Updating (PUT) or Creating (POST)
+    const method = customerId ? 'PUT' : 'POST';
+    const url = customerId ? `${API_URL}/api/customers/${customerId}` : `${API_URL}/api/customers`;
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+
+        if (response.ok) {
+            // Refresh everything
+            await loadFormOptions(); 
+            if (typeof refreshCustomerTable === "function") refreshCustomerTable();
+            
+            closeModal();
+            document.getElementById('modalCustomerId').value = ""; // Clear the ID
+        }
+    } catch (err) {
+        console.error("Save failed:", err);
+    }
+});
+let currentConsignment = [];
+
+function addParcelToList() {
+    // 1. Get references to the input fields
+    const descEl = document.getElementById('temp_desc');
+    const qtyEl = document.getElementById('temp_qty');
+    const weightEl = document.getElementById('temp_weight');
+    const rateEl = document.getElementById('temp_rate');
+    const volumeEl = document.getElementById('volume');
+    const lengthEl = document.getElementById('length');
+    const widthEl = document.getElementById('width');
+    const heightEl = document.getElementById('height');
+
+
+
+    // 2. Extract values
+    const description = descEl.value.trim();
+    const quantity = parseInt(qtyEl.value) || 1;
+    const weight = parseFloat(weightEl.value) || 1;
+    const rate = parseFloat(rateEl.value) || 1;
+    const volume = parseFloat(volumeEl.value) || 1;
+        const height = parseFloat(heightEl.value) || 1;
+        const width = parseFloat(widthEl.value) || 1;
+        const length = parseFloat(lengthEl.value) || 1;
+
+
+
+
+
+    // 3. Validation
+    if (!description || quantity <= 0 || rate <= 0) {
+        alert("Please provide a description, quantity, and rate.");
+        return;
+    }
+
+    // 4. Create item object
+    const newItem = {
+        id: Date.now(), // unique ID for local removal
+        description,
+        quantity,
+        weight,
+        rate,
+        volume: length*width*height,
+        subtotal: quantity * rate
+    };
+
+    // 5. Update array and UI
+    currentConsignment.push(newItem);
+    
+    // Clear inputs for the next item
+    descEl.value = '';
+    qtyEl.value = '';
+    weightEl.value = '';
+    rateEl.value = '';
+    lengthEl.value='';
+    widthEl.value='';
+    heightEl.value='';
+    volumeEl.value='';
+    descEl.focus();
+
+    renderParcelList();
+}
+
+function renderParcelList() {
+    const container = document.getElementById('parcelListContainer');
+    const itemCountEl = document.getElementById('item-count');
+    const totalAmountEl = document.getElementById('totalAmount');
+    
+    if (currentConsignment.length === 0) {
+        container.innerHTML = `<p class="text-center text-slate-400 text-xs py-10 italic">No items added yet.</p>`;
+        itemCountEl.innerText = "0 Items";
+        totalAmountEl.value = 0;
+        calculateBalance();
+        return;
+    }
+
+    let grandTotal = 0;
+
+    container.innerHTML = currentConsignment.map((item, index) => {
+        grandTotal += item.subtotal;
+        return `
+            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100 group transition-all hover:border-blue-200">
+                <div class="flex flex-col">
+                    <span class="text-sm font-semibold text-slate-700">${item.description}</span>
+                    <span class="text-[10px] text-slate-500 uppercase font-medium">
+                        ${item.quantity} units × ${item.volume} cubic units × ${item.rate.toLocaleString()} UGX ${item.weight ? `(${item.weight}kg)` : ''}
+                    </span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-bold text-blue-600">${item.subtotal.toLocaleString()} UGX</span>
+                    <button type="button" onclick="removeItemFromList(${item.id})" class="text-slate-300 hover:text-red-500 transition-colors">
+                        <i class="fa-solid fa-circle-xmark text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    itemCountEl.innerText = `${currentConsignment.length} Item${currentConsignment.length > 1 ? 's' : ''}`;
+    totalAmountEl.value = grandTotal;
+    
+    calculateBalance();
+}
+
+function removeItemFromList(id) {
+    currentConsignment = currentConsignment.filter(item => item.id !== id);
+    renderParcelList();
+}
+
+function calculateBalance() {
+    const total = parseFloat(document.getElementById('totalAmount').value) || 0;
+    const paid = parseFloat(document.getElementById('amountPaid').value) || 0;
+    const balance = total - paid;
+    
+    document.getElementById('balance').value = balance;
+    
+    const statusEl = document.getElementById('paymentStatus');
+    if (total === 0) {
+        statusEl.value = "Unpaid";
+        statusEl.className = "bg-slate-800 border-none p-2.5 rounded-lg text-xs font-bold text-yellow-400";
+    } else if (paid >= total) {
+        statusEl.value = "Paid";
+        statusEl.className = "bg-slate-800 border-none p-2.5 rounded-lg text-xs font-bold text-green-400";
+    } else if (paid > 0) {
+        statusEl.value = "Partial";
+        statusEl.className = "bg-slate-800 border-none p-2.5 rounded-lg text-xs font-bold text-orange-400";
+    } else {
+        statusEl.value = "Unpaid";
+        statusEl.className = "bg-slate-800 border-none p-2.5 rounded-lg text-xs font-bold text-red-400";
+    }
+}
+        // OPEN ITEM MODAL
+function addNewParcelForCustomer(name, phone, id) {
+    // 1. Reference the form and reset all its fields
+    const itemForm = document.getElementById('addItemForm');
+    if (itemForm) {
+        itemForm.reset();
+    }
+
+    // 2. This 'id' must be the long database string (p._id)
+    console.log("Setting Target ID:", id); 
+    
+    // 3. Put the database ID into the hidden input AFTER the reset
+    // (If you reset after setting the value, the ID will be cleared!)
+    document.getElementById('target_waybill_id').value = id; 
+    
+    // 4. Show the modal
+    showModal('item-modal');
+}
+
+// OPEN PAYMENT MODAL
+async function openPaymentModal(id) {
+    const paymentForm = document.getElementById('miniPaymentForm');
+        if (paymentForm) {
+            paymentForm.reset();
+        }
+    try {
+        const response = await fetch(`${API_URL}/api/parcels/${id}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Server Response:", errorText);
+            throw new Error(`Failed to fetch parcel: ${response.status}`);
+        }
+
+        const p = await response.json();
+        
+        // Ensure these IDs exist in your payment-modal HTML
+        document.getElementById('pay_waybill_id').value = id;
+        
+        // Safety check for balance
+        const balance = p.balance || 0;
+        document.getElementById('display_balance').value = `${balance.toLocaleString()} UGX`;
+        
+        showModal('payment-modal');
+    } catch (err) {
+        alert("Could not open payment window. Check console for details.");
+        console.error("Payment Modal Error:", err);
+    }
+}
+
+// SUBMIT ITEM ONLY
+document.getElementById('addItemForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const form = e.target;
+    const id = document.getElementById('target_waybill_id').value;
+    
+    // 1. Calculate the subtotal locally for the payload
+    const qty = Number(document.getElementById('mini_qty').value);
+    const rate = Number(document.getElementById('mini_rate').value);
+    
+    const newItem = {
+        description: document.getElementById('mini_desc').value,
+        quantity: qty,
+        weight: Number(document.getElementById('mini_weight').value),
+        rate: rate,
+        subtotal: qty * rate
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/api/parcels/${id}/add-item`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newItem)
+        });
+
+        if (response.ok) {
+            // 2. Clear the form fields immediately
+            form.reset();
+            
+            // 3. Close the "Add Item" small modal
+            hideModal('item-modal');
+            
+            // 4. Refresh the global data array (allParcels) 
+            // This is vital so the balance/total amounts are updated from the server
+            await fetchParcels(); 
+            
+            // 5. Re-render the "Delivery Details" modal instantly using the correct ID variable
+            showParcelDetails(id); 
+
+        } else {
+            const error = await response.json();
+            alert("Failed to add item: " + (error.error || "Unknown error"));
+        }
+    } catch (err) {
+        console.error("Item Addition Error:", err);
+        alert("Network error. Please try again.");
+    }
+});
+
+
+        // SUBMIT PAYMENT ONLY
+
+// SUBMIT PAYMENT + Generate Printable Receipt
+document.getElementById('miniPaymentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const id = document.getElementById('pay_waybill_id').value;
+    const amountPaid = Number(document.getElementById('mini_pay_amount').value);
+    const paymentMethod = document.getElementById('mini_pay_method').value;
+
+    const paymentData = {
+        amount_paid: amountPaid,
+        payment_method: paymentMethod
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/api/parcels/${id}/add-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(paymentData)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Payment failed");
+        }
+         alert(`Payment successful! Amount Paid: UGX ${amountPaid.toLocaleString()} via ${paymentMethod}`);
+
+        // Reset form & hide payment modal
+        form.reset();
+        hideModal('payment-modal');
+
+        // Update parcel info
+        updateAmountPaidModalIfOpen(amountPaid);
+        calculatePaymentStatus();
+        await fetchParcels();
+
+        // Generate and print receipt
+        printPaymentReceipt(id, amountPaid, paymentMethod);
+
+    } catch (err) {
+        console.error("Payment Error:", err);
+        alert("Payment failed: " + err.message);
+    }
+});
+
+// Print-only receipt using a temporary window
+function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
+    const parcel = allParcels.find(p => p._id === parcelId);
+    if (!parcel) {
+        alert("Parcel not found for receipt.");
+        return;
+    }
+
+    const date = new Date();
+    const formattedDate = date.toLocaleString();
+
+    const receiptHTML = `
+    <html>
+    <head>
+        <title>Payment Receipt</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h2 { color: #1e40af; }
+            .header { display: flex; justify-content: space-between; align-items: center; }
+            .section { margin-top: 20px; }
+            .section h4 { font-size: 12px; color: #475569; margin-bottom: 5px; text-transform: uppercase; }
+            .section p { margin: 2px 0; font-size: 14px; }
+            .items { border-top: 1px solid #cbd5e1; margin-top: 10px; }
+            .items div { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #e2e8f0; }
+            .summary { margin-top: 10px; }
+            .summary div { display: flex; justify-content: space-between; padding: 5px 0; }
+            .status { margin-top: 20px; padding: 10px; background: #0f172a; color: #fff; border-radius: 8px; text-align: center; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h2>Parcel Payment Receipt</h2>
+            <div>${formattedDate}</div>
+        </div>
+
+        <div class="section">
+            <h4>Tracking Number</h4>
+            <p>${parcel.tracking_number}</p>
+        </div>
+
+        <div class="section">
+            <h4>Sender</h4>
+            <p>${parcel.sender_name}</p>
+            <p>${parcel.sender_phone || 'No Phone'}</p>
+        </div>
+
+        <div class="section">
+            <h4>Receiver</h4>
+            <p>${parcel.receiver_name}</p>
+            <p>${parcel.receiver_phone || 'No Phone'}</p>
+        </div>
+
+        <div class="section">
+            <h4>Route</h4>
+            <p>${parcel.origin} → ${parcel.destination}</p>
+        </div>
+
+        <div class="section items">
+                    <h4>Package Content</h4>
+            ${parcel.items.map(item => `
+                <div>
+                    <span>${item.description} (Qty: ${item.quantity || 1}, Wt: ${item.weight || 0}kg)</span>
+                    <span>UGX ${(item.subtotal || 0).toLocaleString()}</span>
+                </div>
+            `).join('')}
+        </div>
+
+        <div class="section summary">
+                    <h4>Payment Summary</h4>
+            <div><span>Total Amount</span><span>UGX ${(parcel.total_amount || 0).toLocaleString()}</span></div>
+            <div><span>Amount Paid</span><span>UGX ${amountPaid.toLocaleString()} (${paymentMethod})</span></div>
+            <div><span>Balance Due</span><span>UGX ${(parcel.balance || 0).toLocaleString()}</span></div>
+        </div>
+        
+            <h4>Status</h4>
+        <div class="status">${parcel.status}</div>
+    </body>
+    </html>
+    `;
+
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+    if (!printWindow) {
+        alert("Popup blocked! Please allow popups to print receipt.");
+        return;
+    }
+
+    printWindow.document.open();
+    printWindow.document.write(receiptHTML);
+    printWindow.document.close();
+
+    printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    };
+}
+
+
+        
+function updateAmountPaidModalIfOpen(addedAmount) {
+    console.log("Checking for #amountPaid input...");
+
+    const amountInput = document.getElementById('amountPaid');
+
+    if (!amountInput) {
+        console.warn("❌ #amountPaid input NOT found in DOM");
+        return;
+    }
+
+    console.log("✅ #amountPaid input found:", amountInput);
+
+    const currentAmount = Number(document.getElementById('amountPaid').value || 0);
+    console.log("Current amount in input:", currentAmount);
+
+    const newAmount = currentAmount + addedAmount;
+    console.log("New amount after payment:", newAmount);
+
+    document.getElementById('amountPaid').value = newAmount;
+
+    console.log("✅ amountPaid input updated successfully!");
+
+    // ✅ Recalculate balance after updating amount
+    console.log("Calling calculateBalance()...");
+    calculateBalance();
+}
+
+
+        
+
+window.confirmDelivery = async function(id) {
+    const parcel = allParcels.find(p => p._id === id);
+
+    if (!parcel) {
+        alert("Parcel not found.");
+        return;
+    }
+
+    // Check if already delivered
+    if (parcel.status === "Delivered") {
+        alert("This parcel has already been delivered.");
+        return;
+    }
+
+    // Safety Check: Don't deliver if balance exists
+    if (parcel.balance > 0) {
+        alert(`Cannot Deliver: This parcel has a pending balance of UGX ${parcel.balance.toLocaleString()}. Please clear payment first.`);
+        return;
+    }
+
+    // Status Check: Only allow if In Transit or Ready for Pickup
+    if (parcel.status !== "In Transit" && parcel.status !== "Ready for Pickup") {
+        alert(`Cannot mark as Delivered. Current status is "${parcel.status}".`);
+        return;
+    }
+
+    // Confirm with user
+    if (!confirm("Are you sure you want to mark this parcel as DELIVERED?")) {
+        return;
+    }
+
+    try {
+        // Update status to Delivered
+        await updateStatus(id, 'Delivered');
+
+        // Refresh global data
+        await fetchParcels();
+
+        // Update dashboard stats if function exists
+        if (typeof updateDashboardStats === 'function') updateDashboardStats();
+
+        // Update modal view if still open
+        if (typeof showParcelDetails === 'function') showParcelDetails(id);
+
+        alert("Parcel successfully marked as Delivered.");
+
+    } catch (err) {
+        console.error("Delivery Update Error:", err);
+        alert("Failed to update delivery status.");
+    }
+};
+
+        
+        // 1. Toggle the dropdown menu
+window.toggleUserMenu = function(event, id) {
+    event.stopPropagation(); // Prevents the click from bubbling up
+    
+    // Close any other open menus first
+    document.querySelectorAll('[id^="user-menu-"]').forEach(menu => {
+        if (menu.id !== `user-menu-${id}`) menu.classList.add('hidden');
+    });
+
+    const menu = document.getElementById(`user-menu-${id}`);
+    menu.classList.toggle('hidden');
+
+    // Close menu when clicking anywhere else
+    document.onclick = () => menu.classList.add('hidden');
+};
+
+// 2. Deactivate Function
+window.handleDeactivate = async function(id) {
+    if (!confirm("Are you sure you want to deactivate this user? They will no longer be able to log in.")) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/users/${id}/deactivate`, { method: 'PATCH' });
+        if (response.ok) {
+            alert("User deactivated.");
+            fetchUsers(); // Refresh your table
+        }
+    } catch (err) { console.error(err); }
+};
+
+// 3. Reactivate Function
+window.handleReactivate = async function(id) {
+    try {
+        const response = await fetch(`${API_URL}/users/${id}/reactivate`, { method: 'PATCH' });
+        if (response.ok) {
+            alert("User reactivated successfully!");
+            fetchUsers(); // Refresh your table
+        }
+    } catch (err) { console.error(err); }
+};
+
+        window.renderPaymentsTable = function() {
+    const tableBody = document.getElementById('payments-table-body');
+    if (!tableBody) return;
+
+    // Use the global allParcels array (which you populate via fetchParcels)
+    tableBody.innerHTML = allParcels.map(p => {
+        // Calculate status color
+        let statusClass = "";
+        if (p.payment_status === 'Paid') statusClass = "bg-green-100 text-green-700";
+        else if (p.payment_status === 'Partial') statusClass = "bg-orange-100 text-orange-700";
+        else statusClass = "bg-red-100 text-red-700";
+
+        return `
+            <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                <td class="p-4 text-xs font-mono font-bold text-slate-600">
+                    PAY-${p._id.substring(p._id.length - 6).toUpperCase()}
+                </td>
+                <td class="p-4 text-xs font-medium text-blue-600">
+                    ${p.tracking_number}
+                </td>
+                <td class="p-4">
+                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${statusClass}">
+                        ${p.payment_status}
+                    </span>
+                </td>
+                <td class="p-4 text-xs text-slate-600">${p.payment_method}</td>
+                <td class="p-4 text-xs font-bold text-slate-800">
+                    UGX ${(p.total_amount || 0).toLocaleString()}
+                </td>
+                <td class="p-4 text-xs font-bold text-green-600">
+                    UGX ${(p.amount_paid || (p.total_amount - p.balance)).toLocaleString()}
+                </td>
+                <td class="p-4 text-xs font-bold text-red-600">
+                    UGX ${(p.balance || 0).toLocaleString()}
+                </td>
+                <td class="p-4 text-xs font-medium text-slate-700">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] text-slate-500">
+                            ${(p.recorded_by || 'U').charAt(0)}
+                        </div>
+                        ${p.recorded_by || 'Unknown'}
+                    </div>
+                </td>
+                <td class="p-4 text-xs text-slate-500">
+                    ${new Date(p.created_at).toLocaleDateString()}
+                </td>
+                <td class="p-4 text-right">
+                    <button onclick="showParcelDetails('${p._id}')" class="text-blue-600 hover:text-blue-800 text-xs font-bold">
+                        <i class="fa-solid fa-eye mr-1"></i> View
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+
+        window.filterPayments = function() {
+    const searchTerm = document.getElementById('paymentSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('#payments-table-body tr');
+
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+};
+window.updateDashboardStats = async function() {
+    // 1. Get Today's Date String (YYYY-MM-DD)
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // 2. Filter allParcels for TODAY ONLY
+    const todayParcels = allParcels.filter(p => {
+        if (!p.created_at) return false;
+        return p.created_at.split('T')[0] === todayStr;
+    });
+
+    // --- 1. STATUS CARDS (Today Only) ---
+    document.getElementById('stat-dispatch').innerText = todayParcels.filter(p => p.status === 'At Dispatch').length;
+    document.getElementById('stat-total').innerText = todayParcels.length;
+    document.getElementById('stat-transit').innerText = todayParcels.filter(p => p.status === 'In Transit').length;
+    document.getElementById('stat-pickup').innerText = todayParcels.filter(p => p.status === 'Ready for Pickup').length;
+    document.getElementById('stat-partial').innerText = todayParcels.filter(p => p.status === 'Partially received').length;
+    document.getElementById('stat-delivered').innerText = todayParcels.filter(p => p.status === 'Delivered').length;
+
+    // --- 2. FINANCIAL CALCULATIONS (Today Only) ---
+    let revToday = 0;
+    let balToday = 0;
+    let countPaid = 0;
+    let countPartial = 0;
+    let countUnpaid = 0;
+
+    todayParcels.forEach(p => {
+        // Revenue Today = Total Amount - Balance (The actual money collected)
+        const total = p.total_amount || 0;
+        const balance = p.balance || 0;
+        const paid = total - balance;
+
+        revToday += paid;
+        balToday += balance;
+
+        // Payment status counts
+        if (p.payment_status === 'Paid') countPaid++;
+        else if (p.payment_status === 'Partial') countPartial++;
+        else countUnpaid++;
+    });
+
+    // Update UI for Financials
+    document.getElementById('rev-today').innerText = `UGX ${revToday.toLocaleString()}`;
+    document.getElementById('bal-total').innerText = `UGX ${balToday.toLocaleString()}`;
+
+    // Update Payment Breakdown
+    document.getElementById('breakdown-paid').innerText = countPaid;
+    document.getElementById('breakdown-partial').innerText = countPartial;
+    document.getElementById('breakdown-unpaid').innerText = countUnpaid;
+
+    // --- 3. PROGRESS BARS (Based on Today's Volume) ---
+    const totalToday = todayParcels.length || 1; // Avoid division by zero
+    
+    document.getElementById('bar-paid').style.width = `${(countPaid / totalToday) * 100}%`;
+    document.getElementById('bar-partial').style.width = `${(countPartial / totalToday) * 100}%`;
+    document.getElementById('bar-unpaid').style.width = `${(countUnpaid / totalToday) * 100}%`;
+
+    console.log(`Dashboard updated for: ${todayStr}`);
+};
+        // Function to generate the report
+async function generateReport() {
+    try {
+        // 1. Fetch latest data from backend
+        const response = await fetch(`${API_URL}/api/parcels`);
+        const allParcels = await response.json();
+
+        // 2. Get filter values
+        const fromDate = document.getElementById('reportFrom').value;
+        const toDate = document.getElementById('reportTo').value;
+        const station = document.getElementById('reportStation').value;
+        const status = document.getElementById('reportStatus').value;
+
+        // 3. Filter the data
+        const filteredParcels = allParcels.filter(p => {
+            const parcelDate = p.created_at.split('T')[0]; // Extract YYYY-MM-DD
+            
+            const matchesDate = (!fromDate || parcelDate >= fromDate) && 
+                                (!toDate || parcelDate <= toDate);
+            const matchesStation = !station || p.origin === station || p.destination === station;
+            const matchesStatus = !status || p.status === status;
+
+            return matchesDate && matchesStation && matchesStatus;
+        });
+
+      // --- 4. Update Summary Cards ---
+let totalRevenue = 0;   // Total value of all waybills
+let totalPaid = 0;      // Money actually collected
+let totalBalance = 0;   // Money still owed
+let deliveredCount = 0;
+let pendingCount = 0;
+
+filteredParcels.forEach(p => {
+    const total = (p.total_amount || 0);
+    const balance = (p.balance || 0);
+    
+    totalRevenue += total;
+    totalPaid += (total - balance);
+    totalBalance += balance; // <--- Add this to the sum
+
+    if (p.status === 'Delivered') deliveredCount++;
+    else pendingCount++;
+});
+
+// Update the UI
+document.getElementById('report-total-parcels').textContent = filteredParcels.length;
+document.getElementById('report-total-revenue').textContent = `UGX ${totalPaid.toLocaleString()}`;
+document.getElementById('report-total-balance').textContent = `UGX ${totalBalance.toLocaleString()}`; // <--- Update the display
+document.getElementById('report-delivered').textContent = deliveredCount;
+document.getElementById('report-pending').textContent = pendingCount;
+        // 5. Populate Table
+        const tableBody = document.getElementById('reports-table-body');
+        tableBody.innerHTML = filteredParcels.length ? "" : `<tr><td colspan="9" class="p-10 text-center text-slate-400 italic">No records found for the selected filters.</td></tr>`;
+
+        filteredParcels.forEach(p => {
+            const row = `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-4 font-mono text-xs font-bold text-blue-600">${p.tracking_number}</td>
+                    <td class="p-4 text-xs font-medium">${p.sender_name}</td>
+                    <td class="p-4 text-xs font-medium">${p.receiver_name}</td>
+                    <td class="p-4 text-[10px] text-slate-500 font-bold uppercase">${p.origin} → ${p.destination}</td>
+                    <td class="p-4">
+                        <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${getStatusStyle(p.status)}">
+                            ${p.status}
+                        </span>
+                    </td>
+                    <td class="p-4 text-xs font-bold text-slate-700">UGX ${(p.total_amount || 0).toLocaleString()}</td>
+                    <td class="p-4 text-xs font-bold text-green-600">UGX ${((p.total_amount || 0) - (p.balance || 0)).toLocaleString()}</td>
+                    <td class="p-4 text-xs font-bold text-red-500">UGX ${(p.balance || 0).toLocaleString()}</td>
+                    <td class="p-4 text-[10px] text-slate-400 font-bold">${new Date(p.created_at).toLocaleDateString()}</td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+
+    } catch (err) {
+        console.error("Report Generation Error:", err);
+    }
+}
+
+// 6. Attach Event Listeners to Filters
+['reportFrom', 'reportTo', 'reportStation', 'reportStatus'].forEach(id => {
+    document.getElementById(id).addEventListener('change', generateReport);
+});
+                    function exportReportToCSV() {
+    const table = document.getElementById('reports-table-body');
+    const rows = table.querySelectorAll('tr');
+    
+    if (rows.length === 0 || (rows.length === 1 && rows[0].innerText.includes("No records"))) {
+        alert("No data available to export.");
+        return;
+    }
+
+    // 1. Define CSV Headers
+    let csvContent = "Tracking #,Sender,Receiver,Origin,Destination,Status,Total Amount,Amount Paid,Balance,Date\n";
+
+    // 2. Loop through table rows to get data
+    rows.forEach(row => {
+        const cols = row.querySelectorAll('td');
+        const rowData = Array.from(cols).map(col => {
+            // Clean the text: remove commas (to avoid breaking CSV) and extra spaces
+            let text = col.innerText.replace(/,/g, '').replace(/\n/g, ' ').trim();
+            // Specifically for the route column, we split Origin and Destination
+            if (text.includes('→')) {
+                return text.split('→').map(s => s.trim()).join(',');
+            }
+            return text;
+        });
+        csvContent += rowData.join(",") + "\n";
+    });
+
+    // 3. Create a download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    // Create a filename with today's date
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Parcel_Report_${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+        window.handleTrackAutocomplete = function(val) {
+    const resultsDiv = document.getElementById('track-results');
+    const searchTerm = val.trim().toLowerCase();
+
+    // Hide if input is empty
+    if (searchTerm.length < 2) {
+        resultsDiv.classList.add('hidden');
+        return;
+    }
+
+    // Filter parcels (by ID, Tracking Number, or Sender Name)
+    const matches = allParcels.filter(p => 
+        (p.tracking_number || "").toLowerCase().includes(searchTerm) ||
+        (p.sender_name || "").toLowerCase().includes(searchTerm)
+    ).slice(0, 5); // Limit to top 5 for speed
+
+    if (matches.length > 0) {
+        resultsDiv.innerHTML = matches.map(p => `
+            <div onclick="selectTrackedParcel('${p._id}')" 
+                 class="p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-none transition-colors">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-blue-700">${p.tracking_number}</span>
+                    <span class="text-[10px] px-2 py-0.5 bg-slate-100 rounded text-slate-500">${p.status}</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-1">${p.sender_name} → ${p.destination}</div>
+            </div>
+        `).join('');
+        resultsDiv.classList.remove('hidden');
+    } else {
+        resultsDiv.classList.add('hidden');
+    }
+};
+
+window.selectTrackedParcel = function(id) {
+    document.getElementById('track-results').classList.add('hidden');
+    document.getElementById('quick-track-input').value = "";
+    showParcelDetails(id); // Opens your existing details modal
+};
+
+// Close dropdown if user clicks outside
+document.addEventListener('click', (e) => {
+    if (!document.getElementById('track-container').contains(e.target)) {
+        document.getElementById('track-results').classList.add('hidden');
+    }
+});
+
+async function refreshCustomerTabl() {
+    try {
+        const response = await fetch(`${API_URL}/api/customers`);
+        const customers = await response.json();
+        const tableBody = document.getElementById('customerTableBody');
+
+        tableBody.innerHTML = "";
+
+        customers.forEach(customer => {
+            const row = `
+                <tr>
+                    <td>${customer.full_name}</td>
+                    <td>${customer.phone}</td>
+                    <td>${customer.id_number || 'N/A'}</td>
+                    <td>${customer.station}</td>
+                    <td>Actions</td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+    } catch (err) {
+        console.error("Failed to load table:", err);
+    }
+}
+
+function filterCustomers() {
+    const input = document.getElementById("customerSearch");
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll("#customerTableBody tr");
+
+    console.log("Filtering:", filter, "Rows:", rows.length);
+
+    rows.forEach(row => {
+        const name = row.cells[0]?.innerText.toLowerCase() || "";
+        const phone = row.cells[1]?.innerText.toLowerCase() || "";
+
+        row.style.display = (name.includes(filter) || phone.includes(filter)) ? "" : "none";
+    });
+}
+
+
+window.onload = () => {
+    refreshCustomerTable();
+    const search = document.getElementById("customerSearch");
+    if (search) {
+        search.addEventListener("input", filterTable);
+    } else {
+        console.error("customerSearch not found");
+    }
+};
+</script>
+
+
+</body>
+</html>
