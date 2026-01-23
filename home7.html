@@ -1491,7 +1491,7 @@ function printReport() {
     printWindow.document.close();
     printWindow.print();
 }
-function renderTableRows(parcelsToDisplay,tableType) {
+function renderTableRows(parcelsToDisplay,tableTypes) {
     // 1. Identify both table bodies
     const mainTableBody = document.getElementById('parcel-table-body');
     const dashboardTableBody = document.getElementById('dashboardparcel-table-body');
@@ -1516,7 +1516,7 @@ function renderTableRows(parcelsToDisplay,tableType) {
         const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
         const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
 
-        const menuId = `menu-${tableType}-${p._id}`;
+        const menuId = `menu-${tableTypes}-${p._id}`;
 
         return `
         <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
