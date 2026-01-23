@@ -3389,7 +3389,7 @@ async function generateReport() {
             
             const matchesDate = (!fromDate || parcelDate >= fromDate) && 
                                 (!toDate || parcelDate <= toDate);
-            const matchesStation = !station || p.origin === station || p.destination === station;
+            const matchesStation = !station || p.origin === station ;
             const matchesStatus = !status || p.status === status;
 
             return matchesDate && matchesStation && matchesStatus;
