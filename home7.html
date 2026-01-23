@@ -2491,7 +2491,7 @@ window.onclick = function(event) {
 }
         
 
-        async function refreshCustomerTable() {
+        async function refreshCustomrTable() {
     try {
         const response = await fetch(`${API_URL}/api/customers`);
         const customers = await response.json();
@@ -2526,32 +2526,6 @@ window.onclick = function(event) {
 }
 
 // Simple search filter function
-window.addEventListener("load", async () => {
-    await refreshCustomerTable();
-
-    const search = document.getElementById("customerSearch");
-    if (!search) {
-        console.error("Search input not found");
-        return;
-    }
-
-    search.addEventListener("input", filterTable);
-});
-
-function filterTable() {
-    const filter = document.getElementById("customerSearch").value.toLowerCase();
-    const rows = document.querySelectorAll("#customerTableBody tr");
-
-    rows.forEach(row => {
-        const name = row.children[0]?.textContent.toLowerCase() || "";
-        const phone = row.children[1]?.textContent.toLowerCase() || "";
-
-        row.style.display = (name.includes(filter) || phone.includes(filter))
-            ? ""
-            : "none";
-    });
-}
-
 
 function filterTble() {
     const filter = document.getElementById("customerSearch").value.toLowerCase();
@@ -3441,6 +3415,47 @@ document.addEventListener('click', (e) => {
     }
 });
 </script>
+                <script>
+async function refreshCustomerTable() {
+    try {
+        const response = await fetch(`${API_URL}/api/customers`);
+        const customers = await response.json();
+        const tableBody = document.getElementById('customerTableBody');
+
+        tableBody.innerHTML = "";
+
+        customers.forEach(customer => {
+            const row = `
+                <tr>
+                    <td>${customer.full_name}</td>
+                    <td>${customer.phone}</td>
+                    <td>${customer.id_number || 'N/A'}</td>
+                    <td>${customer.station}</td>
+                    <td>Actions</td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+    } catch (err) {
+        console.error("Failed to load table:", err);
+    }
+}
+
+function filterTable() {
+    console.log("Filtering...");
+}
+
+window.onload = () => {
+    refreshCustomerTable();
+    const search = document.getElementById("customerSearch");
+    if (search) {
+        search.addEventListener("input", filterTable);
+    } else {
+        console.error("customerSearch not found");
+    }
+};
+</script>
+
 
 </body>
 </html>
