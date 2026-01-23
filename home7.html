@@ -1707,18 +1707,21 @@ document.addEventListener('click', (event) => {
         document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
     }
 });
-
         function toggleActionParcelMenu(event, menuId) {
     event.stopPropagation();
 
+    // Close all other menus first
     const allMenus = document.querySelectorAll('[id^="parcelmenu-"]');
     allMenus.forEach(menu => {
         if (menu.id !== menuId) menu.classList.add('hidden');
     });
 
+    // Toggle the current menu
     const currentMenu = document.getElementById(menuId);
-    currentMenu.classList.toggle('hidden');
+    if (currentMenu) currentMenu.classList.toggle('hidden');
 }
+
+     
      
 
        document.addEventListener('click', (event) => {
