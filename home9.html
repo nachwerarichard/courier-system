@@ -1333,13 +1333,11 @@ async function fetchParcels() {
 // 3. Explicitly attach filterTable to the window
 window.filterTable = function() {
     const searchInput = document.getElementById('table-search');
-    const dateInput = document.getElementById('table-date-filter');
     const statusInput = document.getElementById('table-status-filter'); // <--- NEW
     
     if (!searchInput || !allParcels) return;
 
     const searchTerm = searchInput.value.toLowerCase();
-    const filterDate = dateInput ? dateInput.value : ""; 
     const filterStatus = statusInput ? statusInput.value : ""; // <--- NEW
     
     const filtered = allParcels.filter(p => {
@@ -1350,19 +1348,9 @@ window.filterTable = function() {
             (p.sender_phone || "").includes(searchTerm) ||
             (p.destination || "").toLowerCase().includes(searchTerm);
 
-        // 2. Date Filter
-        let matchesDate = true;
-        if (filterDate && p.created_at) {
-            try {
-                const parcelDate = new Date(p.created_at).toISOString().split('T')[0];
-                matchesDate = (parcelDate === filterDate);
-            } catch (e) { matchesDate = false; }
-        }
-
         // 3. Status Filter (NEW)
         const matchesStatus = filterStatus === "" || p.status === filterStatus;
-
-        return matchesText && matchesDate && matchesStatus; // All 3 must be true
+        return matchesText &&  matchesStatus; // All 3 must be true
     });
 
     currentFilteredData = filtered; 
