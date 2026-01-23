@@ -2526,10 +2526,16 @@ window.onclick = function(event) {
 }
 
 // Simple search filter function
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
     refreshCustomerTable();
-    document.getElementById("customerSearch").addEventListener("input", filterTable);
+    const search = document.getElementById("customerSearch");
+    if (search) {
+        search.addEventListener("input", filterTable);
+    } else {
+        console.error("customerSearch not found in DOM");
+    }
 });
+
 
 function filterTble() {
     const filter = document.getElementById("customerSearch").value.toLowerCase();
