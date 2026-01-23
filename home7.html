@@ -1701,12 +1701,13 @@ function generateRows(parcels, tableType) {
     const currentMenu = document.getElementById(menuId);
     currentMenu.classList.toggle('hidden');
 }
-        document.addEventListener('click', (event) => {
+document.addEventListener('click', (event) => {
     const isMenuButton = event.target.closest('[id^="menu-"], button'); // any button/menu clicked
     if (!isMenuButton) {
         document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
     }
 });
+
         function toggleActionParcelMenu(event, menuId) {
     event.stopPropagation();
 
@@ -1718,19 +1719,15 @@ function generateRows(parcels, tableType) {
     const currentMenu = document.getElementById(menuId);
     currentMenu.classList.toggle('hidden');
 }
-        document.addEventListener('click', (event) => {
-    const isMenuButton = event.target.closest('[id^="menu-"], button'); // any button/menu clicked
-    if (!isMenuButton) {
-        document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
+     
+
+       document.addEventListener('click', (event) => {
+    const clickedMenuOrButton = event.target.closest('[id^="parcelmenu-"], [data-menu-button]');
+    if (!clickedMenuOrButton) {
+        document.querySelectorAll('[id^="parcelmenu-"]').forEach(menu => menu.classList.add('hidden'));
     }
 });
 
-        document.addEventListener('click', (event) => {
-    const isMenuButton = event.target.closest('[id^="menu-"], button'); 
-    if (!isMenuButton) {
-        document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
-    }
-});
 
         
 
