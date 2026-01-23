@@ -1333,13 +1333,11 @@ async function fetchParcels() {
 // 3. Explicitly attach filterTable to the window
 window.filterTable = function() {
     const searchInput = document.getElementById('table-search');
-    const dateInput = document.getElementById('table-date-filter');
     const statusInput = document.getElementById('table-status-filter'); // <--- NEW
     
     if (!searchInput || !allParcels) return;
 
     const searchTerm = searchInput.value.toLowerCase();
-    const filterDate = dateInput ? dateInput.value : ""; 
     const filterStatus = statusInput ? statusInput.value : ""; // <--- NEW
     
     const filtered = allParcels.filter(p => {
@@ -1372,7 +1370,6 @@ window.filterTable = function() {
 };
         window.clearTableFilters = function() {
     document.getElementById('table-search').value = "";
-    document.getElementById('table-date-filter').value = "";
     document.getElementById('table-status-filter').value = ""; // Reset dropdown
     window.filterTable(); // Refresh table
 };
