@@ -2046,7 +2046,7 @@ document.getElementById('createParcelForm').addEventListener('submit', async (e)
             receiver_phone: receiverData.phone,
             destination: receiverData.station,
 
-            recorded_by: localStorage.getItem('userName') || 'Unknown Clerk',
+            recorded_by: document.getElementById('staff-name')?.innerText || 'Unknown Clerk',
             items: currentConsignment, 
             
             total_amount: Number(document.getElementById('totalAmount').value),
