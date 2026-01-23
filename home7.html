@@ -1491,7 +1491,7 @@ function printReport() {
     printWindow.document.close();
     printWindow.print();
 }
-function renderTableRows(parcelsToDisplay) {
+function renderTableRows(parcelsToDisplay,tableType) {
     // 1. Identify both table bodies
     const mainTableBody = document.getElementById('parcel-table-body');
     const dashboardTableBody = document.getElementById('dashboardparcel-table-body');
