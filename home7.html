@@ -341,9 +341,9 @@
     <div class="bg-white p-6 rounded-xl shadow-md">
     <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
         <h2 class="text-xl font-bold text-gray-800">Registered Customers</h2>
-        <input type="text" id="customerSearch" onkeyup="filterTable()" 
-               placeholder="Search by name or phone..." 
-               class="border p-2 rounded-lg w-full md:w-64 outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="text" id="customerSearch"
+       placeholder="Search by name or phone..."
+       class="border p-2 rounded-lg w-full md:w-64 outline-none focus:ring-2 focus:ring-blue-500">
     </div>
 
     <div class="overflow-x-auto">
@@ -2489,6 +2489,8 @@ window.onclick = function(event) {
         closeModal();
     }
 }
+        
+
         async function refreshCustomerTable() {
     try {
         const response = await fetch(`${API_URL}/api/customers`);
@@ -2524,22 +2526,23 @@ window.onclick = function(event) {
 }
 
 // Simple search filter function
+document.addEventListener("DOMContentLoaded", () => {
+    refreshCustomerTable();
+    document.getElementById("customerSearch").addEventListener("input", filterTable);
+});
+
 function filterTable() {
     const filter = document.getElementById("customerSearch").value.toLowerCase();
-    const tbody = document.getElementById("customerTableBody");
-    const rows = tbody.getElementsByTagName("tr");
+    const rows = document.querySelectorAll("#customerTableBody tr");
 
-    Array.from(rows).forEach(row => {
-        const name = row.cells[0]?.textContent.toLowerCase() || '';
-        const phone = row.cells[1]?.textContent.toLowerCase() || '';
-        
-        if (name.includes(filter) || phone.includes(filter)) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
+    rows.forEach(row => {
+        const name = row.children[0]?.innerText.toLowerCase() || "";
+        const phone = row.children[1]?.innerText.toLowerCase() || "";
+
+        row.style.display = (name.includes(filter) || phone.includes(filter)) ? "" : "none";
     });
 }
+
 
 
 // Initial load
