@@ -342,8 +342,10 @@
     <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
         <h2 class="text-xl font-bold text-gray-800">Registered Customers</h2>
         <input type="text" id="customerSearch"
+       oninput="filterCustomers()"
        placeholder="Search by name or phone..."
        class="border p-2 rounded-lg w-full md:w-64 outline-none focus:ring-2 focus:ring-blue-500">
+
     </div>
 
     <div class="overflow-x-auto">
@@ -3440,9 +3442,21 @@ async function refreshCustomerTable() {
     }
 }
 
-function filterTable() {
-    console.log("Filtering...");
+function filterCustomers() {
+    const input = document.getElementById("customerSearch");
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll("#customerTableBody tr");
+
+    console.log("Filtering:", filter, "Rows:", rows.length);
+
+    rows.forEach(row => {
+        const name = row.cells[0]?.innerText.toLowerCase() || "";
+        const phone = row.cells[1]?.innerText.toLowerCase() || "";
+
+        row.style.display = (name.includes(filter) || phone.includes(filter)) ? "" : "none";
+    });
 }
+
 
 window.onload = () => {
     refreshCustomerTable();
