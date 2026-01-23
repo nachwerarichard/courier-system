@@ -1491,29 +1491,32 @@ function printReport() {
     printWindow.document.close();
     printWindow.print();
 }
-function renderTableRows(parcelsToDisplay, tableBodyId, limit = null) {
-    const tableBody = document.getElementById(tableBodyId);
-    if (!tableBody) return;
+function renderTableRows(parcelsToDisplay,tableTypes) {
+    // 1. Identify both table bodies
+    const mainTableBody = document.getElementById('parcel-table-body');
+    const dashboardTableBody = document.getElementById('dashboardparcel-table-body');
 
+    // 2. Handle empty results
     if (!parcelsToDisplay || parcelsToDisplay.length === 0) {
-        tableBody.innerHTML = `
+        const emptyState = `
             <tr>
                 <td colspan="6" class="p-10 text-center text-slate-400">
                     <i class="fa-solid fa-box-open block text-3xl mb-2 opacity-20"></i>
-                    No parcels found.
+                    No parcels found matching your search.
                 </td>
             </tr>`;
+        
+        if (mainTableBody) mainTableBody.innerHTML = emptyState;
+        if (dashboardTableBody) dashboardTableBody.innerHTML = emptyState;
         return;
     }
 
-    // Slice if limit provided (dashboard table)
-    const parcels = limit ? parcelsToDisplay.slice(0, limit) : parcelsToDisplay;
+    // 3. Generate row HTML for all items
+    const allRowsArray = parcelsToDisplay.map(p => {
+        const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
+        const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
 
-    const rowsHtml = parcels.map(p => {
-        const firstItemDesc = p.items?.[0]?.description || 'No description';
-        const extraItems = p.items?.length > 1 ? ` (+${p.items.length - 1} more)` : '';
-
-        const menuId = `parcelmenu-${p._id}`;  // universal unique ID per parcel
+        const menuId = `parcelmenu-${tableTypes}-${p._id}`;
 
         return `
         <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
@@ -1577,37 +1580,20 @@ function renderTableRows(parcelsToDisplay, tableBodyId, limit = null) {
                 </div>
             </td>
         </tr>`;
+        
+        
     });
 
-    tableBody.innerHTML = rowsHtml.join('');
-}
-
-        function toggleActionParcelMenu(event, menuId) {
-    event.stopPropagation();
-
-    // Close all other menus
-    document.querySelectorAll('[id^="parcelmenu-"]').forEach(menu => {
-        if (menu.id !== menuId) menu.classList.add('hidden');
-    });
-
-    // Toggle this menu
-    const currentMenu = document.getElementById(menuId);
-    if (currentMenu) currentMenu.classList.toggle('hidden');
-}
-
-// Click outside closes all menus
-document.addEventListener('click', (event) => {
-    if (!event.target.closest('[id^="parcelmenu-"], .fa-ellipsis-vertical')) {
-        document.querySelectorAll('[id^="parcelmenu-"]').forEach(menu => menu.classList.add('hidden'));
+    // 4. Inject into Main Table (Full List)
+    if (mainTableBody) {
+        mainTableBody.innerHTML = allRowsArray.join('');
     }
-});
 
-        // Main table
-renderTableRows(parcelsToDisplay, 'parcel-table-body');
-
-// Dashboard table (top 10)
-renderTableRows(parcelsToDisplay, 'dashboardparcel-table-body', 10);
-
+    // 5. Inject into Dashboard Table (Limit to top 10)
+    if (dashboardTableBody) {
+        dashboardTableBody.innerHTML = allRowsArray.slice(0, 10).join('');
+    }
+}
 function clearTableFilters() {
     document.getElementById('table-search').value = "";
     document.getElementById('table-date-filter').value = "";
