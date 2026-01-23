@@ -1516,7 +1516,7 @@ function renderTableRows(parcelsToDisplay,tableTypes) {
         const firstItemDesc = p.items && p.items.length > 0 ? p.items[0].description : 'No description';
         const extraItems = p.items && p.items.length > 1 ? ` (+${p.items.length - 1} more)` : '';
 
-        const menuId = `menu-${tableTypes}-${p._id}`;
+        const menuId = `parcelmenu-${tableTypes}-${p._id}`;
 
         return `
         <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
