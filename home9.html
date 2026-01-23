@@ -1320,7 +1320,8 @@ async function fetchParcels() {
         
         allParcels = await response.json();
         
-        
+        renderTableRows(allParcels, 'parcel-table-body');                 // Main table
+        renderTableRows(allParcels, 'dashboardparcel-table-body', 10);
 
         renderTable(allParcels);
         renderPaymentsTable();
@@ -1329,6 +1330,14 @@ async function fetchParcels() {
         console.error("Fetch error:", err);
     }
 }
+
+
+
+
+
+
+
+        
 
 window.filterTable = function() {
     const searchInput = document.getElementById('table-search');
