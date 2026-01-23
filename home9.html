@@ -1491,7 +1491,124 @@ function printReport() {
     printWindow.document.close();
     printWindow.print();
 }
-function renderTableRows(parcelsToDisplay,tableTypes) {
+        function renderTableRows(parcelsToDisplay, tableBodyId, limit = null) {
+    const tableBody = document.getElementById(tableBodyId);
+    if (!tableBody) return;
+
+    if (!parcelsToDisplay || parcelsToDisplay.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="p-10 text-center text-slate-400">
+                    <i class="fa-solid fa-box-open block text-3xl mb-2 opacity-20"></i>
+                    No parcels found.
+                </td>
+            </tr>`;
+        return;
+    }
+
+    // Slice if limit provided (dashboard table)
+    const parcels = limit ? parcelsToDisplay.slice(0, limit) : parcelsToDisplay;
+
+    const rowsHtml = parcels.map(p => {
+        const firstItemDesc = p.items?.[0]?.description || 'No description';
+        const extraItems = p.items?.length > 1 ? ` (+${p.items.length - 1} more)` : '';
+
+        const menuId = `parcelmenu-${p._id}`;  // universal unique ID per parcel
+
+        return `
+        <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
+            <td class="p-4">
+                <button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
+                    ${p.tracking_number || 'N/A'}
+                </button>                
+                <div class="text-[10px] text-slate-400">
+                    ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'No Date'}                
+                </div>
+            </td>
+
+            <td class="p-4">
+                <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
+                <div class="text-[11px] text-slate-500 font-medium">
+                    <i class="fa-solid fa-box text-slate-300 mr-1"></i> ${firstItemDesc}${extraItems}
+                </div>
+                <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
+            </td>
+
+            <td class="p-4">
+                <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
+                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
+                </div>
+            </td>
+
+            <td class="p-4">
+                <div class="font-bold text-slate-800 text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
+                <div class="text-[10px] ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
+                    Bal: UGX ${(p.balance || 0).toLocaleString()}
+                </div>
+            </td>
+
+            <td class="p-4">
+                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-100 inline-block shadow-sm ${getStatusStyle(p.status)}">
+                    ${p.status}
+                </span>
+            </td>
+
+            <td class="p-4 text-right">
+                <div class="relative inline-block text-left">
+                    <button onclick="toggleActionParcelMenu(event, '${menuId}')" class="p-2 text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+                    <div id="${menuId}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
+                        <button onclick="openPaymentModal('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-money-bill-wave text-green-600 w-4"></i> Add Payment
+                        </button>
+                        <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-orange-500 w-4"></i> Update
+                        </button>
+                        <button onclick="showParcelDelivery('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50 flex items-center gap-2">
+                            <i class="fa-solid fa-van-shuttle text-indigo-500 w-4"></i> Deliver
+                        </button>
+                        <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can w-4"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </td>
+        </tr>`;
+    });
+
+    tableBody.innerHTML = rowsHtml.join('');
+}
+
+        function toggleActionParcelMenu(event, menuId) {
+    event.stopPropagation();
+
+    // Close all other menus
+    document.querySelectorAll('[id^="parcelmenu-"]').forEach(menu => {
+        if (menu.id !== menuId) menu.classList.add('hidden');
+    });
+
+    // Toggle this menu
+    const currentMenu = document.getElementById(menuId);
+    if (currentMenu) currentMenu.classList.toggle('hidden');
+}
+
+// Click outside closes all menus
+document.addEventListener('click', (event) => {
+    if (!event.target.closest('[id^="parcelmenu-"], .fa-ellipsis-vertical')) {
+        document.querySelectorAll('[id^="parcelmenu-"]').forEach(menu => menu.classList.add('hidden'));
+    }
+});
+// Main table
+renderTableRows(parcelsToDisplay, 'parcel-table-body');
+
+// Dashboard table (top 10)
+renderTableRows(parcelsToDisplay, 'dashboardparcel-table-body', 10);
+
+
+function renderTablRows(parcelsToDisplay,tableTypes) {
     // 1. Identify both table bodies
     const mainTableBody = document.getElementById('parcel-table-body');
     const dashboardTableBody = document.getElementById('dashboardparcel-table-body');
