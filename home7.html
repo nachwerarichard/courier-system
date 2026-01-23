@@ -1725,6 +1725,13 @@ function generateRows(parcels, tableType) {
     }
 });
 
+        document.addEventListener('click', (event) => {
+    const isMenuButton = event.target.closest('[id^="menu-"], button'); 
+    if (!isMenuButton) {
+        document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
+    }
+});
+
         
 
 window.showParcelDetails = function(id) {
