@@ -2531,7 +2531,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("customerSearch").addEventListener("input", filterTable);
 });
 
-function filterTable() {
+function filterTble() {
     const filter = document.getElementById("customerSearch").value.toLowerCase();
     const rows = document.querySelectorAll("#customerTableBody tr");
 
@@ -2542,6 +2542,8 @@ function filterTable() {
         row.style.display = (name.includes(filter) || phone.includes(filter)) ? "" : "none";
     });
 }
+function filterTable() {
+    console.log("Filtering:", document.getElementById("customerSearch").value);
 
 
 
