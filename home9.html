@@ -1518,43 +1518,19 @@ function printReport() {
 
             return `
             <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
-            <td class="p-4">
-                <button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
-                    ${p.tracking_number || 'N/A'}
-                </button>                
-                <div class="text-[10px] text-slate-400">
-                    ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'No Date'}                
-                </div>
-            </td>
+                <td class="p-4">
+                    <button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
+                        ${p.tracking_number || 'N/A'}
+                    </button>                
+                </td>
 
-            <td class="p-4">
-                <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
-                <div class="text-[11px] text-slate-500 font-medium">
-                    <i class="fa-solid fa-box text-slate-300 mr-1"></i> ${firstItemDesc}${extraItems}
-                </div>
-                <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
-            </td>
-
-            <td class="p-4">
-                <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
-                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.origin || '??'}</span>
-                    <i class="fa-solid fa-arrow-right text-[10px] text-slate-300"></i>
-                    <span class="px-2 py-0.5 bg-slate-100 rounded">${p.destination || '??'}</span>
-                </div>
-            </td>
-
-            <td class="p-4">
-                <div class="font-bold text-slate-800 text-sm">UGX ${(p.total_amount || 0).toLocaleString()}</div>
-                <div class="text-[10px] ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}">
-                    Bal: UGX ${(p.balance || 0).toLocaleString()}
-                </div>
-            </td>
-
-            <td class="p-4">
-                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-100 inline-block shadow-sm ${getStatusStyle(p.status)}">
-                    ${p.status}
-                </span>
-            </td>
+                <td class="p-4">
+                    <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
+                    <div class="text-[11px] text-slate-500 font-medium">
+                        ${firstItemDesc}${extraItems}
+                    </div>
+                    <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
+                </td>
 
                 <td class="p-4 text-right">
                     <div class="relative inline-block text-left">
