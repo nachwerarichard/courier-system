@@ -1560,7 +1560,7 @@ function renderTableRows(parcelsToDisplay,tableTypes) {
 
             <td class="p-4 text-right">
                 <div class="relative inline-block text-left">
-                    <button onclick="toggleActionMenu(event, '${menuId}')" class="p-2 text-slate-400 hover:text-slate-600">
+                    <button onclick="toggleActionParcelMenu(event, '${menuId}')" class="p-2 text-slate-400 hover:text-slate-600">
                         <i class="fa-solid fa-ellipsis-vertical"></i>
                     </button>
                     <div id="${menuId}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
@@ -1691,6 +1691,23 @@ function generateRows(parcels, tableType) {
 }
 
         function toggleActionMenu(event, menuId) {
+    event.stopPropagation();
+
+    const allMenus = document.querySelectorAll('[id^="menu-"]');
+    allMenus.forEach(menu => {
+        if (menu.id !== menuId) menu.classList.add('hidden');
+    });
+
+    const currentMenu = document.getElementById(menuId);
+    currentMenu.classList.toggle('hidden');
+}
+        document.addEventListener('click', (event) => {
+    const isMenuButton = event.target.closest('[id^="menu-"], button'); // any button/menu clicked
+    if (!isMenuButton) {
+        document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
+    }
+});
+        function toggleActionParcelMenu(event, menuId) {
     event.stopPropagation();
 
     const allMenus = document.querySelectorAll('[id^="menu-"]');
