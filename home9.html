@@ -1491,7 +1491,73 @@ function printReport() {
     printWindow.document.close();
     printWindow.print();
 }
-function renderTableRows(parcelsToDisplay,tableType) {
+        function renderTableRows(parcelsToDisplay) {
+    const mainTableBody = document.getElementById('parcel-table-body');
+    const dashboardTableBody = document.getElementById('dashboardparcel-table-body');
+
+    if (!parcelsToDisplay || parcelsToDisplay.length === 0) {
+        const emptyState = `
+            <tr>
+                <td colspan="6" class="p-10 text-center text-slate-400">
+                    <i class="fa-solid fa-box-open block text-3xl mb-2 opacity-20"></i>
+                    No parcels found matching your search.
+                </td>
+            </tr>`;
+        
+        if (mainTableBody) mainTableBody.innerHTML = emptyState;
+        if (dashboardTableBody) dashboardTableBody.innerHTML = emptyState;
+        return;
+    }
+
+    // Helper to build rows for a specific table type
+    function buildRows(parcels, tableType) {
+        return parcels.map(p => {
+            const firstItemDesc = p.items?.[0]?.description || 'No description';
+            const extraItems = p.items?.length > 1 ? ` (+${p.items.length - 1} more)` : '';
+            const menuId = `parcelmenu-${tableType}-${p._id}`; // now safe + unique
+
+            return `
+            <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-100">
+                <td class="p-4">
+                    <button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
+                        ${p.tracking_number || 'N/A'}
+                    </button>                
+                </td>
+
+                <td class="p-4">
+                    <div class="text-sm font-semibold text-slate-700">${p.sender_name || 'Unknown'}</div>
+                    <div class="text-[11px] text-slate-500 font-medium">
+                        ${firstItemDesc}${extraItems}
+                    </div>
+                    <div class="text-[10px] text-slate-400 italic">To: ${p.receiver_name || 'N/A'}</div>
+                </td>
+
+                <td class="p-4 text-right">
+                    <div class="relative inline-block text-left">
+                        <button onclick="toggleActionParcelMenu(event, '${menuId}')" class="p-2 text-slate-400 hover:text-slate-600">
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </button>
+                        <div id="${menuId}" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-50 py-1">
+                            <button onclick="editParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-50">Update</button>
+                            <button onclick="deleteParcel('${p._id}')" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50">Delete</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    // Inject separately with different tableTypes
+    if (mainTableBody) {
+        mainTableBody.innerHTML = buildRows(parcelsToDisplay, 'main');
+    }
+
+    if (dashboardTableBody) {
+        dashboardTableBody.innerHTML = buildRows(parcelsToDisplay.slice(0, 10), 'dashboard');
+    }
+}
+
+function TableRows(parcelsToDisplay,tableType) {
     // 1. Identify both table bodies
     const mainTableBody = document.getElementById('parcel-table-body');
     const dashboardTableBody = document.getElementById('dashboardparcel-table-body');
@@ -1707,27 +1773,32 @@ document.addEventListener('click', (event) => {
         document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
     }
 });
-        function toggleActionParcelMenu(event, menuId) {
+function toggleActionParcelMenu(event, menuId) {
     event.stopPropagation();
 
-    // Close all other menus first
-    const allMenus = document.querySelectorAll('[id^="parcelmenu-"]');
-    allMenus.forEach(menu => {
-        if (menu.id !== menuId) menu.classList.add('hidden');
+    // Close all other menus
+    document.querySelectorAll('[id^="parcelmenu-"]').forEach(menu => {
+        if (menu.id !== menuId) {
+            menu.classList.add('hidden');
+        }
     });
 
-    // Toggle the current menu
+    // Toggle current menu
     const currentMenu = document.getElementById(menuId);
-    if (currentMenu) currentMenu.classList.toggle('hidden');
+    if (currentMenu) {
+        currentMenu.classList.toggle('hidden');
+    }
 }
 
-     
-     
+        document.addEventListener('click', function (event) {
+    const isMenu = event.target.closest('[id^="parcelmenu-"]');
+    const isButton = event.target.closest('button');
 
-       document.addEventListener('click', (event) => {
-    const clickedMenuOrButton = event.target.closest('[id^="parcelmenu-"], [data-menu-button]');
-    if (!clickedMenuOrButton) {
-        document.querySelectorAll('[id^="parcelmenu-"]').forEach(menu => menu.classList.add('hidden'));
+    // If click is NOT on menu or menu button → close all
+    if (!isMenu && !isButton) {
+        document.querySelectorAll('[id^="parcelmenu-"]').forEach(menu => {
+            menu.classList.add('hidden');
+        });
     }
 });
 
