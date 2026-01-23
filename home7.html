@@ -2525,15 +2525,22 @@ window.onclick = function(event) {
 
 // Simple search filter function
 function filterTable() {
-    const input = document.getElementById("customerSearch");
-    const filter = input.value.toLowerCase();
-    const rows = document.querySelectorAll("#customerTableBody tr");
+    const filter = document.getElementById("customerSearch").value.toLowerCase();
+    const tbody = document.getElementById("customerTableBody");
+    const rows = tbody.getElementsByTagName("tr");
 
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(filter) ? "" : "none";
+    Array.from(rows).forEach(row => {
+        const name = row.cells[0]?.textContent.toLowerCase() || '';
+        const phone = row.cells[1]?.textContent.toLowerCase() || '';
+        
+        if (name.includes(filter) || phone.includes(filter)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
     });
 }
+
 
 // Initial load
 refreshCustomerTable();
