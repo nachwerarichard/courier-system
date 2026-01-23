@@ -1711,7 +1711,7 @@ document.addEventListener('click', (event) => {
         function toggleActionParcelMenu(event, menuId) {
     event.stopPropagation();
 
-    const allMenus = document.querySelectorAll('[id^="menu-"]');
+    const allMenus = document.querySelectorAll('[id^="parcelmenu-"]');
     allMenus.forEach(menu => {
         if (menu.id !== menuId) menu.classList.add('hidden');
     });
@@ -1728,7 +1728,12 @@ document.addEventListener('click', (event) => {
     }
 });
 
-
+       document.addEventListener('click', (event) => {
+    const clickedMenuOrButton = event.target.closest('[id^="menu-"], [data-menu-button]');
+    if (!clickedMenuOrButton) {
+        document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
+    }
+});
         
 
 window.showParcelDetails = function(id) {
