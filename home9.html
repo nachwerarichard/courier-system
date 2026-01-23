@@ -1330,27 +1330,26 @@ async function fetchParcels() {
     }
 }
 
-// 3. Explicitly attach filterTable to the window
 window.filterTable = function() {
     const searchInput = document.getElementById('table-search');
     const dateInput = document.getElementById('table-date-filter');
-    const statusInput = document.getElementById('table-status-filter'); // <--- NEW
+    const statusInput = document.getElementById('table-status-filter');
     
     if (!searchInput || !allParcels) return;
 
     const searchTerm = searchInput.value.toLowerCase();
     const filterDate = dateInput ? dateInput.value : ""; 
-    const filterStatus = statusInput ? statusInput.value : ""; // <--- NEW
+    const filterStatus = statusInput ? statusInput.value : "";
     
     const filtered = allParcels.filter(p => {
-        // 1. Text Search
+        // Text search
         const matchesText = 
             (p.tracking_number || "").toLowerCase().includes(searchTerm) || 
             (p.sender_name || "").toLowerCase().includes(searchTerm) ||
             (p.sender_phone || "").includes(searchTerm) ||
             (p.destination || "").toLowerCase().includes(searchTerm);
 
-        // 2. Date Filter
+        // Date filter
         let matchesDate = true;
         if (filterDate && p.created_at) {
             try {
@@ -1359,24 +1358,23 @@ window.filterTable = function() {
             } catch (e) { matchesDate = false; }
         }
 
-        // 3. Status Filter (NEW)
+        // Status filter
         const matchesStatus = filterStatus === "" || p.status === filterStatus;
 
-        return matchesText && matchesDate && matchesStatus; // All 3 must be true
+        return matchesText && matchesDate && matchesStatus;
     });
 
-    currentFilteredData = filtered; 
-    renderTableRows(filtered);
-    
-    // Optional: Update summary cards based on these specific filtered results
+    currentFilteredData = filtered;
+
+    // 🔥 Render only MAIN table
+    renderTableRows(filtered, 'parcel-table-body');
 };
-        window.clearTableFilters = function() {
+window.clearTableFilters = function() {
     document.getElementById('table-search').value = "";
     document.getElementById('table-date-filter').value = "";
-    document.getElementById('table-status-filter').value = ""; // Reset dropdown
-    window.filterTable(); // Refresh table
+    document.getElementById('table-status-filter').value = "";
+    window.filterTable();
 };
-// Filter parcels based on multiple criteria
 window.filterPTable = function() {
     const destinationInput = document.getElementById('ptable-destination-filter');
     const dateInput = document.getElementById('ptable-date-filter');
@@ -1391,10 +1389,9 @@ window.filterPTable = function() {
     const filterStatus = statusInput ? statusInput.value : "";
 
     const filtered = allParcels.filter(p => {
-        // 1. Destination filter
-        const matchesDestination = filterDestination === "" || (p.destination || "").toLowerCase().includes(filterDestination);
+        const matchesDestination =
+            filterDestination === "" || (p.destination || "").toLowerCase().includes(filterDestination);
 
-        // 2. Date Filter
         let matchesDate = true;
         if (filterDate && p.created_at) {
             try {
@@ -1403,33 +1400,28 @@ window.filterPTable = function() {
             } catch (e) { matchesDate = false; }
         }
 
-        // 3. Status Filter
         const matchesStatus = filterStatus === "" || p.status === filterStatus;
 
-        // 4. Text Search (Tracking ID, Sender Name/Phone, Destination)
         const matchesText = 
             (p.tracking_number || "").toLowerCase().includes(searchTerm) ||
             (p.sender_name || "").toLowerCase().includes(searchTerm) ||
             (p.sender_phone || "").includes(searchTerm) ||
             (p.destination || "").toLowerCase().includes(searchTerm);
 
-        // All conditions must be true
         return matchesDestination && matchesDate && matchesStatus && matchesText;
     });
 
-    currentFilteredData = filtered; 
-    renderTableRows(filtered);
+    currentFilteredData = filtered;
 
-    // Optional: update dashboard/summary cards here if needed
+    // 🔥 Render only DASHBOARD table (top 10)
+    renderTableRows(filtered, 'dashboardparcel-table-body', 10);
 };
-
-// Clear all filters
 window.clearTablePFilters = function() {
     document.getElementById('ptable-destination-filter').value = "";
     document.getElementById('ptable-date-filter').value = "";
     document.getElementById('ptable-status-filter').value = "";
     document.getElementById('ptable-search').value = "";
-    window.filterPTable(); // Refresh table
+    window.filterPTable();
 };
 
         function exportToExcel() {
