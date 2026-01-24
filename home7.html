@@ -1529,7 +1529,10 @@ function printReport() {
                 <td class="p-4">
                     <button onclick="showParcelDetails('${p._id}')" class="font-mono text-blue-600 font-bold hover:underline text-left">
                         ${p.tracking_number || 'N/A'}
-                    </button>                
+                    </button>     
+                    <div class="text-[10px] text-slate-400">
+                    ${p.created_at ? new Date(p.created_at).toLocaleDateString() + ' ' + new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'No Date'}                
+                </div>
                 </td>
 
                 <td class="p-4">
