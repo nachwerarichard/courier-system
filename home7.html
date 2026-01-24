@@ -672,6 +672,8 @@
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Total</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Paid</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Balance</th>
+                      <th class="p-4 text-xs uppercase font-bold text-slate-500">Pay Staus</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Pay Method</th>
                     <th class="p-4 text-xs uppercase font-bold text-slate-500">Date</th>
                 </tr>
             </thead>
@@ -3384,6 +3386,9 @@ async function generateReport() {
         const toDate = document.getElementById('reportTo').value;
         const station = document.getElementById('reportStation').value;
         const status = document.getElementById('reportStatus').value;
+        const paymentStatus = document.getElementById('reportPaymentStatus').value;
+        const paymentType = document.getElementById('reportPaymentType').value;
+
 
         // 3. Filter the data
         const filteredParcels = allParcels.filter(p => {
@@ -3393,8 +3398,10 @@ async function generateReport() {
                                 (!toDate || parcelDate <= toDate);
             const matchesStation = !station || p.origin === station ;
             const matchesStatus = !status || p.status === status;
-
-            return matchesDate && matchesStation && matchesStatus;
+           const matchesPaymentStatus = !paymentStatus || p.payment_status === paymentStatus;
+           const matchesPaymentType = !paymentType || p.payment_method === paymentType;
+            
+           return matchesDate && matchesStation && matchesStatus && matchesPaymentStatus && matchesPaymentType;
         });
 
       // --- 4. Update Summary Cards ---
@@ -3441,6 +3448,17 @@ document.getElementById('report-pending').textContent = pendingCount;
                     <td class="p-4 text-xs font-bold text-slate-700">UGX ${(p.total_amount || 0).toLocaleString()}</td>
                     <td class="p-4 text-xs font-bold text-green-600">UGX ${((p.total_amount || 0) - (p.balance || 0)).toLocaleString()}</td>
                     <td class="p-4 text-xs font-bold text-red-500">UGX ${(p.balance || 0).toLocaleString()}</td>
+                    <td class="p-4">
+        <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${getPaymentStatusStyle(p.payment_status)}">
+            ${p.payment_status || 'N/A'}
+        </span>
+    </td>
+
+    <!-- Payment Type -->
+    <td class="p-4 text-[10px] font-bold uppercase text-slate-600">
+        ${p.payment_method || 'N/A'}
+    </td>
+
                     <td class="p-4 text-[10px] text-slate-400 font-bold">${new Date(p.created_at).toLocaleDateString()}</td>
                 </tr>
             `;
@@ -3451,11 +3469,15 @@ document.getElementById('report-pending').textContent = pendingCount;
         console.error("Report Generation Error:", err);
     }
 }
-
+        
 // 6. Attach Event Listeners to Filters
-['reportFrom', 'reportTo', 'reportStation', 'reportStatus'].forEach(id => {
-    document.getElementById(id).addEventListener('change', generateReport);
+
+        ['reportFrom','reportTo','reportStation','reportStatus','reportPaymentStatus','reportPaymentType']
+.forEach(id => {
+  document.getElementById(id).addEventListener('change', generateReport);
 });
+
+
                     function exportReportToCSV() {
     const table = document.getElementById('reports-table-body');
     const rows = table.querySelectorAll('tr');
