@@ -620,14 +620,14 @@
             <option value="Delivered">Delivered</option>
         </select>
          <select id="reportPaymentStatus">
-  <option value="">Pay</option>
+  <option value="">Payment Status</option>
   <option value="Paid">Paid</option>
   <option value="Partial">Partial</option>
   <option value="Unpaid">Unpaid</option>
 </select>
 
 <select id="reportPaymentType">
-  <option value="">Payments</option>
+  <option value="">Payment Method</option>
   <option value="Cash">Cash</option>
   <option value="MTN Momo">Mobile Money</option>
   <option value="Airtel Pay">Airtel Pay</option>
@@ -3466,7 +3466,7 @@ document.getElementById('report-pending').textContent = pendingCount;
                     <td class="p-4 text-xs font-bold text-green-600">UGX ${((p.total_amount || 0) - (p.balance || 0)).toLocaleString()}</td>
                     <td class="p-4 text-xs font-bold text-red-500">UGX ${(p.balance || 0).toLocaleString()}</td>
                     <td class="p-4">
-        <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${getPaymentStatusStyle(p.payment_status)}">
+        <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ">
             ${p.payment_status || 'N/A'}
         </span>
     </td>
