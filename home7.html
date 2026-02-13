@@ -3679,35 +3679,42 @@ window.onload = () => {
     }
 };
         // Function to Open Edit Modal and Fill Data
-async function editUser(userId) {
-    if(event) event.stopPropagation();
-    // Force hide all action menus
+async function editUser(event, userId) {
+    // 1. Ensure event is handled first
+    if (event && event.stopPropagation) event.stopPropagation();
+
+    // 2. Hide all action menus immediately
     document.querySelectorAll('[id^="user-menu-"]').forEach(m => m.classList.add('hidden'));
 
-    const user = state.users.find(u => u._id === userId);
-    if (!user) return;
-    
-  if (!state.users || state.users.length === 0) {
-        console.error("User state is empty. Reloading users...");
-        await loadUsers(); 
+    // 3. Check if we need to load users first
+    if (!state.users || state.users.length === 0) {
+        console.log("User state empty, fetching...");
+        await loadUsers(); // Ensure this function populates state.users
     }
 
+    // 4. Now find the user in the populated state
+    const user = state.users.find(u => u._id === userId);
     
     if (!user) {
+        console.error("User not found for ID:", userId);
         alert("User data not found. Please refresh the page.");
         return;
     }
 
-    // Populate the modal
+    // 5. Populate the modal fields
     document.getElementById('modalTitle').innerText = "Edit Staff Member";
     document.getElementById('modalCustomerId').value = user._id;
     document.getElementById('modalFullName').value = user.full_name;
-    document.getElementById('modalPhone').value = user.email; // Email used as login ID
+    document.getElementById('modalPhone').value = user.email; 
     document.getElementById('modalStation').value = user.station;
     
-    document.getElementById('userModal').classList.remove('hidden');
-    // Adjust submit button text
-    document.querySelector('#quickUserForm button[type="submit"]').innerText = "Update User";
+    // 6. Reveal the modal
+    const modal = document.getElementById('userModal');
+    modal.classList.remove('hidden');
+    
+    // 7. Update button text
+    const submitBtn = document.querySelector('#quickUserForm button[type="submit"]');
+    if (submitBtn) submitBtn.innerText = "Update User";
 }
 
 // Handle Form Submission
