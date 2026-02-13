@@ -3681,7 +3681,7 @@ window.onload = () => {
         // Function to Open Edit Modal and Fill Data
 async function editUser(userId) {
     if(event) event.stopPropagation();
-    / Force hide all action menus
+    // Force hide all action menus
     document.querySelectorAll('[id^="user-menu-"]').forEach(m => m.classList.add('hidden'));
 
     const user = state.users.find(u => u._id === userId);
