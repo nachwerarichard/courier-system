@@ -3053,104 +3053,87 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
     const parcel = allParcels.find(p => p._id === parcelId);
     if (!parcel) {
-        console.error("DEBUG: Parcel ID not found in allParcels array:", parcelId);
-        alert("Parcel not found for receipt.");
+        alert("Parcel not found.");
         return;
     }
 
     const date = new Date();
     const formattedDate = date.toLocaleString();
-    const updateUrl = `https://yourdomain.com/update-parcel?id=${parcelId}`;
+    
+    // The URL you want encoded
+    const updateUrl = encodeURIComponent(`https://yourdomain.com/update-parcel?id=${parcelId}`);
+    
+    // We generate the QR link immediately as an image source
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${updateUrl}`;
 
     const receiptHTML = `
     <html>
     <head>
-        <title>Payment Receipt</title>
-        <script 
-            src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-            onload="console.log('DEBUG: QRCode Library loaded successfully')"
-            onerror="console.error('DEBUG: Failed to load QRCode library from CDN')">
-        </script>
+        <title>Receipt #${parcel.tracking_number}</title>
         <style>
-            body { font-family: Arial, sans-serif; padding: 20px; color: #1e293b; }
-            h2 { color: #1e40af; margin-bottom: 5px; }
-            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
-            .section { margin-top: 15px; }
-            .section h4 { font-size: 11px; color: #64748b; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
-            .section p { margin: 2px 0; font-size: 14px; font-weight: 500; }
-            .items { border-top: 1px solid #cbd5e1; margin-top: 10px; }
-            .items div { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted #e2e8f0; }
-            .summary { margin-top: 10px; background: #f8fafc; padding: 10px; border-radius: 4px; }
-            .summary div { display: flex; justify-content: space-between; padding: 3px 0; }
-            .footer-grid { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; }
-            .qr-container { text-align: center; border: 1px solid #eee; padding: 5px; }
-            #qrcode { margin-bottom: 5px; min-width: 100px; min-height: 100px; background: #f9f9f9; }
-            .qr-label { font-size: 10px; color: #64748b; }
-            .status { padding: 8px 15px; background: #0f172a; color: #fff; border-radius: 6px; text-align: center; font-weight: bold; font-size: 14px; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #333; }
+            .receipt-container { max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; }
+            .header { border-bottom: 2px solid #1e40af; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+            .section { margin-bottom: 15px; }
+            .label { font-size: 10px; text-transform: uppercase; color: #666; display: block; }
+            .value { font-weight: bold; font-size: 14px; }
+            .flex-row { display: flex; justify-content: space-between; gap: 20px; }
+            .footer { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; pt: 20px; }
+            .qr-box { text-align: center; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+            .status-badge { background: #1e40af; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
         </style>
     </head>
     <body>
-        <div class="header">
-            <div>
-                <h2>Payment Receipt</h2>
-                <div style="font-size: 12px; color: #64748b;">Issued on: ${formattedDate}</div>
-            </div>
-            <div class="status">${parcel.status.toUpperCase()}</div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between;">
-            <div class="section" style="flex: 1;">
-                <h4>Tracking Number</h4>
-                <p style="font-size: 18px; color: #1e40af;">#${parcel.tracking_number}</p>
-            </div>
-        </div>
-
-        <div class="footer-grid">
-            <div class="summary" style="width: 60%;">
-                <h4>Payment Summary</h4>
-                <div><span>Total Amount</span><span>UGX ${(parcel.total_amount || 0).toLocaleString()}</span></div>
-                <div><span>Amount Paid</span><span>UGX ${amountPaid.toLocaleString()}</span></div>
+        <div class="receipt-container">
+            <div class="header">
+                <div>
+                    <h2 style="margin:0; color:#1e40af;">Courier Payment</h2>
+                    <span style="font-size:12px;">${formattedDate}</span>
+                </div>
+                <div class="status-badge">${parcel.status.toUpperCase()}</div>
             </div>
 
-            <div class="qr-container">
-                <div id="qrcode"></div>
-                <div class="qr-label">Scan to Update Status</div>
+            <div class="section">
+                <span class="label">Tracking Number</span>
+                <span class="value" style="font-size: 18px;">${parcel.tracking_number}</span>
+            </div>
+
+            <div class="flex-row">
+                <div class="section">
+                    <span class="label">Sender</span>
+                    <span class="value">${parcel.sender_name}</span>
+                </div>
+                <div class="section">
+                    <span class="label">Receiver</span>
+                    <span class="value">${parcel.receiver_name}</span>
+                </div>
+            </div>
+
+            <div class="section" style="background: #f9fafb; padding: 10px; border-radius: 4px;">
+                <span class="label">Payment Details</span>
+                <div class="flex-row">
+                    <span>Total: UGX ${parcel.total_amount.toLocaleString()}</span>
+                    <span style="font-weight:bold;">Paid: UGX ${amountPaid.toLocaleString()}</span>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div>
+                    <span class="label">Payment Method</span>
+                    <span class="value">${paymentMethod}</span>
+                </div>
+                <div class="qr-box">
+                    <img src="${qrCodeUrl}" alt="QR Code" width="120" height="120" style="display:block;" />
+                    <span style="font-size:9px; color:#999;">SCAN TO UPDATE</span>
+                </div>
             </div>
         </div>
 
         <script>
-            function generateQR() {
-                console.log("DEBUG: Attempting to generate QR for URL:", "${updateUrl}");
-                const qrElement = document.getElementById("qrcode");
-                
-                if (typeof QRCode === "undefined") {
-                    console.error("DEBUG: QRCode class is not defined. Library didn't load.");
-                    qrElement.innerHTML = "<small style='color:red'>QR Error: Library not loaded</small>";
-                    return;
-                }
-
-                try {
-                    new QRCode(qrElement, {
-                        text: "${updateUrl}",
-                        width: 100,
-                        height: 100,
-                        colorDark : "#0f172a",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
-                    });
-                    console.log("DEBUG: QR Code generated successfully.");
-                } catch (err) {
-                    console.error("DEBUG: Generation Error:", err);
-                }
-            }
-
-            // Run generation
-            generateQR();
-
+            // Simple check to ensure the image is loaded before printing
             window.onload = () => {
-                console.log("DEBUG: Window loaded, preparing print dialog...");
                 setTimeout(() => {
-                    // window.print(); // Commented out so you can see the console logs first
+                    window.print();
                 }, 1000);
             };
         </script>
@@ -3158,12 +3141,9 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
     </html>
     `;
 
-    const printWindow = window.open('', '_blank', 'width=800,height=800');
-    if (!printWindow) {
-        alert("Popup blocked! Please allow popups.");
-        return;
-    }
-
+    const printWindow = window.open('', '_blank', 'width=700,height=800');
+    
+    // CRITICAL: Ensure we write to the document correctly
     printWindow.document.open();
     printWindow.document.write(receiptHTML);
     printWindow.document.close();
