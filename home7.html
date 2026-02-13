@@ -3692,7 +3692,6 @@ async function editUser(userId) {
         await loadUsers(); 
     }
 
-    const user = state.users.find(u => u._id === userId);
     
     if (!user) {
         alert("User data not found. Please refresh the page.");
