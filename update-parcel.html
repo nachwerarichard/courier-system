@@ -8,119 +8,110 @@
 </head>
 <body class="bg-slate-100 p-2 md:p-8">
 
-    <div id="login-overlay" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-            <div class="bg-blue-600 p-6 text-white text-center">
-                <i class="fa-solid fa-lock text-3xl mb-2"></i>
-                <h2 class="text-xl font-bold">Staff Authentication</h2>
-                <p class="text-sm opacity-80">Please log in to update parcel status</p>
+    <div id="login-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+            <div class="text-center mb-8">
+                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-lock text-blue-600 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Staff Authentication</h2>
+                <p class="text-slate-500 text-sm">Please login to update parcel status</p>
             </div>
-            <form id="loginForm" class="p-8 space-y-4">
+            <form id="loginForm" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email Address</label>
-                    <input type="email" id="loginEmail" required class="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Email Address</label>
+                    <input type="email" id="loginEmail" required class="w-full border border-slate-200 p-3 rounded-lg outline-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Password</label>
-                    <input type="password" id="loginPassword" required class="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Password</label>
+                    <input type="password" id="loginPassword" required class="w-full border border-slate-200 p-3 rounded-lg outline-blue-500">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors">
-                    Login to System
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all">
+                    Verify Identity
                 </button>
             </form>
         </div>
     </div>
 
-    <div id="update-container" class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden hidden">
-        
-        <div class="p-6 border-b bg-blue-600 text-white flex justify-between items-center">
-            <div>
-                <h3 class="text-xl font-bold uppercase">Update Parcel Details</h3>
-                <p id="tracking-display" class="text-sm opacity-80">Loading tracking info...</p>
+    <div id="main-content" class="hidden">
+        <div id="update-container" class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-4 bg-slate-800 text-white text-[10px] flex justify-between px-6">
+                <span id="user-display"><i class="fa-solid fa-user-check mr-2"></i> Identifying...</span>
+                <span id="station-display"><i class="fa-solid fa-location-dot mr-2"></i> Station: ---</span>
             </div>
-            <div class="text-right">
-                <p id="user-display" class="text-sm font-bold"></p>
-                <p id="station-display" class="text-[10px] bg-blue-700 px-2 py-1 rounded-full"></p>
+            
+            <div class="p-6 border-b bg-blue-600 text-white flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold uppercase">Update Parcel Details</h3>
+                    <p id="tracking-display" class="text-sm opacity-80">Loading tracking info...</p>
+                </div>
+                <i class="fa-solid fa-truck-fast text-3xl opacity-50"></i>
             </div>
+
+            <form id="updateParcelForm" class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 space-y-6 border-r border-slate-100 pr-6">
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                                <i class="fa-solid fa-circle-user"></i> Sender Details
+                            </label>
+                            <input type="text" id="senderName" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                            <input type="text" id="origin" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly title="Origin cannot be changed">
+                        </div>
+
+                        <div class="space-y-3 pt-4 border-t border-slate-50">
+                            <label class="text-[10px] font-bold text-orange-600 uppercase tracking-widest flex items-center gap-2">
+                                <i class="fa-solid fa-truck-ramp-box"></i> Receiver Details
+                            </label>
+                            <input type="text" id="receiverName" class="w-full border border-slate-200 p-3 rounded-lg text-sm">
+                            <input type="text" id="receiverPhone" class="w-full border border-slate-200 p-3 rounded-lg text-sm">
+                            <input type="text" id="destination" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="border border-slate-100 rounded-xl overflow-hidden bg-white">
+                            <div class="bg-slate-50 px-4 py-2 text-[10px] font-bold text-slate-500 uppercase">Items in Shipment</div>
+                            <div id="parcelListContainer" class="p-4 space-y-2 min-h-[100px]"></div>
+                        </div>
+
+                        <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner">
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-400 uppercase">Amount Paid</label>
+                                    <input type="number" id="amountPaid" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-green-400">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-400 uppercase">Total</label>
+                                    <input type="number" id="totalAmount" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs" readonly>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-400 uppercase">Balance</label>
+                                    <input type="number" id="balance" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs text-red-400" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row justify-end gap-4 mt-8 pt-6 border-t border-slate-100">
+                    <div class="flex flex-col">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-1">New Status</label>
+                        <select id="status" class="px-4 py-3 border-2 border-blue-500 rounded-xl font-bold text-blue-600 outline-none">
+                            <option value="At Dispatch">At Dispatch</option>
+                            <option value="In Transit">In Transit</option>
+                            <option value="Partially received">Partially Received</option>
+                            <option value="Ready for Pickup">Ready for Pickup</option>
+                            <option value="Delivered">Delivered</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-12 py-3 rounded-xl font-bold shadow-lg transition-all self-end">
+                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Update Station & Status
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <form id="updateParcelForm" class="p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                <div class="lg:col-span-1 space-y-6 border-r border-slate-100 pr-6">
-                    <div class="space-y-3">
-                        <label class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
-                            <i class="fa-solid fa-circle-user"></i> Sender Details
-                        </label>
-                        <input type="text" id="senderName" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
-                        <input type="text" id="senderPhone" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
-                        <input type="text" id="origin" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
-                    </div>
-
-                    <div class="space-y-3 pt-4 border-t border-slate-50">
-                        <label class="text-[10px] font-bold text-orange-600 uppercase tracking-widest flex items-center gap-2">
-                            <i class="fa-solid fa-truck-ramp-box"></i> Receiver Details
-                        </label>
-                        <input type="text" id="receiverName" class="w-full border border-slate-200 p-3 rounded-lg text-sm" readonly>
-                        <input type="text" id="receiverPhone" class="w-full border border-slate-200 p-3 rounded-lg text-sm" readonly>
-                        <input type="text" id="destination" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="border border-slate-100 rounded-xl overflow-hidden bg-white">
-                        <div class="bg-slate-50 px-4 py-2 text-[10px] font-bold text-slate-500 uppercase">
-                            Items in this Shipment
-                        </div>
-                        <div id="parcelListContainer" class="p-4 space-y-2 min-h-[100px]"></div>
-                    </div>
-
-                    <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner">
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                            <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Payment Method</label>
-                                <input type="text" id="paymentType" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs" readonly>
-                            </div>
-                            <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Payment Status</label>
-                                <input type="text" id="paymentStatus" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-yellow-400" readonly>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-3 gap-4">
-                            <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Total (UGX)</label>
-                                <input type="number" id="totalAmount" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-blue-400" readonly>
-                            </div>
-                            <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Paid</label>
-                                <input type="number" id="amountPaid" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-green-400" readonly>
-                            </div>
-                            <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Balance</label>
-                                <input type="number" id="balance" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-red-400" readonly>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-col md:flex-row justify-end gap-4 mt-8 pt-6 border-t border-slate-100">
-                <div class="flex flex-col">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1">Update Delivery Status</label>
-                    <select id="status" class="px-4 py-3 border-2 border-blue-500 rounded-xl font-bold text-blue-600 outline-none">
-                        <option value="At Dispatch">At Dispatch</option>
-                        <option value="In Transit">In Transit</option>
-                        <option value="Partially received">Partially Received</option>
-                        <option value="Ready for Pickup">Ready for Pickup</option>
-                        <option value="Delivered">Delivered</option>
-                    </select>
-                </div>
-                
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-12 py-3 rounded-xl font-bold shadow-lg shadow-green-200 transition-all self-end">
-                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Confirm Changes
-                </button>
-            </div>
-        </form>
     </div>
 
     <script>
@@ -129,7 +120,7 @@
         const parcelId = urlParams.get('id');
         let currentUser = null;
 
-        // --- Authentication Logic ---
+        // --- LOGIN HANDLER ---
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
@@ -141,77 +132,74 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
-
                 const data = await response.json();
 
                 if (response.ok) {
-                    currentUser = data;
-                    document.getElementById('login-overlay').classList.add('hidden');
-                    document.getElementById('update-container').classList.remove('hidden');
+                    currentUser = data; // Includes name and station from your User model
+                    document.getElementById('login-modal').classList.add('hidden');
+                    document.getElementById('main-content').classList.remove('hidden');
                     
-                    // Display who is logged in
-                    document.getElementById('user-display').innerText = `User: ${data.name || data.email}`;
-                    document.getElementById('station-display').innerText = `Station: ${data.station || 'Head Office'}`;
+                    // UI Displays
+                    document.getElementById('user-display').innerHTML = `<i class="fa-solid fa-user-check mr-2"></i> User: ${data.name}`;
+                    document.getElementById('station-display').innerHTML = `<i class="fa-solid fa-location-dot mr-2"></i> Station: ${data.station || 'Not Assigned'}`;
                     
                     loadParcelData();
                 } else {
-                    alert(data.message || "Login failed");
+                    alert(data.message || "Login Failed");
                 }
             } catch (err) {
-                alert("Connection error to auth server");
+                alert("Connection Error");
             }
         });
 
-        // --- Parcel Data Logic ---
         async function loadParcelData() {
-            if (!parcelId) return alert("No Parcel ID provided in URL");
+            if (!parcelId) return alert("No Parcel ID provided");
             try {
                 const response = await fetch(`${API_URL}/api/parcels/${parcelId}`);
                 const parcel = await response.json();
-                if (response.ok) { fillForm(parcel); } 
-                else { alert("Parcel not found"); }
-            } catch (err) { console.error("Error:", err); }
+                if (response.ok) { fillForm(parcel); }
+            } catch (err) { console.error(err); }
         }
 
         function fillForm(parcel) {
             document.getElementById('tracking-display').innerText = "Waybill: " + parcel.tracking_number;
             document.getElementById('senderName').value = parcel.sender_name || '';
-            document.getElementById('senderPhone').value = parcel.sender_phone || '';
             document.getElementById('origin').value = parcel.origin || '';
             document.getElementById('receiverName').value = parcel.receiver_name || '';
             document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
             document.getElementById('destination').value = parcel.destination || '';
-            document.getElementById('totalAmount').value = parcel.total_amount || 0;
-            document.getElementById('amountPaid').value = parcel.amount_paid || 0;
-            document.getElementById('balance').value = (parcel.total_amount - parcel.amount_paid) || 0;
-            document.getElementById('paymentStatus').value = parcel.payment_status || 'Unpaid';
-            document.getElementById('paymentType').value = parcel.payment_method || 'Cash';
+            document.getElementById('totalAmount').value = parcel.financials?.total_amount || 0;
+            document.getElementById('amountPaid').value = parcel.financials?.amount_paid || 0;
+            document.getElementById('balance').value = parcel.financials?.balance || 0;
             document.getElementById('status').value = parcel.status || 'At Dispatch';
 
             const container = document.getElementById('parcelListContainer');
-            if (!parcel.items || parcel.items.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-400 text-xs py-4 italic">No items found.</p>`;
-            } else {
-                container.innerHTML = parcel.items.map(item => `
-                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-                        <div class="text-sm">
-                            <p class="font-bold text-slate-700">${item.description}</p>
-                            <p class="text-[10px] text-slate-500">Qty: ${item.quantity} | Wt: ${item.weight}kg</p>
-                        </div>
-                        <span class="font-bold text-blue-600 text-sm">UGX ${item.subtotal.toLocaleString()}</span>
+            container.innerHTML = (parcel.items || []).map(item => `
+                <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="text-sm">
+                        <p class="font-bold text-slate-700">${item.description}</p>
+                        <p class="text-[10px] text-slate-500">Qty: ${item.quantity} | Wt: ${item.weight}kg</p>
                     </div>
-                `).join('');
-            }
+                    <span class="font-bold text-blue-600 text-sm">UGX ${item.subtotal.toLocaleString()}</span>
+                </div>
+            `).join('');
         }
 
+        // --- UPDATE HANDLER ---
         document.getElementById('updateParcelForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Include who updated this for security/logging
+            // Construct payload with security/tracking info
             const updatedData = {
+                receiver_name: document.getElementById('receiverName').value,
+                receiver_phone: document.getElementById('receiverPhone').value,
+                "financials.amount_paid": Number(document.getElementById('amountPaid').value),
                 status: document.getElementById('status').value,
-                updated_by: currentUser.name,
-                last_updated_station: currentUser.station
+                
+                // TRACKING SECURITY DATA
+                last_station: currentUser.station, // Automatically captured from logged in user
+                last_updated_at: new Date(),       // Current timestamp
+                recorded_by: currentUser.name      // Log the person who made the change
             };
 
             try {
@@ -220,8 +208,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(updatedData)
                 });
+                
                 if (response.ok) { 
-                    alert(`✅ Parcel Updated Successfully by ${currentUser.name}!`); 
+                    alert(`✅ Updated! Parcel is now marked as ${updatedData.status} at ${updatedData.last_station} station.`); 
                 } else { 
                     alert("❌ Update Failed"); 
                 }
