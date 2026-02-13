@@ -3791,7 +3791,6 @@ async function confirmTransfer(event, userId, newStation) {
 
         if (res.ok) {
             alert("Transfer Successful!");
-            location.reload(); 
         } else if (res.status === 401 || res.status === 403) {
             alert("Session expired. Please log in again.");
             window.location.href = 'login.html';
