@@ -98,16 +98,27 @@
 
         // AUTH GUARD: Check if user is logged in
         function checkAuth() {
-            const session = localStorage.getItem('courier_user');
-            if (!session) {
-                window.location.href = "login.html"; // Redirect to your login page
-                return;
-            }
-            currentUser = JSON.parse(session);
-            document.getElementById('userNameDisplay').innerText = currentUser.full_name;
-            document.getElementById('userStationDisplay').innerText = "Station: " + currentUser.station;
+    const session = localStorage.getItem('courier_user');
+    
+    if (!session) {
+        console.error("Auth Failed: No 'courier_user' found in localStorage");
+        // Only redirect if we are NOT already on the login page
+        if (!window.location.pathname.includes('login.html')) {
+            window.location.href = "login.html"; 
         }
+        return;
+    }
 
+    try {
+        currentUser = JSON.parse(session);
+        document.getElementById('userNameDisplay').innerText = currentUser.full_name || "User";
+        document.getElementById('userStationDisplay').innerText = "Station: " + (currentUser.station || "N/A");
+    } catch (e) {
+        console.error("Auth Failed: JSON parsing error", e);
+        localStorage.removeItem('courier_user');
+        window.location.href = "login.html";
+    }
+}
         function handleLogout() {
             localStorage.removeItem('courier_user');
             window.location.href = "login.html";
