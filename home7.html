@@ -3772,25 +3772,39 @@ const submenuHTML = `
         
 
 async function confirmTransfer(event, userId, newStation) {
-    event.stopPropagation(); // Keep menu open during the confirm dialog
+    if (event) event.stopPropagation();
     
     if(!confirm(`Transfer user to ${newStation}?`)) return;
+
+    // Get your token (change 'token' to whatever key you use)
+    const token = localStorage.getItem('token'); 
 
     try {
         const res = await fetch(`${API_URL}/api/users/${userId}/transfer`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // ADD THIS LINE
+            },
             body: JSON.stringify({ station: newStation })
         });
 
         if (res.ok) {
             alert("Transfer Successful!");
-            location.reload(); // Or call your loadUsers() function
+            location.reload(); 
+        } else if (res.status === 401 || res.status === 403) {
+            alert("Session expired. Please log in again.");
+            window.location.href = 'login.html';
+        } else {
+            const errorData = await res.json();
+            alert(`Error: ${errorData.error}`);
         }
     } catch (err) {
-        alert("Error during transfer");
+        console.error(err);
+        alert("Network error during transfer");
     }
 }
+        
 </script>
 
 
