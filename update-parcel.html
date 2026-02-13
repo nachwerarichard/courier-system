@@ -7,14 +7,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-slate-100 p-2 md:p-8">
-    <div id="update-container" class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+
+    <div id="login-overlay" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-blue-600 p-6 text-white text-center">
+                <i class="fa-solid fa-lock text-3xl mb-2"></i>
+                <h2 class="text-xl font-bold">Staff Authentication</h2>
+                <p class="text-sm opacity-80">Please log in to update parcel status</p>
+            </div>
+            <form id="loginForm" class="p-8 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email Address</label>
+                    <input type="email" id="loginEmail" required class="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Password</label>
+                    <input type="password" id="loginPassword" required class="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors">
+                    Login to System
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="update-container" class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden hidden">
         
         <div class="p-6 border-b bg-blue-600 text-white flex justify-between items-center">
             <div>
                 <h3 class="text-xl font-bold uppercase">Update Parcel Details</h3>
                 <p id="tracking-display" class="text-sm opacity-80">Loading tracking info...</p>
             </div>
-            <i class="fa-solid fa-truck-fast text-3xl opacity-50"></i>
+            <div class="text-right">
+                <p id="user-display" class="text-sm font-bold"></p>
+                <p id="station-display" class="text-[10px] bg-blue-700 px-2 py-1 rounded-full"></p>
+            </div>
         </div>
 
         <form id="updateParcelForm" class="p-6">
@@ -45,8 +72,7 @@
                         <div class="bg-slate-50 px-4 py-2 text-[10px] font-bold text-slate-500 uppercase">
                             Items in this Shipment
                         </div>
-                        <div id="parcelListContainer" class="p-4 space-y-2 min-h-[100px]">
-                            </div>
+                        <div id="parcelListContainer" class="p-4 space-y-2 min-h-[100px]"></div>
                     </div>
 
                     <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner">
@@ -101,8 +127,42 @@
         const API_URL = "https://patrinahhotelmgtsys.onrender.com";
         const urlParams = new URLSearchParams(window.location.search);
         const parcelId = urlParams.get('id');
-        let currentConsignment = [];
+        let currentUser = null;
 
+        // --- Authentication Logic ---
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentUser = data;
+                    document.getElementById('login-overlay').classList.add('hidden');
+                    document.getElementById('update-container').classList.remove('hidden');
+                    
+                    // Display who is logged in
+                    document.getElementById('user-display').innerText = `User: ${data.name || data.email}`;
+                    document.getElementById('station-display').innerText = `Station: ${data.station || 'Head Office'}`;
+                    
+                    loadParcelData();
+                } else {
+                    alert(data.message || "Login failed");
+                }
+            } catch (err) {
+                alert("Connection error to auth server");
+            }
+        });
+
+        // --- Parcel Data Logic ---
         async function loadParcelData() {
             if (!parcelId) return alert("No Parcel ID provided in URL");
             try {
@@ -123,41 +183,35 @@
             document.getElementById('destination').value = parcel.destination || '';
             document.getElementById('totalAmount').value = parcel.total_amount || 0;
             document.getElementById('amountPaid').value = parcel.amount_paid || 0;
-            document.getElementById('balance').value = parcel.balance || 0;
+            document.getElementById('balance').value = (parcel.total_amount - parcel.amount_paid) || 0;
             document.getElementById('paymentStatus').value = parcel.payment_status || 'Unpaid';
             document.getElementById('paymentType').value = parcel.payment_method || 'Cash';
             document.getElementById('status').value = parcel.status || 'At Dispatch';
 
-            currentConsignment = parcel.items || [];
-            renderParcelList();
-        }
-
-        function renderParcelList() {
             const container = document.getElementById('parcelListContainer');
-            if (currentConsignment.length === 0) {
+            if (!parcel.items || parcel.items.length === 0) {
                 container.innerHTML = `<p class="text-center text-slate-400 text-xs py-4 italic">No items found.</p>`;
-                return;
-            }
-            container.innerHTML = currentConsignment.map(item => `
-                <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <div class="text-sm">
-                        <p class="font-bold text-slate-700">${item.description}</p>
-                        <p class="text-[10px] text-slate-500">Qty: ${item.quantity} | Wt: ${item.weight}kg</p>
+            } else {
+                container.innerHTML = parcel.items.map(item => `
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                        <div class="text-sm">
+                            <p class="font-bold text-slate-700">${item.description}</p>
+                            <p class="text-[10px] text-slate-500">Qty: ${item.quantity} | Wt: ${item.weight}kg</p>
+                        </div>
+                        <span class="font-bold text-blue-600 text-sm">UGX ${item.subtotal.toLocaleString()}</span>
                     </div>
-                    <span class="font-bold text-blue-600 text-sm">UGX ${item.subtotal.toLocaleString()}</span>
-                </div>
-            `).join('');
+                `).join('');
+            }
         }
-
-        window.onload = loadParcelData;
 
         document.getElementById('updateParcelForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Include who updated this for security/logging
             const updatedData = {
-                receiver_name: document.getElementById('receiverName').value,
-                receiver_phone: document.getElementById('receiverPhone').value,
-                amount_paid: Number(document.getElementById('amountPaid').value),
-                status: document.getElementById('status').value
+                status: document.getElementById('status').value,
+                updated_by: currentUser.name,
+                last_updated_station: currentUser.station
             };
 
             try {
@@ -166,8 +220,11 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(updatedData)
                 });
-                if (response.ok) { alert("✅ Parcel Updated Successfully!"); } 
-                else { alert("❌ Update Failed"); }
+                if (response.ok) { 
+                    alert(`✅ Parcel Updated Successfully by ${currentUser.name}!`); 
+                } else { 
+                    alert("❌ Update Failed"); 
+                }
             } catch (err) { alert("Server Error"); }
         });
     </script>
