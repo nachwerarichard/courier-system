@@ -3099,10 +3099,16 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
                 <div class="section">
                     <span class="label">Sender</span>
                     <span class="value">${parcel.sender_name}</span>
+                    <span class="value">${parcel.sender_phone || 'No Phone'}</span>
                 </div>
                 <div class="section">
                     <span class="label">Receiver</span>
                     <span class="value">${parcel.receiver_name}</span>
+                    <span class="value">${parcel.receiver_phone || 'No Phone'}</span>
+                </div>
+                <div class="section">
+                    <span class="label">Route</span>
+                    <span class="value">${parcel.origin} → ${parcel.destination}</span>
                 </div>
             </div>
 
@@ -3110,7 +3116,9 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
                 <span class="label">Payment Details</span>
                 <div class="flex-row">
                     <span>Total: UGX ${parcel.total_amount.toLocaleString()}</span>
-                    <span style="font-weight:bold;">Paid: UGX ${amountPaid.toLocaleString()}</span>
+                    <span style="font-weight:bold;">Total Amount: UGX ${(parcel.total_amount || 0).toLocaleString()}</span>
+                    <span style="font-weight:bold;">Total Paid: UGX ${amountPaid.toLocaleString()}</span>
+                    <span style="font-weight:bold;">Balance: UGX ${(parcel.balance || 0).toLocaleString()}</span>
                 </div>
             </div>
 
