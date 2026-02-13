@@ -6,79 +6,80 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-slate-100 min-h-screen p-4 md:p-8">
-
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-5xl mx-auto flex flex-col">
-        
-        <div class="p-6 border-b flex justify-between items-center bg-white rounded-t-2xl">
-            <div>
-                <h3 id="page-title" class="text-lg font-bold text-blue-600 uppercase">Update Parcel Details</h3>
-                <p id="tracking-display" class="text-xs text-slate-500">Loading tracking info...</p>
-            </div>
-            <a href="dashboard.html" class="text-slate-400 hover:text-slate-600 text-sm font-bold">&larr; Back to Dashboard</a>
+<body class="bg-slate-100 p-2 md:p-8">
+    <div id="update-container" class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl">
+        <div class="p-6 border-b bg-blue-600 text-white rounded-t-2xl">
+             <h3 class="text-xl font-bold uppercase">Parcel Management</h3>
+             <p id="tracking-display" class="text-sm opacity-80">Loading tracking info...</p>
         </div>
 
-        <form id="createParcelForm" class="p-6">
-            <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-100">
-                <div class="mr-auto flex gap-2">
-                     <select id="parcelStatus" class="border p-2 rounded-lg text-sm font-bold uppercase bg-blue-50">
-                        <option value="At Dispatch">At Dispatch</option>
-                        <option value="In Transit">In Transit</option>
-                        <option value="Ready for Pickup">Ready for Pickup</option>
-                        <option value="Delivered">Delivered</option>
-                     </select>
-                </div>
-                
-                <button type="button" onclick="window.history.back()" class="px-8 py-3 text-sm font-bold text-gray-500">Cancel</button>
-                <button type="submit" class="bg-blue-600 text-white px-10 py-3 rounded-lg font-bold">Save Changes</button>
+        <form id="updateParcelForm" class="p-6">
+            <div class="flex flex-col md:flex-row justify-end gap-4 mt-8 pt-6 border-t">
+                 <select id="status" class="px-4 py-3 border-2 border-blue-500 rounded-xl font-bold text-blue-600 outline-none">
+                    <option value="At Dispatch">At Dispatch</option>
+                    <option value="In Transit">In Transit</option>
+                    <option value="Ready for Pickup">Ready for Pickup</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Partially received">Partially Received</option>
+                 </select>
+                 
+                 <button type="submit" class="bg-green-600 text-white px-10 py-3 rounded-xl font-bold shadow-lg">
+                    Save Updates
+                 </button>
             </div>
         </form>
     </div>
 
     <script>
-        // --- LOGIC TO CONNECT THE PAGE ---
-
-        // 1. Get ID from URL (?id=xxxx)
+        const API_URL = "https://patrinahhotelmgtsys.onrender.com";
         const urlParams = new URLSearchParams(window.location.search);
         const parcelId = urlParams.get('id');
 
-        // 2. Load Data on startup
-        window.addEventListener('DOMContentLoaded', () => {
-            if (!parcelId) {
-                alert("No Parcel ID provided!");
-                return;
-            }
-            loadParcelData(parcelId);
-        });
+        // 1. Fetch Data on Load
+        async function loadParcelData() {
+            if (!parcelId) return alert("No Parcel ID provided");
 
-        function loadParcelData(id) {
-            // If using a real API: fetch(`/api/parcels/${id}`)
-            // If using LocalStorage (simulated):
-            const allParcels = JSON.parse(localStorage.getItem('parcels') || '[]');
-            const parcel = allParcels.find(p => p._id === id);
+            try {
+                const response = await fetch(`${API_URL}/api/parcels/${parcelId}`);
+                const parcel = await response.json();
 
-            if (parcel) {
-                fillForm(parcel);
-            } else {
-                document.body.innerHTML = "<h1>Parcel not found</h1>";
+                if (response.ok) {
+                    fillForm(parcel);
+                } else {
+                    alert("Parcel not found");
+                }
+            } catch (err) {
+                console.error("Error:", err);
             }
         }
 
+        // 2. Fill every field from your Schema
         function fillForm(parcel) {
-            document.getElementById('senderName').value = parcel.sender_name;
-            document.getElementById('senderPhone').value = parcel.sender_phone;
             document.getElementById('tracking-display').innerText = "Waybill: " + parcel.tracking_number;
-            document.getElementById('parcelStatus').value = parcel.status;
-            // ... fill the rest of the IDs exactly like your editParcel function
+            
+            // Basic Details
+            document.getElementById('senderName').value = parcel.sender_name || '';
+            document.getElementById('senderPhone').value = parcel.sender_phone || '';
+            document.getElementById('origin').value = parcel.origin || '';
+            
+            document.getElementById('receiverName').value = parcel.receiver_name || '';
+            document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
+            document.getElementById('destination').value = parcel.destination || '';
+
+            // Financials
+            document.getElementById('totalAmount').value = parcel.total_amount || 0;
+            document.getElementById('amountPaid').value = parcel.amount_paid || 0;
+            document.getElementById('balance').value = parcel.balance || 0;
+            document.getElementById('paymentStatus').value = parcel.payment_status || 'Unpaid';
+            document.getElementById('paymentType').value = parcel.payment_method || 'Cash';
+            document.getElementById('status').value = parcel.status || 'At Dispatch';
+
+            // Items (If you have a global array for the list)
+            currentConsignment = parcel.items || [];
+            renderParcelList(); // Re-use your existing rendering function
         }
 
-        // 3. Handle Update
-        document.getElementById('createParcelForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Collect form data and send PUT/POST request to your backend
-            console.log("Saving changes for:", parcelId);
-            alert("Parcel Updated Successfully!");
-        });
+        window.onload = loadParcelData;
     </script>
 </body>
 </html>
