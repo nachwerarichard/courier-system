@@ -33,14 +33,13 @@
 
         <form id="updateParcelForm" class="p-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
                 <div class="lg:col-span-1 space-y-6 border-r border-slate-100 pr-6">
                     <div class="space-y-3">
                         <label class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
                             <i class="fa-solid fa-circle-user"></i> Sender Details
                         </label>
-                        <input type="text" id="senderName" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly placeholder="Sender Name">
-                        <input type="text" id="origin" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly placeholder="Origin">
+                        <input type="text" id="senderName" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                        <input type="text" id="origin" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
                     </div>
 
                     <div class="space-y-3 pt-4 border-t border-slate-50">
@@ -53,9 +52,7 @@
                 </div>
 
                 <div class="lg:col-span-2 space-y-6">
-                    <div id="parcelListContainer" class="p-4 bg-slate-50 rounded-xl space-y-2 min-h-[100px]">
-                        <p class="text-xs text-slate-400 italic">Loading items...</p>
-                    </div>
+                    <div id="parcelListContainer" class="p-4 bg-slate-50 rounded-xl space-y-2 min-h-[100px]"></div>
                     
                     <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner">
                         <div class="grid grid-cols-3 gap-4">
@@ -65,7 +62,7 @@
                             </div>
                             <div>
                                 <label class="text-[9px] text-slate-400">Amount Paid (UGX)</label>
-                                <input type="number" id="amountPaid" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs border border-slate-700 focus:border-blue-500 outline-none">
+                                <input type="number" id="amountPaid" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs border border-slate-700">
                             </div>
                             <div>
                                 <label class="text-[9px] text-slate-400">Balance (UGX)</label>
@@ -78,7 +75,7 @@
 
             <div class="flex flex-col md:flex-row justify-end gap-4 mt-8 pt-6 border-t border-slate-100">
                 <div class="flex flex-col">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1">Current Delivery Status</label>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>
                     <select id="status" class="px-4 py-3 border-2 border-blue-500 rounded-xl font-bold text-blue-600 outline-none">
                         <option value="At Dispatch">At Dispatch</option>
                         <option value="In Transit">In Transit</option>
@@ -87,9 +84,8 @@
                         <option value="Delivered">Delivered</option>
                     </select>
                 </div>
-                
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-12 py-3 rounded-xl font-bold shadow-lg transition-all self-end">
-                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Confirm Changes
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-12 py-3 rounded-xl font-bold shadow-lg self-end">
+                    Confirm Changes
                 </button>
             </div>
         </form>
@@ -101,96 +97,85 @@
         let parcelId = urlParams.get('id');
         let currentUser = null;
 
-        // 1. AUTH GUARD WITH DEEP LINKING
         function checkAuth() {
             const session = localStorage.getItem('courier_user');
             
             if (!session) {
-                // SAVE PARCEL ID BEFORE REDIRECTING
-                if (parcelId) {
-                    sessionStorage.setItem('pending_parcel_id', parcelId);
-                }
-                window.location.href = "update-parcel.html";
+                console.log("No session found. Saving ID and redirecting to login.");
+                if (parcelId) sessionStorage.setItem('pending_parcel_id', parcelId);
+                // FIX: Redirect to login.html, NOT update-parcel.html
+                window.location.href = "login.html"; 
                 return;
             }
 
             try {
                 currentUser = JSON.parse(session);
                 document.getElementById('userNameDisplay').innerText = currentUser.full_name;
-                document.getElementById('userStationDisplay').innerText = "Station: " + (currentUser.station || "Not Assigned");
+                document.getElementById('userStationDisplay').innerText = "Station: " + (currentUser.station || "N/A");
             } catch (e) {
                 localStorage.removeItem('courier_user');
-                window.location.href = "update-parcel.html";
+                window.location.href = "login.html";
             }
         }
 
-        function handleLogout() {
-            localStorage.removeItem('courier_user');
-            window.location.href = "login.html";
-        }
-
-        // 2. LOAD DATA (Handling nested financials)
         async function loadParcelData() {
-            if (!parcelId) {
-                alert("No Parcel ID found. Returning to dashboard.");
+            console.log("Attempting to fetch Parcel ID:", parcelId);
+
+            if (!parcelId || parcelId === "null") {
+                console.error("Critical Error: parcelId is missing from the URL.");
+                alert("Error: Parcel ID is missing. Redirecting to dashboard.");
                 window.location.href = "dashboard.html";
                 return;
             }
 
             try {
                 const response = await fetch(`${API_URL}/api/parcels/${parcelId}`);
-                if (!response.ok) throw new Error("Parcel not found");
+                console.log("Server Response Status:", response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server returned ${response.status}: ${errorText}`);
+                }
                 
                 const parcel = await response.json();
+                console.log("Parcel Data Loaded:", parcel);
 
-                // Fill Text Fields
+                // Populate fields
                 document.getElementById('tracking-display').innerText = "Waybill: " + (parcel.tracking_number || '---');
                 document.getElementById('senderName').value = parcel.sender_name || '';
                 document.getElementById('origin').value = parcel.origin || '';
                 document.getElementById('receiverName').value = parcel.receiver_name || '';
                 document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
                 
-                // Financials (Using safe navigation)
                 const fin = parcel.financials || {};
                 document.getElementById('totalAmount').value = (fin.total_amount || 0).toLocaleString();
                 document.getElementById('amountPaid').value = fin.amount_paid || 0;
                 document.getElementById('balance').value = (fin.balance || 0).toLocaleString();
-                
                 document.getElementById('status').value = parcel.status || 'At Dispatch';
 
-                // Render Items List
                 const container = document.getElementById('parcelListContainer');
-                if (parcel.items && parcel.items.length > 0) {
-                    container.innerHTML = parcel.items.map(item => `
-                        <div class="flex justify-between p-3 bg-white rounded-lg border border-slate-100 text-xs shadow-sm">
-                            <span class="text-slate-600"><b class="text-slate-800">${item.description}</b> (x${item.quantity})</span>
-                            <span class="font-bold text-blue-600">UGX ${(item.subtotal || 0).toLocaleString()}</span>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = `<p class="text-xs text-slate-400 italic">No items listed</p>`;
-                }
+                container.innerHTML = (parcel.items || []).map(item => `
+                    <div class="flex justify-between p-3 bg-white rounded-lg border border-slate-100 text-xs shadow-sm">
+                        <span><b>${item.description}</b> (x${item.quantity})</span>
+                        <span class="font-bold text-blue-600">UGX ${(item.subtotal || 0).toLocaleString()}</span>
+                    </div>
+                `).join('') || '<p class="text-xs text-slate-400">No items</p>';
 
             } catch (err) {
-                console.error(err);
-                alert("Error loading parcel data. The ID might be incorrect.");
+                console.error("Fetch Error Detail:", err);
+                alert("Could not find this parcel in the database. Please check if the ID is correct.");
             }
         }
 
-        // 3. SUBMIT CHANGES (Recording Station & Time)
         document.getElementById('updateParcelForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Prepare Data for Backend
             const updatedData = {
                 receiver_name: document.getElementById('receiverName').value,
                 receiver_phone: document.getElementById('receiverPhone').value,
                 "financials.amount_paid": Number(document.getElementById('amountPaid').value),
                 status: document.getElementById('status').value,
-                
-                // These fields fix your "Not Showing" problem:
-                last_station: currentUser.station,
-                recorded_by: currentUser.full_name,
+                last_station: currentUser?.station || "Unknown",
+                recorded_by: currentUser?.full_name || "System",
                 last_updated_at: new Date()
             };
 
@@ -205,15 +190,18 @@
                     alert("✅ Parcel Updated Successfully!");
                     window.location.href = "dashboard.html";
                 } else {
-                    const error = await response.json();
-                    alert("Update Failed: " + error.error);
+                    alert("Update failed. Check server logs.");
                 }
             } catch (err) {
-                alert("Network error. Please try again.");
+                alert("Network Error.");
             }
         });
 
-        // Initialize
+        function handleLogout() {
+            localStorage.removeItem('courier_user');
+            window.location.href = "login.html";
+        }
+
         window.onload = () => {
             checkAuth();
             loadParcelData();
