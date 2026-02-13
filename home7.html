@@ -1090,6 +1090,12 @@
 
 </div>
     <script>
+        let state = {
+    currentUser: null,
+    parcels: [],
+    users: [], // <--- Ensure this is here
+    senders: []
+};
         
 let currentFilteredData = [];
         
@@ -1207,6 +1213,7 @@ let state = {
             try {
                 const res = await fetch(`${API_URL}/users`);
                 const users = await res.json();
+                state.users = users;
                 const tbody = document.getElementById('userTableBody');
                 tbody.innerHTML = users.map(u => `
                     <tr class="hover:bg-gray-50">
@@ -3664,20 +3671,26 @@ window.onload = () => {
 };
         // Function to Open Edit Modal and Fill Data
 async function editUser(userId) {
-    // 1. Change modal appearance
-    document.getElementById('modalTitle').innerText = "Edit Staff Member";
-    document.getElementById('userModal').classList.remove('hidden');
-    
-    // 2. Find user in your existing state array
-    const user = state.users.find(u => u._id === userId);
-    if (!user) return;
+  if (!state.users || state.users.length === 0) {
+        console.error("User state is empty. Reloading users...");
+        await loadUsers(); 
+    }
 
-    // 3. Populate form
-    document.getElementById('modalCustomerId').value = user._id; // Hidden field
+    const user = state.users.find(u => u._id === userId);
+    
+    if (!user) {
+        alert("User data not found. Please refresh the page.");
+        return;
+    }
+
+    // Populate the modal
+    document.getElementById('modalTitle').innerText = "Edit Staff Member";
+    document.getElementById('modalCustomerId').value = user._id;
     document.getElementById('modalFullName').value = user.full_name;
-    document.getElementById('modalPhone').value = user.email; // Mapping email to phone field based on your HTML
+    document.getElementById('modalPhone').value = user.email; // Email used as login ID
     document.getElementById('modalStation').value = user.station;
     
+    document.getElementById('userModal').classList.remove('hidden');
     // Adjust submit button text
     document.querySelector('#quickUserForm button[type="submit"]').innerText = "Update User";
 }
