@@ -3058,78 +3058,114 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
 
     const date = new Date();
     const formattedDate = date.toLocaleString();
+    const updateUrl = `https://yourdomain.com/update-parcel?id=${parcelId}`;
 
     const receiptHTML = `
     <html>
     <head>
         <title>Payment Receipt</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
         <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            h2 { color: #1e40af; }
-            .header { display: flex; justify-content: space-between; align-items: center; }
-            .section { margin-top: 20px; }
-            .section h4 { font-size: 12px; color: #475569; margin-bottom: 5px; text-transform: uppercase; }
-            .section p { margin: 2px 0; font-size: 14px; }
+            body { font-family: Arial, sans-serif; padding: 20px; color: #1e293b; }
+            h2 { color: #1e40af; margin-bottom: 5px; }
+            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+            .section { margin-top: 15px; }
+            .section h4 { font-size: 11px; color: #64748b; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+            .section p { margin: 2px 0; font-size: 14px; font-weight: 500; }
             .items { border-top: 1px solid #cbd5e1; margin-top: 10px; }
-            .items div { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #e2e8f0; }
-            .summary { margin-top: 10px; }
-            .summary div { display: flex; justify-content: space-between; padding: 5px 0; }
-            .status { margin-top: 20px; padding: 10px; background: #0f172a; color: #fff; border-radius: 8px; text-align: center; font-weight: bold; }
+            .items div { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted #e2e8f0; }
+            .summary { margin-top: 10px; background: #f8fafc; padding: 10px; border-radius: 4px; }
+            .summary div { display: flex; justify-content: space-between; padding: 3px 0; }
+            .footer-grid { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; }
+            .qr-container { text-align: center; }
+            #qrcode { margin-bottom: 5px; }
+            .qr-label { font-size: 10px; color: #64748b; }
+            .status { padding: 8px 15px; background: #0f172a; color: #fff; border-radius: 6px; text-align: center; font-weight: bold; font-size: 14px; }
         </style>
     </head>
     <body>
         <div class="header">
-            <h2>Parcel Payment Receipt</h2>
-            <div>${formattedDate}</div>
+            <div>
+                <h2>Payment Receipt</h2>
+                <div style="font-size: 12px; color: #64748b;">Issued on: ${formattedDate}</div>
+            </div>
+            <div class="status">${parcel.status.toUpperCase()}</div>
         </div>
 
-        <div class="section">
-            <h4>Tracking Number</h4>
-            <p>${parcel.tracking_number}</p>
+        <div style="display: flex; justify-content: space-between;">
+            <div class="section" style="flex: 1;">
+                <h4>Tracking Number</h4>
+                <p style="font-size: 18px; color: #1e40af;">#${parcel.tracking_number}</p>
+            </div>
+            <div class="section" style="flex: 1;">
+                <h4>Route</h4>
+                <p>${parcel.origin} → ${parcel.destination}</p>
+            </div>
         </div>
 
-        <div class="section">
-            <h4>Sender</h4>
-            <p>${parcel.sender_name}</p>
-            <p>${parcel.sender_phone || 'No Phone'}</p>
-        </div>
-
-        <div class="section">
-            <h4>Receiver</h4>
-            <p>${parcel.receiver_name}</p>
-            <p>${parcel.receiver_phone || 'No Phone'}</p>
-        </div>
-
-        <div class="section">
-            <h4>Route</h4>
-            <p>${parcel.origin} → ${parcel.destination}</p>
+        <div style="display: flex; gap: 40px;">
+            <div class="section">
+                <h4>Sender</h4>
+                <p>${parcel.sender_name}</p>
+                <p>${parcel.sender_phone || 'No Phone'}</p>
+            </div>
+            <div class="section">
+                <h4>Receiver</h4>
+                <p>${parcel.receiver_name}</p>
+                <p>${parcel.receiver_phone || 'No Phone'}</p>
+            </div>
         </div>
 
         <div class="section items">
-                    <h4>Package Content</h4>
+            <h4>Package Content</h4>
             ${parcel.items.map(item => `
                 <div>
-                    <span>${item.description} (Qty: ${item.quantity || 1}, Wt: ${item.weight || 0}kg)</span>
+                    <span>${item.description} (x${item.quantity || 1})</span>
                     <span>UGX ${(item.subtotal || 0).toLocaleString()}</span>
                 </div>
             `).join('')}
         </div>
 
-        <div class="section summary">
-                    <h4>Payment Summary</h4>
-            <div><span>Total Amount</span><span>UGX ${(parcel.total_amount || 0).toLocaleString()}</span></div>
-            <div><span>Amount Paid</span><span>UGX ${amountPaid.toLocaleString()} (${paymentMethod})</span></div>
-            <div><span>Balance Due</span><span>UGX ${(parcel.balance || 0).toLocaleString()}</span></div>
+        <div class="footer-grid">
+            <div class="summary" style="width: 60%;">
+                <h4>Payment Summary</h4>
+                <div><span>Total Amount</span><span>UGX ${(parcel.total_amount || 0).toLocaleString()}</span></div>
+                <div><span>Amount Paid</span><span>UGX ${amountPaid.toLocaleString()}</span></div>
+                <div style="font-weight: bold; border-top: 1px solid #cbd5e1; margin-top: 5px; padding-top: 5px;">
+                    <span>Balance Due</span><span>UGX ${(parcel.balance || 0).toLocaleString()}</span>
+                </div>
+                <div style="font-size: 11px; margin-top: 5px; color: #64748b;">Method: ${paymentMethod}</div>
+            </div>
+
+            <div class="qr-container">
+                <div id="qrcode"></div>
+                <div class="qr-label">Scan to Update Status</div>
+            </div>
         </div>
-        
-            <h4>Status</h4>
-        <div class="status">${parcel.status}</div>
+
+        <script>
+            // Generate the QR Code
+            new QRCode(document.getElementById("qrcode"), {
+                text: "${updateUrl}",
+                width: 100,
+                height: 100,
+                colorDark : "#0f172a",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            window.onload = () => {
+                setTimeout(() => {
+                    window.focus();
+                    window.print();
+                }, 500);
+            };
+        <\/script>
     </body>
     </html>
     `;
 
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
-
+    const printWindow = window.open('', '_blank', 'width=800,height=800');
     if (!printWindow) {
         alert("Popup blocked! Please allow popups to print receipt.");
         return;
@@ -3138,15 +3174,7 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
     printWindow.document.open();
     printWindow.document.write(receiptHTML);
     printWindow.document.close();
-
-    printWindow.onload = () => {
-        printWindow.focus();
-        printWindow.print();
-        printWindow.close();
-    };
 }
-
-
         
 function updateAmountPaidModalIfOpen(addedAmount) {
     console.log("Checking for #amountPaid input...");
