@@ -110,7 +110,7 @@
                 if (parcelId) {
                     sessionStorage.setItem('pending_parcel_id', parcelId);
                 }
-                window.location.href = "login.html";
+                window.location.href = "update-parcel.html";
                 return;
             }
 
@@ -120,7 +120,7 @@
                 document.getElementById('userStationDisplay').innerText = "Station: " + (currentUser.station || "Not Assigned");
             } catch (e) {
                 localStorage.removeItem('courier_user');
-                window.location.href = "login.html";
+                window.location.href = "update-parcel.html";
             }
         }
 
