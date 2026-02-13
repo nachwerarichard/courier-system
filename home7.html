@@ -3059,7 +3059,8 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
 
     const date = new Date();
     const formattedDate = date.toLocaleString();
-    const updateUrl = encodeURIComponent(`https://yourdomain.com/update-parcel?id=${parcelId}`);
+    // Change this line in your receipt function:
+    const updateUrl = encodeURIComponent(`https://your-website.com/update.html?id=${parcelId}`);
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${updateUrl}`;
 
     const receiptHTML = `
