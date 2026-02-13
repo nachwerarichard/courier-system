@@ -2,16 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Parcel - Courier System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-slate-100 p-2 md:p-8">
+
     <div class="max-w-5xl mx-auto mb-4 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
         <div class="flex items-center gap-3">
             <div class="bg-blue-100 p-2 rounded-full"><i class="fa-solid fa-user text-blue-600"></i></div>
             <div>
-                <p id="userNameDisplay" class="text-sm font-bold text-slate-700">Loading...</p>
+                <p id="userNameDisplay" class="text-sm font-bold text-slate-700">Checking Auth...</p>
                 <p id="userStationDisplay" class="text-[10px] text-slate-500 uppercase tracking-tight"></p>
             </div>
         </div>
@@ -31,40 +33,43 @@
 
         <form id="updateParcelForm" class="p-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
                 <div class="lg:col-span-1 space-y-6 border-r border-slate-100 pr-6">
                     <div class="space-y-3">
                         <label class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
                             <i class="fa-solid fa-circle-user"></i> Sender Details
                         </label>
-                        <input type="text" id="senderName" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
-                        <input type="text" id="origin" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                        <input type="text" id="senderName" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly placeholder="Sender Name">
+                        <input type="text" id="origin" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly placeholder="Origin">
                     </div>
 
                     <div class="space-y-3 pt-4 border-t border-slate-50">
                         <label class="text-[10px] font-bold text-orange-600 uppercase tracking-widest flex items-center gap-2">
                             <i class="fa-solid fa-truck-ramp-box"></i> Receiver Details
                         </label>
-                        <input type="text" id="receiverName" class="w-full border border-slate-200 p-3 rounded-lg text-sm">
-                        <input type="text" id="receiverPhone" class="w-full border border-slate-200 p-3 rounded-lg text-sm">
+                        <input type="text" id="receiverName" class="w-full border border-slate-200 p-3 rounded-lg text-sm" placeholder="Receiver Name">
+                        <input type="text" id="receiverPhone" class="w-full border border-slate-200 p-3 rounded-lg text-sm" placeholder="Receiver Phone">
                     </div>
                 </div>
 
                 <div class="lg:col-span-2 space-y-6">
-                    <div id="parcelListContainer" class="p-4 bg-slate-50 rounded-xl space-y-2"></div>
+                    <div id="parcelListContainer" class="p-4 bg-slate-50 rounded-xl space-y-2 min-h-[100px]">
+                        <p class="text-xs text-slate-400 italic">Loading items...</p>
+                    </div>
                     
                     <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner">
                         <div class="grid grid-cols-3 gap-4">
                             <div>
-                                <label class="text-[9px] text-slate-400">Total</label>
+                                <label class="text-[9px] text-slate-400">Total (UGX)</label>
                                 <input type="text" id="totalAmount" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs" readonly>
                             </div>
                             <div>
-                                <label class="text-[9px] text-slate-400">Paid</label>
-                                <input type="number" id="amountPaid" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs">
+                                <label class="text-[9px] text-slate-400">Amount Paid (UGX)</label>
+                                <input type="number" id="amountPaid" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs border border-slate-700 focus:border-blue-500 outline-none">
                             </div>
                             <div>
-                                <label class="text-[9px] text-slate-400">Balance</label>
-                                <input type="text" id="balance" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs" readonly>
+                                <label class="text-[9px] text-slate-400">Balance (UGX)</label>
+                                <input type="text" id="balance" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-orange-400" readonly>
                             </div>
                         </div>
                     </div>
@@ -73,7 +78,7 @@
 
             <div class="flex flex-col md:flex-row justify-end gap-4 mt-8 pt-6 border-t border-slate-100">
                 <div class="flex flex-col">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1">Update Delivery Status</label>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1">Current Delivery Status</label>
                     <select id="status" class="px-4 py-3 border-2 border-blue-500 rounded-xl font-bold text-blue-600 outline-none">
                         <option value="At Dispatch">At Dispatch</option>
                         <option value="In Transit">In Transit</option>
@@ -89,137 +94,130 @@
             </div>
         </form>
     </div>
-<script>
-    const API_URL = "https://patrinahhotelmgtsys.onrender.com";
-    const urlParams = new URLSearchParams(window.location.search);
-    const parcelId = urlParams.get('id');
-    
-    // Default "Guest" user so the system never crashes
-    let currentUser = {
-        full_name: "Guest Clerk",
-        station: "Main Office"
-    };
 
-    function checkAuth() {
-        const session = localStorage.getItem('courier_user');
-        
-        if (session) {
-            try {
-                const parsedUser = JSON.parse(session);
-                // If parsing works, override the guest user with real data
-                currentUser = parsedUser;
-                console.log("Logged in as:", currentUser.full_name);
-            } catch (e) {
-                console.error("Session corrupted, staying as Guest");
-            }
-        } else {
-            console.log("No session found. Continuing as Guest.");
-        }
+    <script>
+        const API_URL = "https://patrinahhotelmgtsys.onrender.com";
+        const urlParams = new URLSearchParams(window.location.search);
+        let parcelId = urlParams.get('id');
+        let currentUser = null;
 
-        // Update the UI display safely
-        const nameEl = document.getElementById('userNameDisplay');
-        const stationEl = document.getElementById('userStationDisplay');
-        
-        if(nameEl) nameEl.innerText = currentUser.full_name || "Guest Clerk";
-        if(stationEl) stationEl.innerText = "Station: " + (currentUser.station || "Unknown");
-    }
-
-    function handleLogout() {
-        localStorage.removeItem('courier_user');
-        window.location.href = "login.html";
-    }
-
-    async function loadParcelData() {
-        if (!parcelId) {
-            alert("No Parcel ID found in URL!");
-            return;
-        }
-        
-        try {
-            const response = await fetch(`${API_URL}/api/parcels/${parcelId}`);
+        // 1. AUTH GUARD WITH DEEP LINKING
+        function checkAuth() {
+            const session = localStorage.getItem('courier_user');
             
-            if (!response.ok) {
-                console.error("Parcel not found");
-                document.getElementById('tracking-display').innerText = "Error: Parcel Not Found";
+            if (!session) {
+                // SAVE PARCEL ID BEFORE REDIRECTING
+                if (parcelId) {
+                    sessionStorage.setItem('pending_parcel_id', parcelId);
+                }
+                window.location.href = "login.html";
                 return;
             }
 
-            const parcel = await response.json();
-            
-            // Fill Fields Safely
-            document.getElementById('tracking-display').innerText = "Waybill: " + (parcel.tracking_number || 'N/A');
-            document.getElementById('senderName').value = parcel.sender_name || '';
-            document.getElementById('origin').value = parcel.origin || '';
-            document.getElementById('receiverName').value = parcel.receiver_name || '';
-            document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
-            
-            // Financials nesting fix
-            if (parcel.financials) {
-                document.getElementById('totalAmount').value = parcel.financials.total_amount || 0;
-                document.getElementById('amountPaid').value = parcel.financials.amount_paid || 0;
-                document.getElementById('balance').value = parcel.financials.balance || 0;
+            try {
+                currentUser = JSON.parse(session);
+                document.getElementById('userNameDisplay').innerText = currentUser.full_name;
+                document.getElementById('userStationDisplay').innerText = "Station: " + (currentUser.station || "Not Assigned");
+            } catch (e) {
+                localStorage.removeItem('courier_user');
+                window.location.href = "login.html";
             }
-
-            document.getElementById('status').value = parcel.status || 'At Dispatch';
-            
-            // Render items
-            const container = document.getElementById('parcelListContainer');
-            if (parcel.items && parcel.items.length > 0) {
-                container.innerHTML = parcel.items.map(item => `
-                    <div class="flex justify-between p-2 bg-white rounded border border-slate-100 text-xs">
-                        <span>${item.description} (x${item.quantity})</span>
-                        <span class="font-bold">UGX ${(item.subtotal || 0).toLocaleString()}</span>
-                    </div>
-                `).join('');
-            } else {
-                container.innerHTML = '<p class="text-xs text-slate-400 p-2">No items listed</p>';
-            }
-            
-        } catch (err) { 
-            console.error("Fetch Error:", err);
         }
-    }
 
-    document.getElementById('updateParcelForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Final check: if they aren't logged in, we use the Guest info
-        const updatedData = {
-            receiver_name: document.getElementById('receiverName').value,
-            receiver_phone: document.getElementById('receiverPhone').value,
-            "financials.amount_paid": Number(document.getElementById('amountPaid').value),
-            status: document.getElementById('status').value,
+        function handleLogout() {
+            localStorage.removeItem('courier_user');
+            window.location.href = "login.html";
+        }
+
+        // 2. LOAD DATA (Handling nested financials)
+        async function loadParcelData() {
+            if (!parcelId) {
+                alert("No Parcel ID found. Returning to dashboard.");
+                window.location.href = "dashboard.html";
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/parcels/${parcelId}`);
+                if (!response.ok) throw new Error("Parcel not found");
+                
+                const parcel = await response.json();
+
+                // Fill Text Fields
+                document.getElementById('tracking-display').innerText = "Waybill: " + (parcel.tracking_number || '---');
+                document.getElementById('senderName').value = parcel.sender_name || '';
+                document.getElementById('origin').value = parcel.origin || '';
+                document.getElementById('receiverName').value = parcel.receiver_name || '';
+                document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
+                
+                // Financials (Using safe navigation)
+                const fin = parcel.financials || {};
+                document.getElementById('totalAmount').value = (fin.total_amount || 0).toLocaleString();
+                document.getElementById('amountPaid').value = fin.amount_paid || 0;
+                document.getElementById('balance').value = (fin.balance || 0).toLocaleString();
+                
+                document.getElementById('status').value = parcel.status || 'At Dispatch';
+
+                // Render Items List
+                const container = document.getElementById('parcelListContainer');
+                if (parcel.items && parcel.items.length > 0) {
+                    container.innerHTML = parcel.items.map(item => `
+                        <div class="flex justify-between p-3 bg-white rounded-lg border border-slate-100 text-xs shadow-sm">
+                            <span class="text-slate-600"><b class="text-slate-800">${item.description}</b> (x${item.quantity})</span>
+                            <span class="font-bold text-blue-600">UGX ${(item.subtotal || 0).toLocaleString()}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `<p class="text-xs text-slate-400 italic">No items listed</p>`;
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Error loading parcel data. The ID might be incorrect.");
+            }
+        }
+
+        // 3. SUBMIT CHANGES (Recording Station & Time)
+        document.getElementById('updateParcelForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            // These will now always have values (Real or Guest)
-            last_station: currentUser.station,
-            recorded_by: currentUser.full_name,
-            last_updated_at: new Date()
+            // Prepare Data for Backend
+            const updatedData = {
+                receiver_name: document.getElementById('receiverName').value,
+                receiver_phone: document.getElementById('receiverPhone').value,
+                "financials.amount_paid": Number(document.getElementById('amountPaid').value),
+                status: document.getElementById('status').value,
+                
+                // These fields fix your "Not Showing" problem:
+                last_station: currentUser.station,
+                recorded_by: currentUser.full_name,
+                last_updated_at: new Date()
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/parcels/${parcelId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (response.ok) {
+                    alert("✅ Parcel Updated Successfully!");
+                    window.location.href = "dashboard.html";
+                } else {
+                    const error = await response.json();
+                    alert("Update Failed: " + error.error);
+                }
+            } catch (err) {
+                alert("Network error. Please try again.");
+            }
+        });
+
+        // Initialize
+        window.onload = () => {
+            checkAuth();
+            loadParcelData();
         };
-
-        try {
-            const response = await fetch(`${API_URL}/api/parcels/${parcelId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedData)
-            });
-
-            if (response.ok) {
-                alert("✅ Parcel Updated Successfully!");
-                window.location.href = "dashboard.html"; 
-            } else {
-                const error = await response.json();
-                alert("Update failed: " + (error.error || "Unknown error"));
-            }
-        } catch (err) { 
-            alert("Network Error: Could not connect to server"); 
-        }
-    });
-
-    window.onload = () => {
-        checkAuth();
-        loadParcelData();
-    };
-</script>
-    
+    </script>
 </body>
 </html>
