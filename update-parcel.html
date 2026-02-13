@@ -80,6 +80,57 @@
         }
 
         window.onload = loadParcelData;
+        // Inside update.html script section
+document.getElementById('updateParcelForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // 1. Gather the data from the form fields
+    const updatedData = {
+        sender_name: document.getElementById('senderName').value,
+        sender_phone: document.getElementById('senderPhone').value,
+        origin: document.getElementById('origin').value,
+        receiver_name: document.getElementById('receiverName').value,
+        receiver_phone: document.getElementById('receiverPhone').value,
+        destination: document.getElementById('destination').value,
+        
+        // Multi-item list
+        items: currentConsignment, 
+        
+        // Financials
+        total_amount: Number(document.getElementById('totalAmount').value),
+        amount_paid: Number(document.getElementById('amountPaid').value),
+        balance: Number(document.getElementById('balance').value),
+        payment_status: document.getElementById('paymentStatus').value,
+        payment_method: document.getElementById('paymentType').value,
+        
+        // The Status from the courier's selection
+        status: document.getElementById('status').value
+    };
+
+    try {
+        // 2. Send the PUT request
+        const response = await fetch(`${API_URL}/api/parcels/${parcelId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("✅ Parcel Updated Successfully!");
+            // Optional: Redirect back to a dashboard or refresh
+            // window.location.href = "dashboard.html"; 
+        } else {
+            alert("❌ Error: " + result.error);
+        }
+    } catch (err) {
+        console.error("Submission Error:", err);
+        alert("Failed to connect to the server.");
+    }
+});
     </script>
 </body>
 </html>
