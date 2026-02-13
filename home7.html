@@ -1090,6 +1090,7 @@
 
 </div>
     <script>
+        
 let currentFilteredData = [];
         
         function showModal(id) {
@@ -1226,6 +1227,12 @@ let state = {
         ` : `
             <button onclick="handleReactivate('${u._id}')" class="w-full px-4 py-2 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2">
                 <i class="fa-solid fa-user-check w-4"></i> Reactivate User
+            </button>
+            <button onclick="editUser('${u._id}')" class="w-full px-4 py-2 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2">
+                <i class="fa-solid fa-user-check w-4"></i> Edit User
+            </button>
+            <button onclick="transferUser('${u._id}')" class="w-full px-4 py-2 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2">
+                <i class="fa-solid fa-user-check w-4"></i> Transfer User
             </button>
         `}
     </div>
@@ -3651,6 +3658,98 @@ window.onload = () => {
         console.error("customerSearch not found");
     }
 };
+        // Function to Open Edit Modal and Fill Data
+async function editUser(userId) {
+    // 1. Change modal appearance
+    document.getElementById('modalTitle').innerText = "Edit Staff Member";
+    document.getElementById('userModal').classList.remove('hidden');
+    
+    // 2. Find user in your existing state array
+    const user = state.users.find(u => u._id === userId);
+    if (!user) return;
+
+    // 3. Populate form
+    document.getElementById('modalCustomerId').value = user._id; // Hidden field
+    document.getElementById('modalFullName').value = user.full_name;
+    document.getElementById('modalPhone').value = user.email; // Mapping email to phone field based on your HTML
+    document.getElementById('modalStation').value = user.station;
+    
+    // Adjust submit button text
+    document.querySelector('#quickUserForm button[type="submit"]').innerText = "Update User";
+}
+
+// Handle Form Submission
+document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('modalCustomerId').value;
+    
+    const updatedData = {
+        full_name: document.getElementById('modalFullName').value,
+        email: document.getElementById('modalPhone').value,
+        station: document.getElementById('modalStation').value
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/api/users/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedData)
+        });
+
+        if (res.ok) {
+            alert("User updated successfully!");
+            closeModal();
+            loadUsers(); // Refresh your table
+        }
+    } catch (err) {
+        console.error("Update failed", err);
+    }
+});
+        function transferUser(userId) {
+    // Select the existing menu div
+    const menu = document.getElementById(`user-menu-${userId}`);
+    
+    // Create or toggle the transfer submenu
+    const stations = ['Kampala', 'Mbale', 'Gulu', 'Mbarara'];
+    
+    const submenuHTML = `
+        <div id="transfer-submenu" class="mt-2 p-2 bg-blue-50 border-t border-blue-100">
+            <p class="text-[10px] font-bold text-blue-600 mb-1 uppercase">Select Station</p>
+            ${stations.map(loc => `
+                <button onclick="confirmTransfer('${userId}', '${loc}')" class="w-full text-left px-2 py-1 text-xs hover:bg-blue-600 hover:text-white rounded transition">
+                    to ${loc}
+                </button>
+            `).join('')}
+        </div>
+    `;
+
+    // Check if it already exists to toggle
+    const existingSub = document.getElementById('transfer-submenu');
+    if (existingSub) {
+        existingSub.remove();
+    } else {
+        menu.insertAdjacentHTML('beforeend', submenuHTML);
+    }
+}
+
+async function confirmTransfer(userId, newStation) {
+    if(!confirm(`Transfer user to ${newStation}?`)) return;
+
+    try {
+        const res = await fetch(`${API_URL}/api/users/${userId}/transfer`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ station: newStation })
+        });
+
+        if (res.ok) {
+            alert("User Transferred!");
+            loadUsers(); // Refresh table
+        }
+    } catch (err) {
+        alert("Transfer failed");
+    }
+}
 </script>
 
 
