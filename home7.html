@@ -1225,16 +1225,16 @@ function showSection(sectionId, clickedLink) {
     <div id="user-menu-${u._id}" class="hidden absolute right-4 mt-2 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-[100] py-1 text-left">
     
     ${u.isActive !== false ? `
-        <button onclick="handleDeactivate('${u._id}')" class="w-full px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+        <button onclick="handleDeactivate(event, '${u._id}')" class="w-full px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
             <i class="fa-solid fa-user-slash w-4"></i> Deactivate User
         </button>
     ` : `
-        <button onclick="handleReactivate('${u._id}')" class="w-full px-4 py-2 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2">
+        <button onclick="handleReactivate(event, '${u._id}')" class="w-full px-4 py-2 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2">
             <i class="fa-solid fa-user-check w-4"></i> Reactivate User
         </button>
     `}
 
-    <button onclick="editUser('${u._id}')" class="w-full px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+    <button onclick="editUser(event, '${u._id}')" class="w-full px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 flex items-center gap-2">
         <i class="fa-solid fa-user-pen w-4"></i> Edit User
     </button>
     
@@ -3285,6 +3285,8 @@ window.toggleUserMenu = function(event, id) {
 };
 // 2. Deactivate Function
 window.handleDeactivate = async function(id) {
+    if(event) event.stopPropagation();
+    document.querySelectorAll('[id^="user-menu-"]').forEach(m => m.classList.add('hidden'));
     if (!confirm("Are you sure you want to deactivate this user? They will no longer be able to log in.")) return;
     
     try {
@@ -3298,6 +3300,9 @@ window.handleDeactivate = async function(id) {
 
 // 3. Reactivate Function
 window.handleReactivate = async function(id) {
+    if(event) event.stopPropagation();
+    document.querySelectorAll('[id^="user-menu-"]').forEach(m => m.classList.add('hidden'));
+    
     try {
         const response = await fetch(`${API_URL}/users/${id}/reactivate`, { method: 'PATCH' });
         if (response.ok) {
@@ -3675,6 +3680,13 @@ window.onload = () => {
 };
         // Function to Open Edit Modal and Fill Data
 async function editUser(userId) {
+    if(event) event.stopPropagation();
+    / Force hide all action menus
+    document.querySelectorAll('[id^="user-menu-"]').forEach(m => m.classList.add('hidden'));
+
+    const user = state.users.find(u => u._id === userId);
+    if (!user) return;
+    
   if (!state.users || state.users.length === 0) {
         console.error("User state is empty. Reloading users...");
         await loadUsers(); 
