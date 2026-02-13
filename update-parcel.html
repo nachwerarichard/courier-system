@@ -7,25 +7,92 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-slate-100 p-2 md:p-8">
-    <div id="update-container" class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl">
-        <div class="p-6 border-b bg-blue-600 text-white rounded-t-2xl">
-             <h3 class="text-xl font-bold uppercase">Parcel Management</h3>
-             <p id="tracking-display" class="text-sm opacity-80">Loading tracking info...</p>
+    <div id="update-container" class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <div class="p-6 border-b bg-blue-600 text-white flex justify-between items-center">
+            <div>
+                <h3 class="text-xl font-bold uppercase">Update Parcel Details</h3>
+                <p id="tracking-display" class="text-sm opacity-80">Loading tracking info...</p>
+            </div>
+            <i class="fa-solid fa-truck-fast text-3xl opacity-50"></i>
         </div>
 
         <form id="updateParcelForm" class="p-6">
-            <div class="flex flex-col md:flex-row justify-end gap-4 mt-8 pt-6 border-t">
-                 <select id="status" class="px-4 py-3 border-2 border-blue-500 rounded-xl font-bold text-blue-600 outline-none">
-                    <option value="At Dispatch">At Dispatch</option>
-                    <option value="In Transit">In Transit</option>
-                    <option value="Ready for Pickup">Ready for Pickup</option>
-                    <option value="Delivered">Delivered</option>
-                    <option value="Partially received">Partially Received</option>
-                 </select>
-                 
-                 <button type="submit" class="bg-green-600 text-white px-10 py-3 rounded-xl font-bold shadow-lg">
-                    Save Updates
-                 </button>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-1 space-y-6 border-r border-slate-100 pr-6">
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-circle-user"></i> Sender Details
+                        </label>
+                        <input type="text" id="senderName" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                        <input type="text" id="senderPhone" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                        <input type="text" id="origin" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                    </div>
+
+                    <div class="space-y-3 pt-4 border-t border-slate-50">
+                        <label class="text-[10px] font-bold text-orange-600 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-truck-ramp-box"></i> Receiver Details
+                        </label>
+                        <input type="text" id="receiverName" class="w-full border border-slate-200 p-3 rounded-lg text-sm">
+                        <input type="text" id="receiverPhone" class="w-full border border-slate-200 p-3 rounded-lg text-sm">
+                        <input type="text" id="destination" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="border border-slate-100 rounded-xl overflow-hidden bg-white">
+                        <div class="bg-slate-50 px-4 py-2 text-[10px] font-bold text-slate-500 uppercase">
+                            Items in this Shipment
+                        </div>
+                        <div id="parcelListContainer" class="p-4 space-y-2 min-h-[100px]">
+                            </div>
+                    </div>
+
+                    <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner">
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Payment Method</label>
+                                <input type="text" id="paymentType" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs" readonly>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Payment Status</label>
+                                <input type="text" id="paymentStatus" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-yellow-400" readonly>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Total (UGX)</label>
+                                <input type="number" id="totalAmount" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-blue-400" readonly>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Paid</label>
+                                <input type="number" id="amountPaid" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-green-400">
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Balance</label>
+                                <input type="number" id="balance" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-red-400" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-end gap-4 mt-8 pt-6 border-t border-slate-100">
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1">Update Delivery Status</label>
+                    <select id="status" class="px-4 py-3 border-2 border-blue-500 rounded-xl font-bold text-blue-600 outline-none">
+                        <option value="At Dispatch">At Dispatch</option>
+                        <option value="In Transit">In Transit</option>
+                        <option value="Partially received">Partially Received</option>
+                        <option value="Ready for Pickup">Ready for Pickup</option>
+                        <option value="Delivered">Delivered</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-12 py-3 rounded-xl font-bold shadow-lg shadow-green-200 transition-all self-end">
+                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Confirm Changes
+                </button>
             </div>
         </form>
     </div>
@@ -34,39 +101,26 @@
         const API_URL = "https://patrinahhotelmgtsys.onrender.com";
         const urlParams = new URLSearchParams(window.location.search);
         const parcelId = urlParams.get('id');
+        let currentConsignment = [];
 
-        // 1. Fetch Data on Load
         async function loadParcelData() {
-            if (!parcelId) return alert("No Parcel ID provided");
-
+            if (!parcelId) return alert("No Parcel ID provided in URL");
             try {
                 const response = await fetch(`${API_URL}/api/parcels/${parcelId}`);
                 const parcel = await response.json();
-
-                if (response.ok) {
-                    fillForm(parcel);
-                } else {
-                    alert("Parcel not found");
-                }
-            } catch (err) {
-                console.error("Error:", err);
-            }
+                if (response.ok) { fillForm(parcel); } 
+                else { alert("Parcel not found"); }
+            } catch (err) { console.error("Error:", err); }
         }
 
-        // 2. Fill every field from your Schema
         function fillForm(parcel) {
             document.getElementById('tracking-display').innerText = "Waybill: " + parcel.tracking_number;
-            
-            // Basic Details
             document.getElementById('senderName').value = parcel.sender_name || '';
             document.getElementById('senderPhone').value = parcel.sender_phone || '';
             document.getElementById('origin').value = parcel.origin || '';
-            
             document.getElementById('receiverName').value = parcel.receiver_name || '';
             document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
             document.getElementById('destination').value = parcel.destination || '';
-
-            // Financials
             document.getElementById('totalAmount').value = parcel.total_amount || 0;
             document.getElementById('amountPaid').value = parcel.amount_paid || 0;
             document.getElementById('balance').value = parcel.balance || 0;
@@ -74,63 +128,48 @@
             document.getElementById('paymentType').value = parcel.payment_method || 'Cash';
             document.getElementById('status').value = parcel.status || 'At Dispatch';
 
-            // Items (If you have a global array for the list)
             currentConsignment = parcel.items || [];
-            renderParcelList(); // Re-use your existing rendering function
+            renderParcelList();
+        }
+
+        function renderParcelList() {
+            const container = document.getElementById('parcelListContainer');
+            if (currentConsignment.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 text-xs py-4 italic">No items found.</p>`;
+                return;
+            }
+            container.innerHTML = currentConsignment.map(item => `
+                <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="text-sm">
+                        <p class="font-bold text-slate-700">${item.description}</p>
+                        <p class="text-[10px] text-slate-500">Qty: ${item.quantity} | Wt: ${item.weight}kg</p>
+                    </div>
+                    <span class="font-bold text-blue-600 text-sm">UGX ${item.subtotal.toLocaleString()}</span>
+                </div>
+            `).join('');
         }
 
         window.onload = loadParcelData;
-        // Inside update.html script section
-document.getElementById('updateParcelForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
 
-    // 1. Gather the data from the form fields
-    const updatedData = {
-        sender_name: document.getElementById('senderName').value,
-        sender_phone: document.getElementById('senderPhone').value,
-        origin: document.getElementById('origin').value,
-        receiver_name: document.getElementById('receiverName').value,
-        receiver_phone: document.getElementById('receiverPhone').value,
-        destination: document.getElementById('destination').value,
-        
-        // Multi-item list
-        items: currentConsignment, 
-        
-        // Financials
-        total_amount: Number(document.getElementById('totalAmount').value),
-        amount_paid: Number(document.getElementById('amountPaid').value),
-        balance: Number(document.getElementById('balance').value),
-        payment_status: document.getElementById('paymentStatus').value,
-        payment_method: document.getElementById('paymentType').value,
-        
-        // The Status from the courier's selection
-        status: document.getElementById('status').value
-    };
+        document.getElementById('updateParcelForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const updatedData = {
+                receiver_name: document.getElementById('receiverName').value,
+                receiver_phone: document.getElementById('receiverPhone').value,
+                amount_paid: Number(document.getElementById('amountPaid').value),
+                status: document.getElementById('status').value
+            };
 
-    try {
-        // 2. Send the PUT request
-        const response = await fetch(`${API_URL}/api/parcels/${parcelId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedData)
+            try {
+                const response = await fetch(`${API_URL}/api/parcels/${parcelId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+                if (response.ok) { alert("✅ Parcel Updated Successfully!"); } 
+                else { alert("❌ Update Failed"); }
+            } catch (err) { alert("Server Error"); }
         });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            alert("✅ Parcel Updated Successfully!");
-            // Optional: Redirect back to a dashboard or refresh
-            // window.location.href = "dashboard.html"; 
-        } else {
-            alert("❌ Error: " + result.error);
-        }
-    } catch (err) {
-        console.error("Submission Error:", err);
-        alert("Failed to connect to the server.");
-    }
-});
     </script>
 </body>
 </html>
