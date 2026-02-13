@@ -140,7 +140,7 @@
                     document.getElementById('main-content').classList.remove('hidden');
                     
                     // UI Displays
-                    document.getElementById('user-display').innerHTML = `<i class="fa-solid fa-user-check mr-2"></i> User: ${data.name}`;
+                    document.getElementById('user-display').innerHTML = `<i class="fa-solid fa-user-check mr-2"></i> User: ${data.full_name}`;
                     document.getElementById('station-display').innerHTML = `<i class="fa-solid fa-location-dot mr-2"></i> Station: ${data.station || 'Not Assigned'}`;
                     
                     loadParcelData();
