@@ -3743,19 +3743,18 @@ function transferUser(event, userId) {
         return; // Exit after removing
     }
 
-    const stations = ['Kampala', 'Mbale', 'Gulu', 'Mbarara'];
-    const submenuHTML = `
-        <div id="transfer-submenu" class="mt-2 p-2 bg-blue-50 border-t border-blue-100" onclick="event.stopPropagation()">
-            <p class="text-[10px] font-bold text-blue-600 mb-1 uppercase">Select Station</p>
-            ${stations.map(loc => `
-${stations.map(loc => `
-    <button onclick="confirmTransfer(event, '${userId}', '${loc}')" class="w-full text-left px-2 py-1 text-xs hover:bg-blue-600 hover:text-white rounded transition">
-        to ${loc}
-    </button>
-`).join('')}
-            `).join('')}
-        </div>
-    `;
+   // ... inside transferUser function
+const stations = ['Kampala', 'Mbale', 'Gulu', 'Mbarara'];
+const submenuHTML = `
+    <div id="transfer-submenu" class="mt-2 p-2 bg-blue-50 border-t border-blue-100" onclick="event.stopPropagation()">
+        <p class="text-[10px] font-bold text-blue-600 mb-1 uppercase">Select Station</p>
+        ${stations.map(loc => `
+            <button onclick="confirmTransfer(event, '${userId}', '${loc}')" class="w-full text-left px-2 py-1 text-xs hover:bg-blue-600 hover:text-white rounded transition">
+                to ${loc}
+            </button>
+        `).join('')}
+    </div>
+`;
 
     menu.insertAdjacentHTML('beforeend', submenuHTML);
 }
