@@ -3053,7 +3053,7 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
     const parcel = allParcels.find(p => p._id === parcelId);
     if (!parcel) {
-        alert("Parcel not found for receipt.");
+        alert("Parcel not found.");
         return;
     }
 
@@ -3078,8 +3078,8 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
             .summary { margin-top: 10px; background: #f8fafc; padding: 10px; border-radius: 4px; }
             .summary div { display: flex; justify-content: space-between; padding: 3px 0; }
             .footer-grid { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; }
-            .qr-container { text-align: center; }
-            #qrcode { margin-bottom: 5px; }
+            .qr-container { text-align: center; min-height: 120px; }
+            #qrcode { margin-bottom: 5px; display: flex; justify-content: center; }
             .qr-label { font-size: 10px; color: #64748b; }
             .status { padding: 8px 15px; background: #0f172a; color: #fff; border-radius: 6px; text-align: center; font-weight: bold; font-size: 14px; }
         </style>
@@ -3101,19 +3101,6 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
             <div class="section" style="flex: 1;">
                 <h4>Route</h4>
                 <p>${parcel.origin} → ${parcel.destination}</p>
-            </div>
-        </div>
-
-        <div style="display: flex; gap: 40px;">
-            <div class="section">
-                <h4>Sender</h4>
-                <p>${parcel.sender_name}</p>
-                <p>${parcel.sender_phone || 'No Phone'}</p>
-            </div>
-            <div class="section">
-                <h4>Receiver</h4>
-                <p>${parcel.receiver_name}</p>
-                <p>${parcel.receiver_phone || 'No Phone'}</p>
             </div>
         </div>
 
@@ -3145,23 +3132,28 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
         </div>
 
         <script>
-    
-            // Generate the QR Code
-            new QRCode(document.getElementById("qrcode"), {
-                text: "${updateUrl}",
-                width: 100,
-                height: 100,
-                colorDark : "#0f172a",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
+            function generateQR() {
+                if (typeof QRCode !== "undefined") {
+                    new QRCode(document.getElementById("qrcode"), {
+                        text: "${updateUrl}",
+                        width: 100,
+                        height: 100,
+                        colorDark : "#0f172a",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                    
+                    // Trigger print only after QR is generated
+                    setTimeout(() => {
+                        window.print();
+                    }, 500);
+                } else {
+                    // If library not ready, wait a bit longer
+                    setTimeout(generateQR, 100);
+                }
+            }
 
-            window.onload = () => {
-                setTimeout(() => {
-                    window.focus();
-                    window.print();
-                }, 500);
-            };
+            window.onload = generateQR;
         <\/script>
     </body>
     </html>
@@ -3169,7 +3161,7 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
 
     const printWindow = window.open('', '_blank', 'width=800,height=800');
     if (!printWindow) {
-        alert("Popup blocked! Please allow popups to print receipt.");
+        alert("Popup blocked!");
         return;
     }
 
