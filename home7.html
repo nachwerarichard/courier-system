@@ -3778,6 +3778,9 @@ async function confirmTransfer(event, userId, newStation) {
 
     // Get your token (change 'token' to whatever key you use)
     const token = localStorage.getItem('token'); 
+                const closeAllMenus = () => {
+        document.querySelectorAll('[id^="user-menu-"]').forEach(m => m.classList.add('hidden'));
+    };
 
     try {
         const res = await fetch(`${API_URL}/api/users/${userId}/transfer`, {
@@ -3791,16 +3794,19 @@ async function confirmTransfer(event, userId, newStation) {
 
         if (res.ok) {
             alert("Transfer Successful!");
+            closeAllMenus();
         } else if (res.status === 401 || res.status === 403) {
             alert("Session expired. Please log in again.");
             window.location.href = 'login.html';
         } else {
             const errorData = await res.json();
             alert(`Error: ${errorData.error}`);
+            closeAllMenus();
         }
     } catch (err) {
         console.error(err);
         alert("Network error during transfer");
+        closeAllMenus();
     }
 }
         
