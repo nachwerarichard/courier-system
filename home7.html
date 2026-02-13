@@ -1238,10 +1238,9 @@ function showSection(sectionId, clickedLink) {
         <i class="fa-solid fa-user-pen w-4"></i> Edit User
     </button>
     
-    <button onclick="transferUser('${u._id}')" class="w-full px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 flex items-center gap-2">
-        <i class="fa-solid fa-right-left w-4"></i> Transfer User
-    </button>
-
+    <button onclick="transferUser(event, '${u._id}')" class="w-full px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+    <i class="fa-solid fa-right-left w-4"></i> Transfer User
+</button>
 </div>
 </td>
                     </tr>
@@ -3728,8 +3727,12 @@ document.getElementById('quickUserForm').addEventListener('submit', async (e) =>
     }
 });
 function transferUser(event, userId) {
-    // IMPORTANT: Prevents the toggleUserMenu logic from firing again
-    event.stopPropagation(); 
+    if (typeof event === 'string') {
+        userId = event;
+        event = window.event; // Use the global event object as fallback
+    }
+
+    if (event && event.stopPropagation) event.stopPropagation();
 
     const menu = document.getElementById(`user-menu-${userId}`);
     
@@ -3745,9 +3748,11 @@ function transferUser(event, userId) {
         <div id="transfer-submenu" class="mt-2 p-2 bg-blue-50 border-t border-blue-100" onclick="event.stopPropagation()">
             <p class="text-[10px] font-bold text-blue-600 mb-1 uppercase">Select Station</p>
             ${stations.map(loc => `
-                <button onclick="confirmTransfer(event, '${userId}', '${loc}')" class="w-full text-left px-2 py-1 text-xs hover:bg-blue-600 hover:text-white rounded transition">
-                    to ${loc}
-                </button>
+${stations.map(loc => `
+    <button onclick="confirmTransfer(event, '${userId}', '${loc}')" class="w-full text-left px-2 py-1 text-xs hover:bg-blue-600 hover:text-white rounded transition">
+        to ${loc}
+    </button>
+`).join('')}
             `).join('')}
         </div>
     `;
