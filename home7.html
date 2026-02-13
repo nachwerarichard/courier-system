@@ -1778,10 +1778,22 @@ function generateRows(parcels, tableType) {
             </td>
 
             <td class="p-4">
-                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-100 inline-block shadow-sm ${getStatusStyle(p.status)}">
-                    ${p.status}
-                </span>
-            </td>
+    <div class="flex flex-col gap-1">
+        <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-100 inline-block shadow-sm ${p.status ? getStatusStyle(p.status) : 'bg-gray-100'}">
+            ${p.status || 'No Status'}
+        </span>
+
+        <div class="text-[10px] text-slate-500 whitespace-nowrap">
+            <i class="fa-regular fa-clock text-blue-400 mr-1"></i>
+            <span>Update: ${p.last_updated_at ? new Date(p.last_updated_at).toLocaleString([], {hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short'}) : 'No Record'}</span>
+        </div>
+        
+        <div class="text-[10px] text-slate-500 font-medium italic">
+            <i class="fa-solid fa-location-dot text-red-400 mr-1"></i>
+            <span>At: ${p.last_station || 'Origin: ' + (p.origin || 'N/A')}</span>
+        </div>
+    </div>
+</td>
 
             <td class="p-4 text-right">
                 <div class="relative inline-block text-left">
