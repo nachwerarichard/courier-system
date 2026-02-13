@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Parcel - Courier System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 min-h-screen p-4 md:p-8">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-5xl mx-auto flex flex-col">
+        
+        <div class="p-6 border-b flex justify-between items-center bg-white rounded-t-2xl">
+            <div>
+                <h3 id="page-title" class="text-lg font-bold text-blue-600 uppercase">Update Parcel Details</h3>
+                <p id="tracking-display" class="text-xs text-slate-500">Loading tracking info...</p>
+            </div>
+            <a href="dashboard.html" class="text-slate-400 hover:text-slate-600 text-sm font-bold">&larr; Back to Dashboard</a>
+        </div>
+
+        <form id="createParcelForm" class="p-6">
+            <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-100">
+                <div class="mr-auto flex gap-2">
+                     <select id="parcelStatus" class="border p-2 rounded-lg text-sm font-bold uppercase bg-blue-50">
+                        <option value="At Dispatch">At Dispatch</option>
+                        <option value="In Transit">In Transit</option>
+                        <option value="Ready for Pickup">Ready for Pickup</option>
+                        <option value="Delivered">Delivered</option>
+                     </select>
+                </div>
+                
+                <button type="button" onclick="window.history.back()" class="px-8 py-3 text-sm font-bold text-gray-500">Cancel</button>
+                <button type="submit" class="bg-blue-600 text-white px-10 py-3 rounded-lg font-bold">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // --- LOGIC TO CONNECT THE PAGE ---
+
+        // 1. Get ID from URL (?id=xxxx)
+        const urlParams = new URLSearchParams(window.location.search);
+        const parcelId = urlParams.get('id');
+
+        // 2. Load Data on startup
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!parcelId) {
+                alert("No Parcel ID provided!");
+                return;
+            }
+            loadParcelData(parcelId);
+        });
+
+        function loadParcelData(id) {
+            // If using a real API: fetch(`/api/parcels/${id}`)
+            // If using LocalStorage (simulated):
+            const allParcels = JSON.parse(localStorage.getItem('parcels') || '[]');
+            const parcel = allParcels.find(p => p._id === id);
+
+            if (parcel) {
+                fillForm(parcel);
+            } else {
+                document.body.innerHTML = "<h1>Parcel not found</h1>";
+            }
+        }
+
+        function fillForm(parcel) {
+            document.getElementById('senderName').value = parcel.sender_name;
+            document.getElementById('senderPhone').value = parcel.sender_phone;
+            document.getElementById('tracking-display').innerText = "Waybill: " + parcel.tracking_number;
+            document.getElementById('parcelStatus').value = parcel.status;
+            // ... fill the rest of the IDs exactly like your editParcel function
+        }
+
+        // 3. Handle Update
+        document.getElementById('createParcelForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Collect form data and send PUT/POST request to your backend
+            console.log("Saving changes for:", parcelId);
+            alert("Parcel Updated Successfully!");
+        });
+    </script>
+</body>
+</html>
