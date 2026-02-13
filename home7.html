@@ -1569,30 +1569,22 @@ function printReport() {
                     Bal: UGX ${(p.balance || 0).toLocaleString()}
                 </div>
             </td>
-
-          <td class="p-4">
-    
-
 <td class="p-4">
     <div class="flex flex-col gap-1">
         <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full border border-slate-100 inline-block shadow-sm ${p.status ? getStatusStyle(p.status) : 'bg-gray-100'}">
             ${p.status || 'No Status'}
         </span>
-        
         <div class="text-[10px] text-slate-400">
             <i class="fa-regular fa-clock text-[9px]"></i> 
             Upd: ${p.last_updated_at ? new Date(p.last_updated_at).toLocaleString([], {dateStyle: 'short', timeStyle: 'short'}) : 'No Timestamp'}
         </div>
-        
         <div class="text-[10px] text-slate-500 font-medium italic">
             <i class="fa-solid fa-location-dot text-[9px]"></i>
             At: ${p.last_station ? p.last_station : 'No Station'}
         </div>
     </div>
 </td>
-  
-
-                <td class="p-4 text-right">
+<td class="p-4 text-right">
                     <div class="relative inline-block text-left">
                         <button onclick="toggleActionParcelMenu(event, '${menuId}')" class="p-2 text-slate-400 hover:text-slate-600">
                             <i class="fa-solid fa-ellipsis-vertical"></i>
