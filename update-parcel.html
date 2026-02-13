@@ -7,18 +7,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-slate-100 p-2 md:p-8">
-    <div id="update-container" class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        
-        <div class="p-4 bg-slate-800 text-white flex justify-between items-center text-xs">
-            <div class="flex items-center gap-4">
-                <span><i class="fa-solid fa-user-tie mr-2"></i>Clerk: <b id="clerkName">...</b></span>
-                <span><i class="fa-solid fa-location-dot mr-2"></i>Station: <b id="clerkStation">...</b></span>
+    <div class="max-w-5xl mx-auto mb-4 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-100 p-2 rounded-full"><i class="fa-solid fa-user text-blue-600"></i></div>
+            <div>
+                <p id="userNameDisplay" class="text-sm font-bold text-slate-700">Loading...</p>
+                <p id="userStationDisplay" class="text-[10px] text-slate-500 uppercase tracking-tight"></p>
             </div>
-            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded font-bold transition">
-                <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
-            </button>
         </div>
+        <button onclick="handleLogout()" class="text-xs font-bold text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg transition">
+            <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+        </button>
+    </div>
 
+    <div id="update-container" class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         <div class="p-6 border-b bg-blue-600 text-white flex justify-between items-center">
             <div>
                 <h3 class="text-xl font-bold uppercase">Update Parcel Details</h3>
@@ -35,7 +37,6 @@
                             <i class="fa-solid fa-circle-user"></i> Sender Details
                         </label>
                         <input type="text" id="senderName" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
-                        <input type="text" id="senderPhone" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
                         <input type="text" id="origin" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
                     </div>
 
@@ -43,41 +44,27 @@
                         <label class="text-[10px] font-bold text-orange-600 uppercase tracking-widest flex items-center gap-2">
                             <i class="fa-solid fa-truck-ramp-box"></i> Receiver Details
                         </label>
-                        <input type="text" id="receiverName" class="w-full border border-slate-200 p-3 rounded-lg text-sm" readonly>
-                        <input type="text" id="receiverPhone" class="w-full border border-slate-200 p-3 rounded-lg text-sm" readonly>
-                        <input type="text" id="destination" class="w-full border border-slate-200 p-3 rounded-lg text-sm bg-slate-50" readonly>
+                        <input type="text" id="receiverName" class="w-full border border-slate-200 p-3 rounded-lg text-sm">
+                        <input type="text" id="receiverPhone" class="w-full border border-slate-200 p-3 rounded-lg text-sm">
                     </div>
                 </div>
 
                 <div class="lg:col-span-2 space-y-6">
-                    <div class="border border-slate-100 rounded-xl overflow-hidden bg-white">
-                        <div class="bg-slate-50 px-4 py-2 text-[10px] font-bold text-slate-500 uppercase">Items in Shipment</div>
-                        <div id="parcelListContainer" class="p-4 space-y-2 min-h-[100px]"></div>
-                    </div>
-
+                    <div id="parcelListContainer" class="p-4 bg-slate-50 rounded-xl space-y-2"></div>
+                    
                     <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner">
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                            <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Payment Method</label>
-                                <input type="text" id="paymentType" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs" readonly>
-                            </div>
-                            <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Payment Status</label>
-                                <input type="text" id="paymentStatus" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-yellow-400" readonly>
-                            </div>
-                        </div>
                         <div class="grid grid-cols-3 gap-4">
                             <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Total (UGX)</label>
-                                <input type="number" id="totalAmount" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-blue-400" readonly>
+                                <label class="text-[9px] text-slate-400">Total</label>
+                                <input type="text" id="totalAmount" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs" readonly>
                             </div>
                             <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Paid</label>
-                                <input type="number" id="amountPaid" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-green-400" readonly>
+                                <label class="text-[9px] text-slate-400">Paid</label>
+                                <input type="number" id="amountPaid" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs">
                             </div>
                             <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Balance</label>
-                                <input type="number" id="balance" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs font-bold text-red-400" readonly>
+                                <label class="text-[9px] text-slate-400">Balance</label>
+                                <input type="text" id="balance" class="bg-slate-800 w-full p-2.5 rounded-lg text-xs" readonly>
                             </div>
                         </div>
                     </div>
@@ -107,69 +94,65 @@
         const API_URL = "https://patrinahhotelmgtsys.onrender.com";
         const urlParams = new URLSearchParams(window.location.search);
         const parcelId = urlParams.get('id');
+        let currentUser = null;
 
-        // 1. AUTH & SESSION PERSISTENCE
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user) {
-            window.location.href = 'login.html';
-        } else {
-            document.getElementById('clerkName').innerText = user.full_name || user.email;
-            document.getElementById('clerkStation').innerText = user.station || 'Unknown';
-        }
-
-        function logout() {
-            if(confirm("Are you sure you want to logout?")) {
-                localStorage.removeItem('user');
-                window.location.href = 'login.html';
+        // AUTH GUARD: Check if user is logged in
+        function checkAuth() {
+            const session = localStorage.getItem('courier_user');
+            if (!session) {
+                window.location.href = "login.html"; // Redirect to your login page
+                return;
             }
+            currentUser = JSON.parse(session);
+            document.getElementById('userNameDisplay').innerText = currentUser.full_name;
+            document.getElementById('userStationDisplay').innerText = "Station: " + currentUser.station;
         }
 
-        // 2. LOAD DATA
+        function handleLogout() {
+            localStorage.removeItem('courier_user');
+            window.location.href = "login.html";
+        }
+
         async function loadParcelData() {
-            if (!parcelId) return alert("No Parcel ID provided");
+            if (!parcelId) return;
             try {
                 const response = await fetch(`${API_URL}/api/parcels/${parcelId}`);
                 const parcel = await response.json();
-                if (response.ok) fillForm(parcel);
+                if (response.ok) {
+                    document.getElementById('tracking-display').innerText = "Waybill: " + parcel.tracking_number;
+                    document.getElementById('senderName').value = parcel.sender_name || '';
+                    document.getElementById('origin').value = parcel.origin || '';
+                    document.getElementById('receiverName').value = parcel.receiver_name || '';
+                    document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
+                    document.getElementById('totalAmount').value = parcel.financials.total_amount;
+                    document.getElementById('amountPaid').value = parcel.financials.amount_paid;
+                    document.getElementById('balance').value = parcel.financials.balance;
+                    document.getElementById('status').value = parcel.status;
+                    
+                    // Render items
+                    const container = document.getElementById('parcelListContainer');
+                    container.innerHTML = (parcel.items || []).map(item => `
+                        <div class="flex justify-between p-2 bg-white rounded border border-slate-100 text-xs">
+                            <span>${item.description} (x${item.quantity})</span>
+                            <span class="font-bold">UGX ${item.subtotal.toLocaleString()}</span>
+                        </div>
+                    `).join('');
+                }
             } catch (err) { console.error(err); }
         }
 
-        function fillForm(parcel) {
-            document.getElementById('tracking-display').innerText = "Waybill: " + parcel.tracking_number;
-            document.getElementById('senderName').value = parcel.sender_name || '';
-            document.getElementById('senderPhone').value = parcel.sender_phone || '';
-            document.getElementById('origin').value = parcel.origin || '';
-            document.getElementById('receiverName').value = parcel.receiver_name || '';
-            document.getElementById('receiverPhone').value = parcel.receiver_phone || '';
-            document.getElementById('destination').value = parcel.destination || '';
-            document.getElementById('totalAmount').value = parcel.total_amount || 0;
-            document.getElementById('amountPaid').value = parcel.amount_paid || 0;
-            document.getElementById('balance').value = parcel.balance || 0;
-            document.getElementById('paymentStatus').value = parcel.payment_status || 'Unpaid';
-            document.getElementById('paymentType').value = parcel.payment_method || 'Cash';
-            document.getElementById('status').value = parcel.status || 'At Dispatch';
-
-            const container = document.getElementById('parcelListContainer');
-            container.innerHTML = (parcel.items || []).map(item => `
-                <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <div class="text-sm">
-                        <p class="font-bold text-slate-700">${item.description}</p>
-                        <p class="text-[10px] text-slate-500">Qty: ${item.quantity}</p>
-                    </div>
-                    <span class="font-bold text-blue-600">UGX ${item.subtotal.toLocaleString()}</span>
-                </div>
-            `).join('');
-        }
-
-        // 3. SUBMIT WITH CLERK STATION & TIMESTAMP
         document.getElementById('updateParcelForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const updatedData = {
+                receiver_name: document.getElementById('receiverName').value,
+                receiver_phone: document.getElementById('receiverPhone').value,
+                "financials.amount_paid": Number(document.getElementById('amountPaid').value),
                 status: document.getElementById('status').value,
-                last_station: user.station,       // Automatically grabbed from session
-                last_updated_at: new Date(),      // Timestamp
-                recorded_by: user.full_name        // Audit trail
+                // AUTH DATA FOR TRACKING
+                last_station: currentUser.station,
+                recorded_by: currentUser.full_name,
+                last_updated_at: new Date()
             };
 
             try {
@@ -178,19 +161,17 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(updatedData)
                 });
-                
                 if (response.ok) {
                     alert("✅ Parcel Updated Successfully!");
-                    window.location.href = 'index.html'; // Go back to table
-                } else {
-                    alert("❌ Update Failed");
+                    window.location.href = "dashboard.html"; // Go back to table
                 }
-            } catch (err) {
-                alert("Server Error");
-            }
+            } catch (err) { alert("Server Error"); }
         });
 
-        window.onload = loadParcelData;
+        window.onload = () => {
+            checkAuth();
+            loadParcelData();
+        };
     </script>
 </body>
 </html>
