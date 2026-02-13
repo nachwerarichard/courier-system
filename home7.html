@@ -7,6 +7,7 @@
     <title>Courier System Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         #login-overlay { transition: opacity 0.3s ease-in-out; }
         .active-link { @apply bg-blue-600 text-white shadow-lg; }
@@ -3144,6 +3145,7 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
         </div>
 
         <script>
+    
             // Generate the QR Code
             new QRCode(document.getElementById("qrcode"), {
                 text: "${updateUrl}",
