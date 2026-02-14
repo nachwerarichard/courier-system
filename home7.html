@@ -102,7 +102,7 @@
                         <a href="#" onclick="showSection('reports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
                             <i class="fa-solid fa-file-invoice-dollar w-5"></i>Parcel Reports
                         </a>
-                        <a href="#" onclick="showSection('reports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
+                        <a href="#" onclick="showSection('bookingReports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
                             <i class="fa-solid fa-box-archive w-5 text-blue-400 w-5"></i>Bookings Reports
                         </a>
                         <a href="#" onclick="showSection('users-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
@@ -868,6 +868,125 @@
 
 </section>
 
+<section id="bookingReports-section" class="hidden p-6">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-800">Reports</h2>
+        <p class="text-slate-500 text-sm">View operational and financial reports.</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        <input type="date" id="reportFrom"
+               class="border p-3 rounded-lg"
+               placeholder="From Date">
+
+        <input type="date" id="reportTo"
+               class="border p-3 rounded-lg"
+               placeholder="To Date">
+
+        <select id="reportStation" class="border p-3 rounded-lg">
+            <option value="">All Stations</option>
+            <option value="Mbale - Bishop Wasikye Rd">Mbale - Bishop Wasikye Rd</option>
+            <option value="Mbale - DTB">Mbale - DTB</option>
+            <option value="Kampala - Taxi Park">Kampala - Taxi Park</option>
+            <option value="Kampala - Aponye">Kampala - Aponye</option>
+        </select>
+
+        <select id="reportStatus" class="border p-3 rounded-lg">
+            <option value="">All Status</option>
+            <option value="At Dispatch">At Dispatch</option>
+            <option value="In Transit">In Transit</option>
+            <option value="Ready for Pickup">Ready for Pickup</option>
+            <option value="Partially received">Partially Received</option>
+            <option value="Delivered">Delivered</option>
+        </select>
+         <select id="reportPaymentStatus" class="border p-3 rounded-lg">
+  <option value="">Payment Status</option>
+  <option value="Paid">Paid</option>
+  <option value="Partial">Partial</option>
+  <option value="Unpaid">Unpaid</option>
+</select>
+
+<select id="reportPaymentType" class="border p-3 rounded-lg">
+  <option value="">Payment Method</option>
+  <option value="Cash">Cash</option>
+  <option value="MTN Momo">MTN Momo</option>
+  <option value="Airtel Pay">Airtel Pay</option>
+  <option value="Bank">Bank</option>
+</select>
+
+
+
+
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Total Parcels</p>
+            <h3 id="report-total-parcels" class="text-2xl font-bold text-slate-800">0</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Total Revenue</p>
+            <h3 id="report-total-revenue" class="text-2xl font-bold text-slate-800">UGX 0</h3>
+        </div>
+         <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Total Balance</p>
+            <h3 id="report-total-balance" class="text-2xl font-bold text-slate-800">UGX 0</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Delivered</p>
+            <h3 id="report-delivered" class="text-2xl font-bold text-slate-800">0</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border">
+            <p class="text-slate-500 text-xs uppercase font-bold">Pending</p>
+            <h3 id="report-pending" class="text-2xl font-bold text-slate-800">0</h3>
+        </div>
+
+    </div>
+
+    <!-- Report Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="font-bold text-slate-700">Parcel & Payment Report</h3>
+            <button onclick="exportReportToCSV()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition-transform active:scale-95">
+    <i class="fa-solid fa-file-export"></i> Export to CSV
+</button>
+        </div>
+
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Tracking #</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Sender</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Receiver</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Route</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Status</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Total</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Paid</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Balance</th>
+                      <th class="p-4 text-xs uppercase font-bold text-slate-500">Pay Staus</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Pay Method</th>
+                    <th class="p-4 text-xs uppercase font-bold text-slate-500">Date</th>
+                </tr>
+            </thead>
+
+            <tbody id="reports-table-body" class="divide-y divide-slate-100">
+                <!-- Report rows will be inserted here -->
+            </tbody>
+        </table>
+
+    </div>
+
+</section>
 
 
 <div id="parcel-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
