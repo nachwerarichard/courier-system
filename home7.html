@@ -2249,11 +2249,13 @@ window.closeDetailsModal = function() {
 let editingId = null;
 
         window.editParcel = function(id) {
+            
     const parcel = allParcels.find(p => p._id === id);
     if (!parcel) return;
 
     isEditMode = true;
     editingId = id;
+    const isAtDispatch = parcel.status === "At Dispatch";
 
     // 1. UI Titles
     document.querySelector('#parcel-modal h3').innerText = "Update Parcel Details";
@@ -2276,7 +2278,6 @@ let editingId = null;
 
     currentConsignment = [...parcel.items]; 
     renderParcelList(!isAtDispatch);
-    const isAtDispatch = parcel.status === "At Dispatch";
 
             // --- NEW: LOCK ITEM ADDITION SECTION ---
     const addItemSection = document.getElementById('addItemSection');
