@@ -375,7 +375,7 @@
      <div class="flex justify-between items-center mb-6">
         <div>
             <h2 class="text-2xl font-bold text-slate-800">Booking Managemnt</h2>
-            <p class="text-slate-500 text-sm">Manage and track all incoming and outgoing bookings.</p>
+            <p class="text-slate-500 text-sm">Manage and track all  bookings.</p>
         </div>
     </div>
     <div class="flex flex-row items-center gap-4 mb-8 p-1">
@@ -402,29 +402,17 @@
         </select>
 
         <!-- Date -->
-        <input type="date" id="ptable-date-filter" onchange="window.filterPTable()"
-               class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+        <input type="time" id="ptable-date-filter" onchange="window.filterPTable()"
+     class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
 
-        <!-- Status -->
-        <select id="ptable-status-filter" onchange="window.filterPTable()" 
-                class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
-            <option value="">Status</option>
-            <option value="At Dispatch">At Dispatch</option>
-            <option value="In Transit">In Transit</option>
-            <option value="Partially received">Partially Received</option>
-            <option value="Ready for Pickup">Ready for Pickup</option>
-            <option value="Delivered">Delivered</option>
-        </select>
+        
 
         <!-- Tracking Search -->
         <div class="relative w-48 flex-shrink-0">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
             </div>
-            <input type="text" id="ptable-search" oninput="window.filterPTable()" 
-                   placeholder="Tracking ID..." 
-                   class="w-full pl-9 pr-8 py-2.5 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-            <button onclick="clearTablePFilters()" 
+            <button onclick="clearTable()" 
                     class="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-300 hover:text-red-500 transition-colors">
                 <i class="fa-solid fa-circle-xmark text-sm"></i>
             </button>
