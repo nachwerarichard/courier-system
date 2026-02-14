@@ -2120,6 +2120,17 @@ window.editParcel = function(id) {
     currentConsignment = [...parcel.items]; 
     renderParcelList();
 
+    const fieldsToLock = ['destination', 'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'];
+fieldsToLock.forEach(fieldId => {
+    const el = document.getElementById(fieldId);
+    if (el) {
+        el.readOnly = true;
+        // Optional: Add a gray background style to show it's locked
+        el.style.backgroundColor = "#f3f4f6"; 
+        el.style.cursor = "not-allowed";
+    }
+});
+    
     // 3. INJECT STATUS AND PAYMENT BUTTONS INTO FOOTER
     const footer = document.querySelector('#parcel-modal .flex.justify-end.gap-3');
     
@@ -2289,7 +2300,15 @@ document.getElementById('createParcelForm').addEventListener('submit', async (e)
     isEditMode = false;
     editingId = null;
     currentConsignment = [];
-    
+    const fieldsToLock = ['destination', 'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'];
+    fieldsToLock.forEach(fieldId => {
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.readOnly = false;
+            el.style.backgroundColor = ""; // Reset to default
+            el.style.cursor = "auto";
+        }
+    });
     // Reset Titles
     document.querySelector('#parcel-modal h3').innerText = "New Parcel Booking";
     document.querySelector('#parcel-modal button[type="submit"]').innerText = "Add Parcel";
