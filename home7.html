@@ -3099,174 +3099,153 @@ function printPaymentReceipt(parcelId, amountPaid, paymentMethod) {
 
     const date = new Date();
     const formattedDate = date.toLocaleString();
-    // Change this line in your receipt function:
     const updateUrl = encodeURIComponent(`https://hilarious-nasturtium-0d34d9.netlify.app/update-parcel.html?id=${parcelId}`);
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${updateUrl}`;
 
-    const receiptHTML = `
+    const copies = ["OFFICE / GOODS COPY", "CLIENT COPY"];
+
+    let fullHTML = `
 <html>
 <head>
-    <title>Receipt #${parcel.tracking_number}</title>
+    <title>Receipt - ${parcel.tracking_number}</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #333; line-height: 1.5; }
-        .receipt-container { max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 8px; }
+        /* Thermal Printer Optimization */
+        @page { size: 80mm auto; margin: 0; }
+        body { 
+            font-family: 'Courier New', Courier, monospace; /* Monospace prints better on thermal */
+            width: 80mm; 
+            margin: 0; 
+            padding: 0; 
+            background: #fff;
+            font-size: 12px;
+        }
+        .receipt-wrapper { 
+            width: 72mm; /* Standard printable area for 80mm rolls */
+            margin: 0 auto;
+            padding: 10px 0;
+            border-bottom: 1px dashed #000;
+        }
+        .copy-label { 
+            text-align: center; 
+            font-weight: bold; 
+            border: 1px solid #000;
+            margin-bottom: 10px;
+            padding: 2px;
+        }
+        .center { text-align: center; }
+        .bold { font-weight: bold; }
+        .text-sm { font-size: 10px; }
         
-        /* Company Branding */
-        .brand-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .logo { width: 50px; height: 50px; background: #1e40af; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; }
-        .company-info { text-align: right; }
-        .company-name { font-size: 18px; font-weight: bold; color: #1e40af; display: block; }
-        .company-address { font-size: 11px; color: #64748b; white-space: pre-line; }
+        .brand-name { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
+        .divider { border-top: 1px dashed #000; margin: 5px 0; }
+        
+        .flex-row { display: flex; justify-content: space-between; margin: 2px 0; }
+        
+        .items-table { width: 100%; border-collapse: collapse; margin: 5px 0; }
+        .items-table th { border-bottom: 1px solid #000; text-align: left; font-size: 11px; }
+        .items-table td { padding: 3px 0; vertical-align: top; }
 
-        /* Header Styling */
-        .header { border-top: 2px solid #f1f5f9; border-bottom: 2px solid #1e40af; padding: 15px 0; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .status-badge { background: #1e40af; color: white; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        
-        /* Sections */
-        .section { margin-bottom: 20px; }
-        .label { font-size: 10px; text-transform: uppercase; color: #64748b; display: block; letter-spacing: 0.5px; margin-bottom: 2px; }
-        .value { font-weight: 600; font-size: 14px; color: #1e293b; }
-        
-        /* Layout Helpers */
-        .flex-row { display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
-        .flex-col { flex: 1; min-width: 150px; }
-        
-        /* Itemized Table */
-        .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .items-table th { text-align: left; font-size: 10px; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #e2e8f0; padding: 8px 0; }
-        .items-table td { padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-        
-        /* Payment Summary Box */
-        .summary-box { background: #f8fafc; padding: 15px; border-radius: 6px; margin-top: 20px; }
-        .summary-line { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
-        .total-line { border-top: 1px solid #cbd5e1; margin-top: 8px; padding-top: 8px; font-weight: bold; color: #1e40af; font-size: 16px; }
+        .qr-section { text-align: center; margin-top: 10px; }
+        .terms { font-size: 9px; margin-top: 10px; text-align: center; font-style: italic; }
 
-        /* Footer & QR */
-        .footer { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 20px; }
-        .qr-box { text-align: center; }
-        .qr-box img { display: block; margin-bottom: 5px; border: 1px solid #f1f5f9; border-radius: 4px; }
-
-        /* Terms and Conditions */
-        .terms-section { margin-top: 25px; padding-top: 15px; border-top: 1px dashed #e2e8f0; }
-        .terms-text { font-size: 10px; color: #94a3b8; text-align: justify; line-height: 1.4; }
+        @media print {
+            button { display: none; }
+            .receipt-wrapper { page-break-after: always; }
+        }
     </style>
 </head>
 <body>
-    <div class="receipt-container">
-        <div class="brand-section">
-            <div class="logo">C</div>
-            <div class="company-info">
-                <span class="company-name">COURIER PRO UGANDA</span>
-                <span class="company-address">
-                    Plot 45, Kampala Road, Central Business District
-                    P.O. Box 1234, Kampala, Uganda
-                    Contact: +256 700 000 000
-                </span>
-            </div>
+    <div style="text-align:center; padding: 10px;">
+        <button onclick="window.print()" style="padding: 10px; width: 100%;">PRINT RECEIPT</button>
+    </div>`;
+
+    copies.forEach(label => {
+        fullHTML += `
+    <div class="receipt-wrapper">
+        <div class="copy-label">${label}</div>
+        
+        <div class="center">
+            <div class="brand-name">OEXPRESS UGANDA</div>
+            <div class="text-sm">Kampala Road, Plot 45</div>
+            <div class="text-sm">Tel: +256 700 000 000</div>
         </div>
 
-        <div class="header">
-            <div>
-                <h2 style="margin:0; color:#1e40af; font-size: 20px; text-transform: uppercase;">Payment Receipt</h2>
-                <span style="font-size:12px; color: #64748b;">Issued on ${formattedDate}</span>
-            </div>
-            <div class="status-badge">${parcel.status.toUpperCase()}</div>
+        <div class="divider"></div>
+        
+        <div class="center bold" style="font-size: 14px;">PAYMENT RECEIPT</div>
+        <div class="center text-sm">${formattedDate}</div>
+        
+        <div class="divider"></div>
+
+        <div class="flex-row">
+            <span>Waybill:</span>
+            <span class="bold">${parcel.tracking_number}</span>
+        </div>
+        <div class="flex-row">
+            <span>Status:</span>
+            <span>${parcel.status.toUpperCase()}</span>
         </div>
 
-        <div class="section">
-            <span class="label">Tracking Number</span>
-            <span class="value" style="font-size: 18px; color: #1e40af;">${parcel.tracking_number}</span>
+        <div class="divider"></div>
+
+        <div class="text-sm">
+            <div><span class="bold">S:</span> ${parcel.sender_name}</div>
+            <div><span class="bold">R:</span> ${parcel.receiver_name}</div>
+            <div><span class="bold">Route:</span> ${parcel.origin} - ${parcel.destination}</div>
         </div>
 
-        <div class="flex-row section">
-            <div class="flex-col">
-                <span class="label">Sender</span>
-                <span class="value">${parcel.sender_name}</span><br/>
-                <span style="font-size: 12px; color: #64748b;">${parcel.sender_phone || 'No Phone'}</span>
-            </div>
-            <div class="flex-col">
-                <span class="label">Receiver</span>
-                <span class="value">${parcel.receiver_name}</span><br/>
-                <span style="font-size: 12px; color: #64748b;">${parcel.receiver_phone || 'No Phone'}</span>
-            </div>
-            <div class="flex-col">
-                <span class="label">Route</span>
-                <span class="value">${parcel.origin} &rarr; ${parcel.destination}</span>
-            </div>
-        </div>
-
-        <div class="section">
-            <span class="label">Package Content</span>
-            <table class="items-table">
-                <thead>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th style="text-align:right">Amt</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${parcel.items.map(item => `
                     <tr>
-                        <th>Description</th>
-                        <th style="text-align: right;">Amount</th>
+                        <td class="text-sm">${item.description} (x${item.quantity})</td>
+                        <td style="text-align:right">UGX ${item.subtotal.toLocaleString()}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    ${parcel.items.map(item => `
-                        <tr>
-                            <td>
-                                <strong>${item.description}</strong><br/>
-                                <span style="font-size: 11px; color: #666;">Qty: ${item.quantity || 1} | Wt: ${item.weight || 0}kg</span>
-                            </td>
-                            <td style="text-align: right; font-weight: 600;">UGX ${(item.subtotal || 0).toLocaleString()}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+                `).join('')}
+            </tbody>
+        </table>
+
+        <div class="divider"></div>
+
+        <div class="flex-row">
+            <span>Total:</span>
+            <span>UGX ${parcel.total_amount.toLocaleString()}</span>
+        </div>
+        <div class="flex-row bold">
+            <span>Paid (${paymentMethod}):</span>
+            <span>UGX ${amountPaid.toLocaleString()}</span>
+        </div>
+        <div class="flex-row">
+            <span>Balance:</span>
+            <span class="bold">UGX ${parcel.balance.toLocaleString()}</span>
         </div>
 
-        <div class="summary-box">
-            <div class="summary-line">
-                <span>Total Billable</span>
-                <span>UGX ${(parcel.total_amount || 0).toLocaleString()}</span>
-            </div>
-            <div class="summary-line">
-                <span>Amount Paid (${paymentMethod})</span>
-                <span style="color: #16a34a; font-weight: 600;"> UGX ${amountPaid.toLocaleString()}</span>
-            </div>
-            <div class="summary-line total-line">
-                <span>Outstanding Balance</span>
-                <span>UGX ${(parcel.balance || 0).toLocaleString()}</span>
-            </div>
+        <div class="divider"></div>
+
+        <div class="qr-section">
+            <img src="${qrCodeUrl}" width="100" height="100" />
+            <div class="text-sm">Scan to track parcel</div>
         </div>
 
-        <div class="footer">
-            <div>
-                <span class="label">Transaction Method</span>
-                <span class="value">${paymentMethod}</span>
-                <p style="font-size: 11px; color: #64748b; margin-top: 5px;">Thank you for your business!</p>
-            </div>
-            <div class="qr-box">
-                <img src="${qrCodeUrl}" alt="QR Code" width="90" height="90" />
-                <span style="font-size:8px; color:#94a3b8; font-weight: bold;">VERIFY SHIPMENT</span>
-            </div>
+        <div class="terms">
+            * No refund for goods received.<br>
+            * Present receipt for collection.
         </div>
+        
+        <div class="center" style="margin-top:10px;">*** Thank You ***</div>
+    </div>`;
+    });
 
-        <div class="terms-section">
-            <span class="label">Terms & Conditions</span>
-            <p class="terms-text">
-                1. Goods once received in good condition are not returnable. 
-                2. Liability for lost or damaged parcels is limited to the declared value or a maximum of UGX 100,000. 
-                3. Storage fees may apply for parcels not collected within 48 hours of arrival. 
-                4. Perishable items and prohibited substances are shipped at the sender's own risk. 
-                5. This receipt must be presented for all claims or parcel collection.
-            </p>
-        </div>
-    </div>
-</body>
-</html>
-`;
-    const printWindow = window.open('', '_blank', 'width=700,height=800');
-    if (!printWindow) {
-        alert("Please allow popups for this site");
-        return;
-    }
+    fullHTML += `</body></html>`;
 
-    printWindow.document.open();
-    printWindow.document.write(receiptHTML);
+    const printWindow = window.open('', '_blank', 'width=400,height=600');
+    printWindow.document.write(fullHTML);
     printWindow.document.close();
 }
         
