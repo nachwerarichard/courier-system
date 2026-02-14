@@ -7,7 +7,6 @@
     <title>Courier System Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         #login-overlay { transition: opacity 0.3s ease-in-out; }
         .active-link { @apply bg-blue-600 text-white shadow-lg; }
@@ -761,7 +760,7 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-2 space-y-6">
+                <div  id="addItemSection" class="lg:col-span-2 space-y-6">
                     
 
 <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100 space-y-6">
@@ -2090,18 +2089,19 @@ window.closeDetailsModal = function() {
 };
         let isEditMode = false;
 let editingId = null;
- window.editParcel = function(id) {
+window.editParcel = function(id) {
     const parcel = allParcels.find(p => p._id === id);
     if (!parcel) return;
 
     isEditMode = true;
     editingId = id;
 
-    // 1. UI Titles and Field Locking (Keeping your logic)
+    // 1. UI Titles
     document.querySelector('#parcel-modal h3').innerText = "Update Parcel Details";
     const submitBtn = document.querySelector('#parcel-modal button[type="submit"]');
     submitBtn.innerText = "Update Parcel";
 
+    // 2. Fill Basic Details
     document.getElementById('client_id').value = parcel.client_id || '';
     document.getElementById('senderName').value = parcel.sender_name || '';
     document.getElementById('senderPhone').value = parcel.sender_phone || '';
@@ -2118,31 +2118,49 @@ let editingId = null;
     currentConsignment = [...parcel.items]; 
     renderParcelList();
 
-    const fieldsToLock = ['destination', 'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'];
-    fieldsToLock.forEach(fieldId => {
+    // 3. LOCKING LOGIC
+    // Financials are ALWAYS locked in edit mode
+    const financialFields = ['destination', 'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'];
+    
+    // General info is locked ONLY if the status is NOT "At Dispatch"
+    const generalFields = ['client_id', 'senderName', 'senderPhone', 'origin', 'receiverName', 'receiverPhone'];
+    
+    const isAtDispatch = parcel.status === "At Dispatch";
+    
+    // Combine fields to lock
+    // If not at dispatch, lock everything. If at dispatch, only lock financials.
+    const allFieldsToLock = isAtDispatch ? financialFields : [...financialFields, ...generalFields];
+
+    // Apply ReadOnly status
+    const allInputIds = [...financialFields, ...generalFields];
+    allInputIds.forEach(fieldId => {
         const el = document.getElementById(fieldId);
         if (el) {
-            el.readOnly = true;
-            el.style.backgroundColor = "#f3f4f6"; 
-            el.style.cursor = "not-allowed";
+            const shouldLock = allFieldsToLock.includes(fieldId);
+            el.readOnly = shouldLock;
+            
+            // Visual feedback: Gray out if locked, white if editable
+            el.style.backgroundColor = shouldLock ? "#f3f4f6" : "#ffffff"; 
+            el.style.cursor = shouldLock ? "not-allowed" : "text";
         }
     });
 
-    // 2. FORWARD-ONLY STATUS LOGIC
+    // Handle the "Update Parcel" button - hide it if everything is read-only
+    // (Optional: keeps the UI clean if no changes are possible except status)
+    submitBtn.style.display = isAtDispatch ? "block" : "none";
+
+    // 4. FORWARD-ONLY STATUS LOGIC (Remaining the same)
     const statusOrder = ["At Dispatch", "In Transit", "Partially received", "Ready for Pickup", "Delivered"];
     const currentIdx = statusOrder.indexOf(parcel.status);
 
-    // Generate options dynamically
     const statusOptionsHtml = statusOrder.map((status, index) => {
-        // Disable if the status is "behind" the current one
         const isDisabled = index < currentIdx ? 'disabled' : '';
         const isSelected = index === currentIdx ? 'selected' : '';
         const style = index < currentIdx ? 'color: #ccc; background: #f9f9f9;' : '';
-        
         return `<option value="${status}" ${isSelected} ${isDisabled} style="${style}">${status}</option>`;
     }).join('');
 
-    // 3. INJECT UPDATED HTML
+    // 5. INJECT FOOTER ACTIONS
     const footer = document.querySelector('#parcel-modal .flex.justify-end.gap-3');
     const extraActionsHtml = `
         <div id="edit-actions" class="flex gap-2 mr-auto">
