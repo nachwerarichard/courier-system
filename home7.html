@@ -378,9 +378,8 @@
             <p class="text-slate-500 text-sm">Manage and track all  bookings.</p>
         </div>
     </div>
-    <div class="flex flex-row items-center gap-4 mb-8 p-1">
+<div class="flex flex-row items-center gap-4 mb-8 p-1">
 
-    <!-- Add New Parcel Button -->
     <div class="flex-shrink-0">
         <button onclick="showModal('bookingModal')" 
                 class="bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 shadow-lg transition-all flex items-center gap-2 font-bold text-sm">
@@ -388,10 +387,8 @@
         </button>
     </div>
 
-    <!-- Filters Row -->
     <div class="flex flex-nowrap items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm flex-1 overflow-x-auto">
 
-        <!-- Destination -->
         <select id="ptable-destination-filter" onchange="window.filterPTable()" 
                 class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
             <option value="">Destination</option>
@@ -401,24 +398,23 @@
             <option value="Kampala - Aponye">Kampala - Aponye</option>
         </select>
 
-        <!-- Date -->
         <input type="time" id="ptable-date-filter" onchange="window.filterPTable()"
-     class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+               class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
 
-        
-
-        <!-- Tracking Search -->
-        <div class="relative w-48 flex-shrink-0">
+        <div class="relative w-64 flex-shrink-0">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
             </div>
-            <button onclick="clearTable()" 
+            <input type="text" id="ptable-search" oninput="window.filterPTable()"
+                   placeholder="Search tracking or name..."
+                   class="w-full pl-9 pr-8 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+            
+            <button onclick="document.getElementById('ptable-search').value=''; window.filterPTable();" 
                     class="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-300 hover:text-red-500 transition-colors">
                 <i class="fa-solid fa-circle-xmark text-sm"></i>
             </button>
         </div>
 
-        <!-- Export & Print -->
         <div class="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-sm flex-shrink-0">
             <button onclick="exportToExcel()" 
                     class="flex items-center gap-2 px-3 py-2 text-green-700 hover:bg-white hover:shadow-sm rounded-lg text-[11px] font-bold transition-all">
