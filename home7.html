@@ -425,8 +425,10 @@
         <select id="ptable-destination-filter" onchange="window.filterPTable()" 
                 class="px-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
             <option value="">Destination</option>
-            <option value="Kampala">Kampala</option>
-            <option value="Mbale">Mbale</option>
+            <option value="Mbale - Bishop asikye Rd">Mbale - Bishop Wasikye Rd</option>
+            <option value="Mbale - DTB">Mbale - DTB</option>
+            <option value="Kampala - Taxi Park">Kampala - Taxi Park</option>
+            <option value="Kampala - Aponye">Kampala - Aponye</option>
         </select>
 
         <!-- Date -->
@@ -528,7 +530,7 @@
                 <i class="fa-solid fa-location-dot text-blue-600"></i>
                 <h3 class="font-bold text-slate-700">Stations</h3>
             </div>
-            <p class="text-slate-500 text-sm mb-4">Add or manage Kampala, Mbale and other stations.</p>
+            <p class="text-slate-500 text-sm mb-4"> Manage  stations.</p>
             <button class="text-blue-600 font-semibold hover:underline">
                 Manage
             </button>
@@ -608,8 +610,10 @@
 
         <select id="reportStation" class="border p-3 rounded-lg">
             <option value="">All Stations</option>
-            <option value="Kampala">Kampala</option>
-            <option value="Mbale">Mbale</option>
+            <option value="Mbale - Bishop Wasikye Rd">Mbale - Bishop Wasikye Rd</option>
+            <option value="Mbale - DTB">Mbale - DTB</option>
+            <option value="Kampala - Taxi Park">Kampala - Taxi Park</option>
+            <option value="Kampala - Aponye">Kampala - Aponye</option>
         </select>
 
         <select id="reportStatus" class="border p-3 rounded-lg">
@@ -749,8 +753,10 @@
 <input type="text" id="receiverPhone" placeholder="Phone Number" class="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
                         <select id="destination" class="w-full border border-slate-200 p-3 rounded-lg text-sm outline-none">
                             <option value="">Destination Station</option>
-                            <option value="Kampala">Kampala</option>
-                            <option value="Mbale">Mbale</option>
+                            <option value="Mbale - Bishop Wasikye Rd">Mbale - Bishop Wasikye Rd</option>
+            <option value="Mbale-DTB">Mbale - DTB</option>
+            <option value="Kampala - Taxi Park">Kampala - Taxi Park</option>
+            <option value="Kampala - Aponye">Kampala - Aponye</option>
                         </select>
                     </div>
                 </div>
@@ -889,10 +895,10 @@
                         <option value="admin">Admin</option>
                     </select>
                     <select id="staffStation" class="border p-3 rounded-lg">
-                        <option value="Kampala">Kampala</option>
-                        <option value="Mbale">Mbale</option>
-                        <option value="Gulu">Gulu</option>
-                        <option value="Mbarara">Mbarara</option>
+                        <option value="Mbale - Bishop Wasikye Rd">Mbale - Bishop Wasikye Rd</option>
+            <option value="Mbale - DTB">Mbale - DTB</option>
+            <option value="Kampala - Taxi Park">Kampala - Taxi Park</option>
+            <option value="Kampala - Aponye">Kampala - Aponye</option>
                     </select>
                 </div>
                 <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold shadow-lg">Save Staff Member</button>
@@ -929,9 +935,10 @@
                 <div>
                     <label class="text-xs font-semibold text-gray-500 uppercase">Home Station</label>
                     <select id="modalStation" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                        <option value="Kampala">Kampala</option>
-                        <option value="Mbale">Mbale</option>
-                    </select>
+            <option value="Mbale - Bishop Wasikye Rd">Mbale - Bishop Wasikye Rd</option>
+            <option value="Mbale - DTB">Mbale - DTB</option>
+            <option value="Kampala - Taxi Park">Kampala - Taxi Park</option>
+            <option value="Kampala - Aponye">Kampala - Aponye</option>                    </select>
                 </div>
             </div>
 
@@ -3850,7 +3857,7 @@ function transferUser(event, userId) {
     }
 
    // ... inside transferUser function
-const stations = ['Kampala', 'Mbale', 'Gulu', 'Mbarara'];
+const stations = ['Kampala - Taxi Park', 'Kampala - Aponye, 'Mbale - DTB', 'Mbale - Bishop Wasikye Rd'];
 const submenuHTML = `
     <div id="transfer-submenu" class="mt-2 p-2 bg-blue-50 border-t border-blue-100" onclick="event.stopPropagation()">
         <p class="text-[10px] font-bold text-blue-600 mb-1 uppercase">Select Station</p>
