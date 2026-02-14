@@ -2275,10 +2275,34 @@ let editingId = null;
     document.getElementById('paymentType').value = parcel.payment_method || 'Cash';
 
     currentConsignment = [...parcel.items]; 
-    renderParcelList();
-
-    // 3. UPDATED LOCKING LOGIC
+    renderParcelList(!isAtDispatch);
     const isAtDispatch = parcel.status === "At Dispatch";
+
+            // --- NEW: LOCK ITEM ADDITION SECTION ---
+    const addItemSection = document.getElementById('addItemSection');
+    const addItemBtn = addItemSection.querySelector('button');
+    const itemInputs = addItemSection.querySelectorAll('input, select');
+
+    if (!isAtDispatch) {
+        // Disable the entire section visually
+        addItemSection.style.opacity = "0.6";
+        addItemSection.style.pointerEvents = "none"; // Prevents all clicks
+        addItemSection.classList.add('bg-slate-100'); // Change color to look disabled
+        
+        // Disable inputs and button for accessibility
+        itemInputs.forEach(input => input.disabled = true);
+        if (addItemBtn) addItemBtn.disabled = true;
+    } else {
+        // Re-enable if it is At Dispatch
+        addItemSection.style.opacity = "1";
+        addItemSection.style.pointerEvents = "auto";
+        addItemSection.classList.remove('bg-slate-100');
+        
+        itemInputs.forEach(input => input.disabled = false);
+        if (addItemBtn) addItemBtn.disabled = false;
+    }
+            renderParcelList(isAtDispatch);
+    // 3. UPDATED LOCKING LOGIC
     
     // Fields to manage
     const allInputIds = [
@@ -3058,7 +3082,8 @@ function addParcelToList() {
     renderParcelList();
 }
 
-function renderParcelList() {
+// Add 'isLocked' as a parameter, defaulting to false for New bookings
+function renderParcelList(isLocked = false) {
     const container = document.getElementById('parcelListContainer');
     const itemCountEl = document.getElementById('item-count');
     const totalAmountEl = document.getElementById('totalAmount');
@@ -3075,19 +3100,27 @@ function renderParcelList() {
 
     container.innerHTML = currentConsignment.map((item, index) => {
         grandTotal += item.subtotal;
+        
+        // Use the passed isLocked parameter here
+        const deleteButton = isLocked 
+            ? `<span class="text-slate-300 opacity-50 cursor-not-allowed" title="Items locked after dispatch">
+                    <i class="fa-solid fa-lock text-sm"></i>
+               </span>`
+            : `<button type="button" onclick="removeItemFromList(${item.id})" class="text-slate-300 hover:text-red-500 transition-colors">
+                    <i class="fa-solid fa-circle-xmark text-lg"></i>
+               </button>`;
+
         return `
             <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100 group transition-all hover:border-blue-200">
                 <div class="flex flex-col">
                     <span class="text-sm font-semibold text-slate-700">${item.description}</span>
                     <span class="text-[10px] text-slate-500 uppercase font-medium">
-                        ${item.quantity} units × ${item.volume} cubic units × ${item.rate.toLocaleString()} UGX ${item.weight ? `(${item.weight}kg)` : ''}
+                        ${item.quantity} units × ${item.rate.toLocaleString()} UGX ${item.weight ? `(${item.weight}kg)` : ''}
                     </span>
                 </div>
                 <div class="flex items-center gap-4">
                     <span class="text-sm font-bold text-blue-600">${item.subtotal.toLocaleString()} UGX</span>
-                    <button type="button" onclick="removeItemFromList(${item.id})" class="text-slate-300 hover:text-red-500 transition-colors">
-                        <i class="fa-solid fa-circle-xmark text-lg"></i>
-                    </button>
+                    ${deleteButton}
                 </div>
             </div>
         `;
@@ -3098,7 +3131,7 @@ function renderParcelList() {
     
     calculateBalance();
 }
-
+        
 function removeItemFromList(id) {
     currentConsignment = currentConsignment.filter(item => item.id !== id);
     renderParcelList();
