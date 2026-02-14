@@ -2981,9 +2981,9 @@ function addNewParcelForCustomer(name, phone, id) {
 // OPEN PAYMENT MODAL
 async function openPaymentModal(id) {
     const paymentForm = document.getElementById('miniPaymentForm');
-        if (paymentForm) {
-            paymentForm.reset();
-        }
+    if (paymentForm) {
+        paymentForm.reset();
+    }
     try {
         const response = await fetch(`${API_URL}/api/parcels/${id}`);
         
@@ -2995,12 +2995,15 @@ async function openPaymentModal(id) {
 
         const p = await response.json();
         
-        // Ensure these IDs exist in your payment-modal HTML
         document.getElementById('pay_waybill_id').value = id;
         
-        // Safety check for balance
         const balance = p.balance || 0;
         document.getElementById('display_balance').value = `${balance.toLocaleString()} UGX`;
+
+        // --- NEW LINE START ---
+        // Set the numeric balance as the placeholder for the input field
+        document.getElementById('mini_pay_amount').placeholder = balance;
+        // --- NEW LINE END ---
         
         showModal('payment-modal');
     } catch (err) {
@@ -3008,7 +3011,6 @@ async function openPaymentModal(id) {
         console.error("Payment Modal Error:", err);
     }
 }
-
 
 // SUBMIT ITEM ONLY
 document.getElementById('addItemForm').addEventListener('submit', async (e) => {
