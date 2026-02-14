@@ -2090,20 +2090,18 @@ window.closeDetailsModal = function() {
 };
         let isEditMode = false;
 let editingId = null;
-
-window.editParcel = function(id) {
+ window.editParcel = function(id) {
     const parcel = allParcels.find(p => p._id === id);
     if (!parcel) return;
 
     isEditMode = true;
     editingId = id;
 
-    // 1. Change UI Titles
+    // 1. UI Titles and Field Locking (Keeping your logic)
     document.querySelector('#parcel-modal h3').innerText = "Update Parcel Details";
     const submitBtn = document.querySelector('#parcel-modal button[type="submit"]');
     submitBtn.innerText = "Update Parcel";
 
-    // 2. Fill Basic Details & Financials (Your existing code)
     document.getElementById('client_id').value = parcel.client_id || '';
     document.getElementById('senderName').value = parcel.sender_name || '';
     document.getElementById('senderPhone').value = parcel.sender_phone || '';
@@ -2121,29 +2119,36 @@ window.editParcel = function(id) {
     renderParcelList();
 
     const fieldsToLock = ['destination', 'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'];
-fieldsToLock.forEach(fieldId => {
-    const el = document.getElementById(fieldId);
-    if (el) {
-        el.readOnly = true;
-        // Optional: Add a gray background style to show it's locked
-        el.style.backgroundColor = "#f3f4f6"; 
-        el.style.cursor = "not-allowed";
-    }
-});
-    
-    // 3. INJECT STATUS AND PAYMENT BUTTONS INTO FOOTER
+    fieldsToLock.forEach(fieldId => {
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.readOnly = true;
+            el.style.backgroundColor = "#f3f4f6"; 
+            el.style.cursor = "not-allowed";
+        }
+    });
+
+    // 2. FORWARD-ONLY STATUS LOGIC
+    const statusOrder = ["At Dispatch", "In Transit", "Partially received", "Ready for Pickup", "Delivered"];
+    const currentIdx = statusOrder.indexOf(parcel.status);
+
+    // Generate options dynamically
+    const statusOptionsHtml = statusOrder.map((status, index) => {
+        // Disable if the status is "behind" the current one
+        const isDisabled = index < currentIdx ? 'disabled' : '';
+        const isSelected = index === currentIdx ? 'selected' : '';
+        const style = index < currentIdx ? 'color: #ccc; background: #f9f9f9;' : '';
+        
+        return `<option value="${status}" ${isSelected} ${isDisabled} style="${style}">${status}</option>`;
+    }).join('');
+
+    // 3. INJECT UPDATED HTML
     const footer = document.querySelector('#parcel-modal .flex.justify-end.gap-3');
-    
-    // Create the extra actions HTML
     const extraActionsHtml = `
         <div id="edit-actions" class="flex gap-2 mr-auto">
             <select onchange="updateStatus('${parcel._id}', this.value)" 
                 class="px-3 py-2 border rounded-lg text-xs font-bold uppercase transition-all ${getStatusStyle(parcel.status)}">
-                <option value="At Dispatch" ${parcel.status === 'At Dispatch' ? 'selected' : ''}>At Dispatch</option>
-                <option value="In Transit" ${parcel.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
-                <option value="Partially received" ${parcel.status === 'Partially received' ? 'selected' : ''}>Partially Received</option>
-                <option value="Ready for Pickup" ${parcel.status === 'Ready for Pickup' ? 'selected' : ''}>Ready for Pickup</option>
-                <option value="Delivered" ${parcel.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                ${statusOptionsHtml}
             </select>
             
             <button type="button" onclick="openPaymentModal('${parcel._id}')" 
@@ -2153,35 +2158,12 @@ fieldsToLock.forEach(fieldId => {
         </div>
     `;
 
-    // Remove existing edit-actions if they exist, then prepend new ones
     const oldActions = document.getElementById('edit-actions');
     if (oldActions) oldActions.remove();
     footer.insertAdjacentHTML('afterbegin', extraActionsHtml);
 
-    // 4. Show Modal
     document.getElementById('parcel-modal').classList.remove('hidden');
 };
-        window.hideModal = function(id) {
-    document.getElementById(id).classList.add('hidden');
-    
-    if (id === 'parcel-modal') {
-        isEditMode = false;
-        editingId = null;
-        
-        // Reset Titles
-        document.querySelector('#parcel-modal h3').innerText = "Add New Parcel";
-        document.querySelector('#parcel-modal button[type="submit"]').innerText = "Add Parcel";
-        
-        // Remove the extra buttons we injected
-        const extraActions = document.getElementById('edit-actions');
-        if (extraActions) extraActions.remove();
-        
-        // Clear the form
-        document.getElementById('createParcelForm').reset();
-        currentConsignment = [];
-        renderParcelList();
-    }
-}
 /**
 
  * CREATE: Submit Form to Backend
