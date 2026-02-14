@@ -469,7 +469,7 @@
 
             <div class="flex space-x-3 pt-4">
                 <button type="button" onclick="closeModal()" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
-                    Cancel
+                    Close
                 </button>
                 <button type="submit" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold">
                     Save Booking
@@ -2199,7 +2199,8 @@ window.closeDetailsModal = function() {
 };
         let isEditMode = false;
 let editingId = null;
-window.editParcel = function(id) {
+
+        window.editParcel = function(id) {
     const parcel = allParcels.find(p => p._id === id);
     if (!parcel) return;
 
@@ -2228,38 +2229,41 @@ window.editParcel = function(id) {
     currentConsignment = [...parcel.items]; 
     renderParcelList();
 
-    // 3. LOCKING LOGIC
-    // Financials are ALWAYS locked in edit mode
-    const financialFields = ['destination', 'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'];
-    
-    // General info is locked ONLY if the status is NOT "At Dispatch"
-    const generalFields = ['client_id', 'senderName', 'senderPhone', 'origin', 'receiverName', 'receiverPhone'];
-    
+    // 3. UPDATED LOCKING LOGIC
     const isAtDispatch = parcel.status === "At Dispatch";
     
-    // Combine fields to lock
-    // If not at dispatch, lock everything. If at dispatch, only lock financials.
-    const allFieldsToLock = isAtDispatch ? financialFields : [...financialFields, ...generalFields];
-
-    // Apply ReadOnly status
-    const allInputIds = [...financialFields, ...generalFields];
+    // Fields to manage
+    const allInputIds = [
+        'client_id', 'senderName', 'senderPhone', 'origin', 
+        'receiverName', 'receiverPhone', 'destination', 
+        'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'
+    ];
+    
     allInputIds.forEach(fieldId => {
         const el = document.getElementById(fieldId);
         if (el) {
-            const shouldLock = allFieldsToLock.includes(fieldId);
+            // Logic: ONLY editable if status is "At Dispatch". 
+            // Note: Financials remain readOnly regardless (usually handled by payment modal)
+            const isFinancial = ['totalAmount', 'amountPaid', 'balance', 'paymentStatus'].includes(fieldId);
+            const shouldLock = !isAtDispatch || isFinancial;
+
             el.readOnly = shouldLock;
             
-            // Visual feedback: Gray out if locked, white if editable
+            // Visual feedback
             el.style.backgroundColor = shouldLock ? "#f3f4f6" : "#ffffff"; 
             el.style.cursor = shouldLock ? "not-allowed" : "text";
+            
+            // Handle Select elements (like origin/destination/paymentType)
+            if (el.tagName === 'SELECT') {
+                el.disabled = shouldLock;
+            }
         }
     });
 
-    // Handle the "Update Parcel" button - hide it if everything is read-only
-    // (Optional: keeps the UI clean if no changes are possible except status)
+    // Hide main update button if not at dispatch (prevents accidental data overwrites)
     submitBtn.style.display = isAtDispatch ? "block" : "none";
 
-    // 4. FORWARD-ONLY STATUS LOGIC (Remaining the same)
+    // 4. FORWARD-ONLY STATUS LOGIC
     const statusOrder = ["At Dispatch", "In Transit", "Partially received", "Ready for Pickup", "Delivered"];
     const currentIdx = statusOrder.indexOf(parcel.status);
 
@@ -2270,19 +2274,23 @@ window.editParcel = function(id) {
         return `<option value="${status}" ${isSelected} ${isDisabled} style="${style}">${status}</option>`;
     }).join('');
 
-    // 5. INJECT FOOTER ACTIONS
+    // 5. INJECT FOOTER ACTIONS (With Conditional Payment Button)
     const footer = document.querySelector('#parcel-modal .flex.justify-end.gap-3');
+    
+    // Only show "Add Payment" if balance > 0
+    const showPaymentBtn = (parcel.balance > 0) ? `
+        <button type="button" onclick="openPaymentModal('${parcel._id}')" 
+            class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-green-200 transition">
+            <i class="fa-solid fa-money-bill-wave"></i> Add Payment
+        </button>` : '';
+
     const extraActionsHtml = `
         <div id="edit-actions" class="flex gap-2 mr-auto">
             <select onchange="updateStatus('${parcel._id}', this.value)" 
                 class="px-3 py-2 border rounded-lg text-xs font-bold uppercase transition-all ${getStatusStyle(parcel.status)}">
                 ${statusOptionsHtml}
             </select>
-            
-            <button type="button" onclick="openPaymentModal('${parcel._id}')" 
-                class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-green-200 transition">
-                <i class="fa-solid fa-money-bill-wave"></i> Add Payment
-            </button>
+            ${showPaymentBtn}
         </div>
     `;
 
@@ -2292,6 +2300,7 @@ window.editParcel = function(id) {
 
     document.getElementById('parcel-modal').classList.remove('hidden');
 };
+        
 /**
 
  * CREATE: Submit Form to Backend
