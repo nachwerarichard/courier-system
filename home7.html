@@ -2778,7 +2778,29 @@ window.showSection = showSection;
 
 // Open/Close Modal Functions
 function showModal(modalId) {
-    document.getElementById(modalId)?.classList.remove('hidden');
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    // 1. Reveal the modal
+    modal.classList.remove('hidden');
+
+    // 2. Specific Cleanup for the Staff Modal
+    if (modalId === 'staffModal') {
+        const form = document.getElementById('staffForm');
+        
+        // Clear all input fields
+        form.reset(); 
+        
+        // Remove the "Edit ID" so it doesn't try to UPDATE a new user
+        delete form.dataset.editingId;
+
+        // Restore the original "Add" UI state
+        document.querySelector('#staffModal h2').innerText = "Register New Staff";
+        document.querySelector('#staffForm button[type="submit"]').innerText = "Save Staff Member";
+        
+        // Re-enable password requirement (since it's a new user)
+        document.getElementById('staffPass').required = true;
+    }
 }
 
 function hideModal(modalId) {
