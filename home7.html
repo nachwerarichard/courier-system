@@ -1560,7 +1560,8 @@ document.getElementById('staffForm').addEventListener('submit', async (e) => {
     }
 
     // 3. Configure the Request (Dynamic URL and Method)
-    const url = isEdit ? `${API_URL}/users/${editingId}` : `${API_URL}/register`;
+    // Change this line in your submit listener:
+    const url = isEdit ? `${API_URL}/api/users/${editingId}` : `${API_URL}/register`;
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
