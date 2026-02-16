@@ -499,10 +499,15 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs font-semibold text-gray-500 uppercase">Destination</label>
+                    <label class="text-xs font-semibold text-gray-500 uppercase">Departure Time</label>
                     <select id="modalDestination" class="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                        <option value="Kampala">Kampala </option>
-                        <option value="Mbale">Mbale</option>
+            <option value="">Departure Time</option>
+            <option value="Mbale">3:00am</option>
+            <option value="Kampala">6:00am</option>
+            <option value="Mbale">10:00am</option>
+            <option value="Kampala">2:00pm</option>
+            <option value="Mbale">6:00pm</option>
+            <option value="Kampala">10:00pm</option>
                   
                     </select>
                 </div>
@@ -514,8 +519,8 @@
                     <input type="number" id="modalAmount" class="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
                 </div>
                 <div>
-                    <label class="text-xs font-semibold text-gray-500 uppercase">Departure Time</label>
-                    <input type="time" id="modalDepartureTime" class="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    <label class="text-xs font-semibold text-gray-500 uppercase">Destination</label>
+                    <input type="text" id="modalDepartureTime" class="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
@@ -526,6 +531,16 @@
             <option value="Airtel Pay">Airtel Pay</option>
             <option value="MTN Momo">MTN Momo</option>
             <option value="Bank">Bank Transfer</option>            
+
+        </select>
+                </div>
+                 <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase">Status</label>
+        <select id="paymentMethod" class="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <option value="">Status</option>
+            <option value="Airtel Pay">Booked</option>
+            <option value="MTN Momo">Travelled</option>
+            <option value="Bank">No Show</option>            
 
         </select>
                 </div>
