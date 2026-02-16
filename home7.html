@@ -1668,6 +1668,9 @@ document.getElementById('staffForm').addEventListener('submit', async (e) => {
             document.getElementById('current-date').innerText = now.toLocaleDateString('en-GB', { dateStyle: 'long' });
             document.getElementById('current-time').innerText = now.toLocaleTimeString();
         }
+        // This calls updateDateTime every 1000 milliseconds (1 second)
+setInterval(updateDateTime, 1000);
+updateDateTime();
 
         function handleLogout() {
             localStorage.removeItem('courier_user');
@@ -3077,9 +3080,12 @@ function openUserModal(type) {
 }
 
 // Function to hide the modal and reset fields
-function closeModal() {
-    document.getElementById('userModal').classList.add('hidden');
+
+        function closeModal() {
+    const modal = document.getElementById('userModal'); 
+    modal.classList.add('hidden');
     document.getElementById('quickUserForm').reset();
+
 }
 
 // Close modal if user clicks outside the white box
