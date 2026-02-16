@@ -3081,13 +3081,19 @@ function openUserModal(type) {
 
 // Function to hide the modal and reset fields
 
-        function closeModal() {
-    const modal = document.getElementById('userModal'); 
+function closeModal() {
+    const modal = document.getElementById('userModal');
+    const form = document.getElementById('quickUserForm');
+
+    // 1. Hide the modal by adding the 'hidden' class
     modal.classList.add('hidden');
-    document.getElementById('quickUserForm').reset();
 
+    // 2. Reset the form fields (optional, but recommended)
+    form.reset();
+
+    // 3. Clear the hidden ID field (important for edit vs create logic)
+    document.getElementById('modalCustomerId').value = '';
 }
-
 // Close modal if user clicks outside the white box
 window.onclick = function(event) {
     const modal = document.getElementById('userModal');
