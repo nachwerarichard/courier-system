@@ -270,7 +270,7 @@
                     <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
                     <h2 class="text-lg font-bold text-slate-800">Recent Bookings</h2>
                 </div>
-                <input type="text" id="booking-search" placeholder="Search Bookings..." class="text-xs border rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-emerald-500" />
+                <input type="text" id="dashboardbooking-search" oninput="runDBookingFilter()" placeholder="Search Bookings..." class="text-xs border rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-emerald-500" />
             </div>
             <div class="overflow-x-visible">
                 <table class="w-full text-left text-sm">
@@ -4363,6 +4363,8 @@ async function fetchBookings() {
     // Generate HTML for Table 2 (Prefix: t2)
     if(table2) table2.innerHTML = bookings.map(b => generateRowHtml(b, 't2')).join('');
     runBookingFilter();
+    runDBookingFilter();
+
 }
         // This connects to the 'onclick' in your clear button in the HTML
 function clearSearch() {
@@ -4472,6 +4474,30 @@ function generateRowHtml(b, prefix) {
 
         // 4. Show or Hide the row
         if (matchesTime && matchesStatus && matchesDestination && matchesSearch) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    }
+}
+          function runDBookingFilter() {
+    // 1. Get filter values
+    const searchValue = document.getElementById('dashboardsearch-input').value.toLowerCase();
+    // 2. Get all rows from the table
+    const tableBody = document.getElementById('dashboardbooking-search');
+    const rows = tableBody.getElementsByTagName('tr');
+
+    // 3. Loop through rows and filter
+    for (let row of rows) {
+        // Extract text from specific cells (adjust index if table order changes)
+        const name = row.cells[0].textContent.toLowerCase();
+        
+
+        // Check if row matches ALL active filters
+        const matchesSearch = searchValue === "" || name.includes(searchValue);
+
+        // 4. Show or Hide the row
+        if ( matchesSearch) {
             row.style.display = "";
         } else {
             row.style.display = "none";
