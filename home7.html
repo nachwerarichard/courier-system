@@ -4462,7 +4462,7 @@ const bookingData = {
 // 3. Open Modal for Edit
 async function openEditModal(id) {
     // 1. Fetch the specific booking data from your local state or API
-    const response = await fetch(`${API_URL}/${id}`);
+    const response = await fetch(`${Bookingsurl}/${id}`);
     const b = await response.json();
 
     // 2. Update Modal UI
