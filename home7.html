@@ -4431,7 +4431,7 @@ function generateRowHtml(b, prefix) {
                 <i class="fa-solid fa-ellipsis-vertical text-slate-400"></i>
             </button>
 
-            <div id="dropdown-${uniqueId}" class="hidden absolute right-6 mt-1 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-[100] text-left">
+            <div id="dropdown-${uniqueId}" class="hidden absolute right-6 mt-1 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-[9999] text-left">
                 <div class="py-1 text-xs font-bold text-slate-400 px-3 uppercase mt-1">Change Status</div>
                 <button onclick="updateStatus('${b._id}', 'Booked')" class="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50">Mark as Booked</button>
                 <button onclick="updateStatus('${b._id}', 'Travelled')" class="w-full text-left px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50">Mark as Travelled</button>
