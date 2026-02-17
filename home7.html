@@ -4426,7 +4426,7 @@ function generateRowHtml(b, prefix) {
         <td class="p-3 text-sm">
             <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusClass(b.status)}">${b.status}</span>
         </td>
-        <td class="p-3 text-right relative">
+        <td class="p-3 text-right relative overflow-visible">
             <button onclick="toggleDropdown(event, '${uniqueId}')" class="p-2 hover:bg-gray-100 rounded-full transition">
                 <i class="fa-solid fa-ellipsis-vertical text-slate-400"></i>
             </button>
