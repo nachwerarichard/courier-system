@@ -4796,10 +4796,12 @@ window.onload = fetchBookings;
 /**
  * Loads data from the server (Call this once when page loads)
  */
+let allBooking=[];
+        
 async function syncBookingData() {
     try {
         const response = await fetch('${API_URL}/api/bookings');
-        allBookings = await response.json();
+        allBooking = await response.json();
         applyBookingFilters(); // Render the table initially
     } catch (err) {
         console.error("Failed to load bookings:", err);
