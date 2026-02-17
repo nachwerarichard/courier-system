@@ -4403,10 +4403,21 @@ async function fetchBookings() {
     const response = await fetch(Bookingsurl);
     const bookings = await response.json();
     updateDashboardbookingStats(bookings);
+
     const table1 = document.getElementById('bookingsTableBody');
-    const table2 = document.getElementById('dashboardbookingTableBody'); // Renamed for uniqueness
+    const table2 = document.getElementById('dashboardbookingTableBody');
+
+    // Generate HTML for Table 1 (Prefix: t1)
+    if(table1) table1.innerHTML = bookings.map(b => generateRowHtml(b, 't1')).join('');
     
-   const html = bookings.map(b => `
+    // Generate HTML for Table 2 (Prefix: t2)
+    if(table2) table2.innerHTML = bookings.map(b => generateRowHtml(b, 't2')).join('');
+}
+
+// Helper function to create the row HTML with a unique prefix
+function generateRowHtml(b, prefix) {
+    const uniqueId = `${prefix}-${b._id}`;
+    return `
     <tr class="border-b hover:bg-gray-50">
         <td class="p-3 text-sm font-medium text-slate-700">${b.fullName}</td>
         <td class="p-3 text-sm text-slate-600">${b.origin}</td>
@@ -4416,11 +4427,11 @@ async function fetchBookings() {
             <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusClass(b.status)}">${b.status}</span>
         </td>
         <td class="p-3 text-right relative">
-            <button onclick="toggleDropdown(event, '${b._id}')" class="p-2 hover:bg-gray-100 rounded-full transition">
+            <button onclick="toggleDropdown(event, '${uniqueId}')" class="p-2 hover:bg-gray-100 rounded-full transition">
                 <i class="fa-solid fa-ellipsis-vertical text-slate-400"></i>
             </button>
 
-            <div id="dropdown-${b._id}" class="hidden absolute right-6 mt-1 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-[100] text-left">
+            <div id="dropdown-${uniqueId}" class="hidden absolute right-6 mt-1 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-[100] text-left">
                 <div class="py-1 text-xs font-bold text-slate-400 px-3 uppercase mt-1">Change Status</div>
                 <button onclick="updateStatus('${b._id}', 'Booked')" class="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50">Mark as Booked</button>
                 <button onclick="updateStatus('${b._id}', 'Travelled')" class="w-full text-left px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50">Mark as Travelled</button>
@@ -4431,24 +4442,27 @@ async function fetchBookings() {
                 <button onclick="deleteBooking('${b._id}')" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Delete</button>
             </div>
         </td>
-    </tr>
-`).join('');
-
-    if(table1) table1.innerHTML = html;
-    if(table2) table2.innerHTML = html;
+    </tr>`;
 }
-// Function to show/hide the menu
-function toggleDropdown(event, id) {
-    event.stopPropagation(); // Prevents clicking the row from doing anything
+        function toggleDropdown(event, uniqueId) {
+    event.stopPropagation();
     
-    // Close all other open dropdowns first
+    const dropdownId = `dropdown-${uniqueId}`;
+    const targetDropdown = document.getElementById(dropdownId);
+
+    // Close all dropdowns in both tables
     document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
-        if (el.id !== `dropdown-${id}`) el.classList.add('hidden');
+        if (el.id !== dropdownId) {
+            el.classList.add('hidden');
+        }
     });
 
-    const dropdown = document.getElementById(`dropdown-${id}`);
-    dropdown.classList.toggle('hidden');
+    // Toggle the targeted one
+    if (targetDropdown) {
+        targetDropdown.classList.toggle('hidden');
+    }
 }
+
 
 // Close dropdowns if user clicks anywhere else on the page
 window.onclick = function(event) {
