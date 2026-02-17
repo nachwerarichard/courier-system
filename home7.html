@@ -1384,6 +1384,8 @@
 
 </div>
     <script>
+        let allBookings = [];
+
         let state = {
     currentUser: null,
     parcels: [],
@@ -4719,7 +4721,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
         // Store all bookings globally so we don't have to call the API every time we filter
-let allBookings = [];
 
 // 1. Fetch data from your Express API
 async function fetchBookings() {
