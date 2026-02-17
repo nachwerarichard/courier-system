@@ -4406,26 +4406,85 @@ async function fetchBookings() {
     const table1 = document.getElementById('bookingsTableBody');
     const table2 = document.getElementById('dashboardbookingTableBody'); // Renamed for uniqueness
     
-    const html = bookings.map(b => `
-        <tr class="border-b hover:bg-gray-50">
-            <td class="p-3 text-sm">${b.fullName}</td>
-            <td class="p-3 text-sm">${b.origin}</td>
-            <td class="p-3 text-sm">${b.destination}</td>
-            <td class="p-3 text-sm">${b.departureTime}</td>
-            <td class="p-3 text-sm">
-                <span class="px-2 py-1 rounded text-xs ${getStatusClass(b.status)}">${b.status}</span>
-            </td>
-            <td class="p-3 text-right">
-                <button onclick="openEditModal('${b._id}')" class="text-blue-600 hover:underline mr-2">Edit</button>
-                <button onclick="deleteBooking('${b._id}')" class="text-red-600 hover:underline">Delete</button>
-            </td>
-        </tr>
-    `).join('');
+   const html = bookings.map(b => `
+    <tr class="border-b hover:bg-gray-50">
+        <td class="p-3 text-sm font-medium text-slate-700">${b.fullName}</td>
+        <td class="p-3 text-sm text-slate-600">${b.origin}</td>
+        <td class="p-3 text-sm text-slate-600">${b.destination}</td>
+        <td class="p-3 text-sm text-slate-600">${b.departureTime}</td>
+        <td class="p-3 text-sm">
+            <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusClass(b.status)}">${b.status}</span>
+        </td>
+        <td class="p-3 text-right relative">
+            <button onclick="toggleDropdown(event, '${b._id}')" class="p-2 hover:bg-gray-100 rounded-full transition">
+                <i class="fa-solid fa-ellipsis-vertical text-slate-400"></i>
+            </button>
+
+            <div id="dropdown-${b._id}" class="hidden absolute right-6 mt-1 w-40 bg-white border border-slate-200 shadow-xl rounded-lg z-[100] text-left">
+                <div class="py-1 text-xs font-bold text-slate-400 px-3 uppercase mt-1">Change Status</div>
+                <button onclick="updateStatus('${b._id}', 'Booked')" class="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50">Mark as Booked</button>
+                <button onclick="updateStatus('${b._id}', 'Travelled')" class="w-full text-left px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50">Mark as Travelled</button>
+                <button onclick="updateStatus('${b._id}', 'No Show')" class="w-full text-left px-4 py-2 text-sm text-orange-600 hover:bg-orange-50">Mark as No Show</button>
+                <button onclick="updateStatus('${b._id}', 'Cancelled')" class="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50">Mark as Cancelled</button>
+                <div class="border-t border-slate-100 my-1"></div>
+                <button onclick="openEditModal('${b._id}')" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-gray-50">Edit Full Details</button>
+                <button onclick="deleteBooking('${b._id}')" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Delete</button>
+            </div>
+        </td>
+    </tr>
+`).join('');
 
     if(table1) table1.innerHTML = html;
     if(table2) table2.innerHTML = html;
 }
+// Function to show/hide the menu
+function toggleDropdown(event, id) {
+    event.stopPropagation(); // Prevents clicking the row from doing anything
+    
+    // Close all other open dropdowns first
+    document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+        if (el.id !== `dropdown-${id}`) el.classList.add('hidden');
+    });
 
+    const dropdown = document.getElementById(`dropdown-${id}`);
+    dropdown.classList.toggle('hidden');
+}
+
+// Close dropdowns if user clicks anywhere else on the page
+window.onclick = function(event) {
+    if (!event.target.matches('.fa-ellipsis-vertical') && !event.target.closest('button')) {
+        document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+    }
+}
+
+// Function to update ONLY the status
+async function updateStatus(id, newStatus) {
+    try {
+        const response = await fetch(`${Bookingsurl}/${id}`, {
+            method: 'PUT', // or PATCH if your backend supports it
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (response.ok) {
+            // Refresh table and stats
+            fetchBookings();
+        } else {
+            alert("Failed to update status.");
+        }
+    } catch (error) {
+        console.error("Error updating status:", error);
+    }
+}
+        function getStatusClass(status) {
+    switch(status) {
+        case 'Booked': return 'bg-blue-100 text-blue-700';
+        case 'Travelled': return 'bg-emerald-100 text-emerald-700';
+        case 'No Show': return 'bg-orange-100 text-orange-700';
+        case 'Cancelled': return 'bg-rose-100 text-rose-700';
+        default: return 'bg-slate-100 text-slate-700';
+    }
+}
 // 2. Handle Form Submission (Create & Update)
 bookingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
