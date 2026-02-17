@@ -4644,9 +4644,12 @@ reportInputs.forEach(id => {
 });
 
 async function runBookingReport() {
+    console.log("Report function triggered"); // Check if this shows in F12 console
     try {
-        const response = await fetch(Bookingsurl); // Use your global URL variable
+        const response = await fetch(Bookingsurl);
         const allBookings = await response.json();
+        
+        console.log("Data received:", allBookings[0]); // Look a
 
         // Get Filter Values
         const fromDate = document.getElementById('reportFrom').value;
@@ -4721,6 +4724,17 @@ async function runBookingReport() {
     downloadLink.href = window.URL.createObjectURL(csvFile);
     downloadLink.click();
 }
+                // This links the inputs to the function
+document.addEventListener('DOMContentLoaded', () => {
+    const reportInputs = ['reportFrom', 'reportTo', 'reportStation', 'reportStatus', 'reportPaymentType', 'reportSearch'];
+    reportInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            // 'input' works for both typing in search and selecting dates/dropdowns
+            el.addEventListener('input', runBookingReport);
+        }
+    });
+});
 </script>
 
 
