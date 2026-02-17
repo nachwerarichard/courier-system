@@ -4798,7 +4798,7 @@ window.onload = fetchBookings;
  */
 async function syncBookingData() {
     try {
-        const response = await fetch('/api/bookings');
+        const response = await fetch('${API_URL}/api/bookings');
         allBookings = await response.json();
         applyBookingFilters(); // Render the table initially
     } catch (err) {
