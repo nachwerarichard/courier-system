@@ -3894,71 +3894,61 @@ window.handleReactivate = async function(id) {
         let parcelChart = null;
         
 window.updateDashboardStats = async function() {
-    // 1. Get Today's Date String (YYYY-MM-DD)
     const todayStr = new Date().toISOString().split('T')[0];
 
-    // 2. Filter allParcels for TODAY ONLY
     const todayParcels = allParcels.filter(p => {
         if (!p.created_at) return false;
         return p.created_at.split('T')[0] === todayStr;
     });
 
-    // --- 1. STATUS CARDS (Today Only) ---
-    document.getElementById('stat-dispatch').innerText = todayParcels.filter(p => p.status === 'At Dispatch').length;
+    // --- 1. CALCULATE COUNTS ONCE ---
+    const dispatchCount = todayParcels.filter(p => p.status === 'At Dispatch').length;
+    const transitCount = todayParcels.filter(p => p.status === 'In Transit').length;
+    const pickupCount = todayParcels.filter(p => p.status === 'Ready for Pickup').length;
+    const partialStatusCount = todayParcels.filter(p => p.status === 'Partially received').length;
+    const deliveredCount = todayParcels.filter(p => p.status === 'Delivered').length;
+
+    // Update Text Cards
+    document.getElementById('stat-dispatch').innerText = dispatchCount;
     document.getElementById('stat-total').innerText = todayParcels.length;
-    document.getElementById('stat-transit').innerText = todayParcels.filter(p => p.status === 'In Transit').length;
-    document.getElementById('stat-pickup').innerText = todayParcels.filter(p => p.status === 'Ready for Pickup').length;
-    document.getElementById('stat-partial').innerText = todayParcels.filter(p => p.status === 'Partially received').length;
-    document.getElementById('stat-delivered').innerText = todayParcels.filter(p => p.status === 'Delivered').length;
+    document.getElementById('stat-transit').innerText = transitCount;
+    document.getElementById('stat-pickup').innerText = pickupCount;
+    document.getElementById('stat-partial').innerText = partialStatusCount;
+    document.getElementById('stat-delivered').innerText = deliveredCount;
 
-    // --- 2. NEW GRAPH LOGIC ---
-    const ctx = document.getElementById('parcelStatusChart').getContext('2d');
-    
-    // If chart already exists, destroy it before creating a new one (prevents ghosting)
-    if (parcelChart) {
-        parcelChart.destroy();
-    }
+    // --- 2. GRAPH LOGIC (Using the variables we just created) ---
+    const chartCanvas = document.getElementById('parcelStatusChart');
+    if (chartCanvas) {
+        const ctx = chartCanvas.getContext('2d');
+        
+        if (window.parcelChart) {
+            window.parcelChart.destroy();
+        }
 
-    parcelChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Dispatch', 'In Transit', 'Pickup Ready', 'Partial', 'Delivered'],
-            datasets: [{
-                label: "Today's Parcel Status",
-                data: [dispatch, transit, pickup, partial, delivered],
-                backgroundColor: [
-                    '#3b82f6', // blue
-                    '#f59e0b', // amber
-                    '#8b5cf6', // violet
-                    '#ec4899', // pink
-                    '#10b981'  // emerald
-                ],
-                borderRadius: 8,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false } // Hide legend to keep it clean
+        window.parcelChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Dispatch', 'In Transit', 'Pickup Ready', 'Partial', 'Delivered'],
+                datasets: [{
+                    label: "Today's Parcel Status",
+                    // FIXED: Using the variables defined above
+                    data: [dispatchCount, transitCount, pickupCount, partialStatusCount, deliveredCount],
+                    backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981'],
+                    borderRadius: 8
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1 }, // Good for counting parcels
-                    grid: { display: false }
-                },
-                x: {
-                    grid: { display: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
                 }
             }
-        }
-    });
+        });
+    }
 
-    console.log(`Dashboard & Graph updated for: ${todayStr}`);
-
-    // --- 2. FINANCIAL CALCULATIONS (Today Only) ---
+    // --- 3. FINANCIALS & PROGRESS BARS ---
     let revToday = 0;
     let balToday = 0;
     let countPaid = 0;
@@ -3966,37 +3956,29 @@ window.updateDashboardStats = async function() {
     let countUnpaid = 0;
 
     todayParcels.forEach(p => {
-        // Revenue Today = Total Amount - Balance (The actual money collected)
         const total = p.total_amount || 0;
         const balance = p.balance || 0;
-        const paid = total - balance;
-
-        revToday += paid;
+        revToday += (total - balance);
         balToday += balance;
 
-        // Payment status counts
         if (p.payment_status === 'Paid') countPaid++;
         else if (p.payment_status === 'Partial') countPartial++;
         else countUnpaid++;
     });
 
-    // Update UI for Financials
+    // Update UI
     document.getElementById('rev-today').innerText = `UGX ${revToday.toLocaleString()}`;
     document.getElementById('bal-total').innerText = `UGX ${balToday.toLocaleString()}`;
-
-    // Update Payment Breakdown
     document.getElementById('breakdown-paid').innerText = countPaid;
     document.getElementById('breakdown-partial').innerText = countPartial;
     document.getElementById('breakdown-unpaid').innerText = countUnpaid;
 
-    // --- 3. PROGRESS BARS (Based on Today's Volume) ---
-    const totalToday = todayParcels.length || 1; // Avoid division by zero
-    
+    const totalToday = todayParcels.length || 1;
     document.getElementById('bar-paid').style.width = `${(countPaid / totalToday) * 100}%`;
     document.getElementById('bar-partial').style.width = `${(countPartial / totalToday) * 100}%`;
     document.getElementById('bar-unpaid').style.width = `${(countUnpaid / totalToday) * 100}%`;
 
-    console.log(`Dashboard updated for: ${todayStr}`);
+    console.log(`Dashboard fully updated for: ${todayStr}`);
 };
         // Function to generate the report
 async function generateReport() {
