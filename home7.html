@@ -4724,7 +4724,7 @@ let allBookings = [];
 // 1. Fetch data from your Express API
 async function fetchBookings() {
     try {
-        const response = await fetch('${API_URL}/api/bookings');
+        const response = await fetch(Bookingsurl);
         allBookings = await response.json();
         renderTable(allBookings); // Initial render
     } catch (err) {
