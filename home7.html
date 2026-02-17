@@ -4402,7 +4402,7 @@ const modal = document.getElementById('bookingModal');
 async function fetchBookings() {
     const response = await fetch(Bookingsurl);
     const bookings = await response.json();
-    updateDashboardStats(bookings);
+    updateDashboardbookingStats(bookings);
     const table1 = document.getElementById('bookingsTableBody');
     const table2 = document.getElementById('dashboardbookingTableBody'); // Renamed for uniqueness
     
@@ -4517,7 +4517,7 @@ function getStatusClass(status) {
 
 // Initial Load
 fetchBookings();
-function updateDashboardStats(bookings) {
+function updateDashboardbookingStats(bookings) {
     const counts = { 'Booked': 0, 'Travelled': 0, 'No Show': 0, 'Cancelled': 0 };
     let totalRevenue = 0;
     
