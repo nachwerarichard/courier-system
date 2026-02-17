@@ -946,17 +946,17 @@
     </div>
 
     <div class="bg-white p-4 rounded-xl border border-slate-200 mb-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <input type="date" id="reportFrom" class="border p-2.5 rounded-lg text-sm" title="From Date">
-        <input type="date" id="reportTo" class="border p-2.5 rounded-lg text-sm" title="To Date">
+        <input type="date" id="bookingreportFrom" class="border p-2.5 rounded-lg text-sm" title="From Date">
+        <input type="date" id="bookingreportTo" class="border p-2.5 rounded-lg text-sm" title="To Date">
         
-        <select id="reportStation" class="border p-2.5 rounded-lg text-sm">
+        <select id="bookingreportStation" class="border p-2.5 rounded-lg text-sm">
             <option value="">All Stations</option>
             <option value="Kampala">Kampala</option>
             <option value="Mbale">Mbale</option>
             <option value="Jinja">Jinja</option>
         </select>
 
-        <select id="reportStatus" class="border p-2.5 rounded-lg text-sm">
+        <select id="bookingreportStatus" class="border p-2.5 rounded-lg text-sm">
             <option value="">All Status</option>
             <option value="Booked">Booked</option>
             <option value="Travelled">Travelled</option>
@@ -964,7 +964,7 @@
             <option value="Cancelled">Cancelled</option>
         </select>
 
-        <select id="reportPaymentType" class="border p-2.5 rounded-lg text-sm">
+        <select id="bookingreportPaymentType" class="border p-2.5 rounded-lg text-sm">
             <option value="">Payment Method</option>
             <option value="cash">Cash</option>
             <option value="MTN Momo">MTN Momo</option>
@@ -972,21 +972,21 @@
             <option value="Bank">Bank Transfer</option>
         </select>
 
-        <input type="text" id="reportSearch" class="border p-2.5 rounded-lg text-sm" placeholder="Search Passenger Name...">
+        <input type="text" id="bookingreportSearch" class="border p-2.5 rounded-lg text-sm" placeholder="Search Passenger Name...">
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest">Total Bookings</p>
-            <h3 id="report-total-bookings" class="text-2xl font-black text-slate-800">0</h3>
+            <h3 id="bookingreport-total-bookings" class="text-2xl font-black text-slate-800">0</h3>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest">Revenue Collected</p>
-            <h3 id="report-total-revenue" class="text-2xl font-black text-blue-700">UGX 0</h3>
+            <h3 id="bookingreport-total-revenue" class="text-2xl font-black text-blue-700">UGX 0</h3>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest">Passengers Travelled</p>
-            <h3 id="report-total-travelled" class="text-2xl font-black text-emerald-600">0</h3>
+            <h3 id="bookingreport-total-travelled" class="text-2xl font-black text-emerald-600">0</h3>
         </div>
     </div>
 
@@ -1010,7 +1010,7 @@
                         <th class="p-4 text-[10px] uppercase font-bold text-slate-500">Method</th>
                     </tr>
                 </thead>
-                <tbody id="reports-table-body" class="divide-y divide-slate-100 text-sm">
+                <tbody id="bookingreports-table-body" class="divide-y divide-slate-100 text-sm">
                     </tbody>
             </table>
         </div>
@@ -4652,12 +4652,12 @@ async function runBookingReport() {
         console.log("Data received:", allBookings[0]); // Look a
 
         // Get Filter Values
-        const fromDate = document.getElementById('reportFrom').value;
-        const toDate = document.getElementById('reportTo').value;
-        const station = document.getElementById('reportStation').value;
-        const status = document.getElementById('reportStatus').value;
-        const payMethod = document.getElementById('reportPaymentType').value;
-        const search = document.getElementById('reportSearch').value.toLowerCase();
+        const fromDate = document.getElementById('bookingreportFrom').value;
+        const toDate = document.getElementById('bookingreportTo').value;
+        const station = document.getElementById('bookingreportStation').value;
+        const status = document.getElementById('bookingreportStatus').value;
+        const payMethod = document.getElementById('bookingreportPaymentType').value;
+        const search = document.getElementById('bookingreportSearch').value.toLowerCase();
 
         // 2. Filter Logic
         const filtered = allBookings.filter(b => {
@@ -4681,14 +4681,14 @@ async function runBookingReport() {
             if(b.status === 'Travelled') travelledCount++;
         });
 
-        document.getElementById('report-total-bookings').innerText = filtered.length;
-        document.getElementById('report-total-travelled').innerText = travelledCount;
-        document.getElementById('report-total-revenue').innerText = new Intl.NumberFormat('en-UG', {
+        document.getElementById('bookingreport-total-bookings').innerText = filtered.length;
+        document.getElementById('bookingreport-total-travelled').innerText = travelledCount;
+        document.getElementById('bookingreport-total-revenue').innerText = new Intl.NumberFormat('en-UG', {
             style: 'currency', currency: 'UGX', maximumFractionDigits: 0
         }).format(totalRev);
 
         // 4. Update Table
-        const tableBody = document.getElementById('reports-table-body');
+        const tableBody = document.getElementById('bookingreports-table-body');
         tableBody.innerHTML = filtered.map(b => `
             <tr class="hover:bg-slate-50 transition">
                 <td class="p-4 text-slate-600">${new Date(b.bookingDate).toLocaleDateString()}</td>
@@ -4707,8 +4707,8 @@ async function runBookingReport() {
         console.error("Report Error:", err);
     }
 }
-        function exportbookingReportToCSV() {
-    const table = document.querySelector("#bookingReports-section table");
+        function exportToCSV() {
+    const table = document.querySelector("#bookingreports-table-body");
     let csv = [];
     const rows = table.querySelectorAll("tr");
     
@@ -4726,8 +4726,8 @@ async function runBookingReport() {
 }
                 // This links the inputs to the function
 document.addEventListener('DOMContentLoaded', () => {
-    const reportInputs = ['reportFrom', 'reportTo', 'reportStation', 'reportStatus', 'reportPaymentType', 'reportSearch'];
-    reportInputs.forEach(id => {
+    const reportInputs = ['bookingreportFrom', 'bookingreportTo', 'bookingreportStation', 'bookingreportStatus', 'bookingreportPaymentType', 'bookingreportSearch'];
+    bookingreportInputs.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             // 'input' works for both typing in search and selecting dates/dropdowns
