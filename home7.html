@@ -4398,7 +4398,7 @@ const modal = document.getElementById('bookingModal');
 async function fetchBookings() {
     const response = await fetch(Bookingsurl);
     const bookings = await response.json();
-    
+    updateDashboardStats(bookings);
     const table1 = document.getElementById('bookingsTableBody');
     const table2 = document.getElementById('dashboardbookingTableBody'); // Renamed for uniqueness
     
@@ -4513,6 +4513,52 @@ function getStatusClass(status) {
 
 // Initial Load
 fetchBookings();
+function updateDashboardStats(bookings) {
+    const counts = {
+        'Booked': 0,
+        'Travelled': 0,
+        'No Show': 0,
+        'Cancelled': 0
+    };
+    
+    let totalRevenue = 0;
+    
+    // Get today's date string (e.g., "Tue Feb 17 2026")
+    const today = new Date().toDateString();
+
+    bookings.forEach(booking => {
+        // Convert the stored bookingDate (ISO string) into a Date object
+        const bDate = new Date(booking.bookingDate).toDateString();
+
+        // Only process if the booking was made TODAY
+        if (bDate === today) {
+            // 1. Count Statuses
+            if (counts.hasOwnProperty(booking.status)) {
+                counts[booking.status]++;
+            }
+
+            // 2. Calculate Revenue (Only for Booked/Travelled today)
+            if (booking.status === 'Booked' || booking.status === 'Travelled') {
+                totalRevenue += Number(booking.amountPaid || 0);
+            }
+        }
+    });
+
+    // 3. Update Status HTML
+    document.getElementById('stat-booked').innerText = counts['Booked'];
+    document.getElementById('stat-travelled').innerText = counts['Travelled'];
+    document.getElementById('stat-noshow').innerText = counts['No Show'];
+    document.getElementById('stat-cancelled').innerText = counts['Cancelled'];
+
+    // 4. Update Revenue HTML
+    const formattedRevenue = new Intl.NumberFormat('en-UG', {
+        style: 'currency',
+        currency: 'UGX',
+        maximumFractionDigits: 0
+    }).format(totalRevenue);
+
+    document.getElementById('rev-booking').innerText = formattedRevenue;
+}
 </script>
 
 
