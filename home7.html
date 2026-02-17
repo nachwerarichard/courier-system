@@ -1485,6 +1485,7 @@ function showSection(sectionId, clickedLink) {
                     const userData = await res.json();
                     localStorage.setItem('courier_user', JSON.stringify(userData));
                     showDashboard(userData);
+                    runBookingReport(); // Trigger the first load of data
                 } else {
                     errorDiv.classList.remove('hidden');
                 }
