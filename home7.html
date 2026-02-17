@@ -4480,28 +4480,27 @@ function generateRowHtml(b, prefix) {
         }
     }
 }
-          function runDBookingFilter() {
-    // 1. Get filter values
-    const searchValue = document.getElementById('dashboardsearch-input').value.toLowerCase();
-    // 2. Get all rows from the table
-    const tableBody = document.getElementById('dashboardbooking-search');
+         function runDBookingFilter() {
+    // 1. FIXED: Match the ID from your HTML ('dashboardbooking-search')
+    const searchInput = document.getElementById('dashboardbooking-search');
+    if (!searchInput) return; // Safety check
+    
+    const searchValue = searchInput.value.toLowerCase();
+
+    // 2. FIXED: Get rows from the TBODY, not the input field
+    const tableBody = document.getElementById('dashboardbookingTableBody');
     const rows = tableBody.getElementsByTagName('tr');
 
     // 3. Loop through rows and filter
     for (let row of rows) {
-        // Extract text from specific cells (adjust index if table order changes)
+        // Extract text from the first cell (Passenger name)
         const name = row.cells[0].textContent.toLowerCase();
-        
 
-        // Check if row matches ALL active filters
-        const matchesSearch = searchValue === "" || name.includes(searchValue);
+        // 4. Check if row matches search
+        const matchesSearch = name.includes(searchValue);
 
-        // 4. Show or Hide the row
-        if ( matchesSearch) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
+        // 5. Show or Hide the row
+        row.style.display = matchesSearch ? "" : "none";
     }
 }
 // Close dropdowns if user clicks anywhere else on the page
