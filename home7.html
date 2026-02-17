@@ -4725,13 +4725,13 @@ let allBookings = [];
 async function fetchBookings() {
     try {
         const response = await fetch(Bookingsurl);
-        allBookings = await response.json();
-        renderTable(allBookings); // Initial render
+        const data = await response.json(); // Assign to a local const first
+        allBookings = data;                 // Then update the global variable
+        renderTable(allBookings);
     } catch (err) {
-        console.error("Error fetching bookings:", err);
+        console.error("Error:", err);
     }
 }
-
 // 2. The Filter Engine
 function filterBookings() {
     const searchTerm = document.getElementById('filter-search').value.toLowerCase();
@@ -4870,6 +4870,10 @@ function renderBookingTable(data) {
 
 // Initial Call
 syncBookingData();
+
+        document.addEventListener('DOMContentLoaded', () => {
+    fetchBookings();
+});
 </script>
 
 
