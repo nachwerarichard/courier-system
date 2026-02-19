@@ -611,8 +611,46 @@
 
 
 
-                <section id="log-section" class="hidden">
-                </section>
+                <section id="log-section" class="hidden p-6 bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+            <h2 class="text-2xl font-bold text-gray-800">System Audit Logs</h2>
+            
+            <div class="relative w-full md:w-64">
+                <input 
+                    type="text" 
+                    id="log-search" 
+                    placeholder="Search user or action..." 
+                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    onkeyup="filterLogs()"
+                >
+                <div class="absolute left-3 top-2.5 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 border-b border-gray-200 text-gray-600 text-sm uppercase tracking-wider">
+                            <th class="px-6 py-4 font-semibold">Date & Time</th>
+                            <th class="px-6 py-4 font-semibold">User</th>
+                            <th class="px-6 py-4 font-semibold">Action</th>
+                            <th class="px-6 py-4 font-semibold">Module</th>
+                            <th class="px-6 py-4 font-semibold">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-log-body" class="divide-y divide-gray-100 text-gray-700">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
                                     <section id="users-section" class="hidden">
 
                     <div class="bg-white rounded-xl shadow-sm border p-6">
@@ -4864,6 +4902,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+        let allLogs = []; // Global store for filtering
+
+// 1. Fetch Logs from Backend
+async function loadAuditLogs() {
+    try {
+        const response = await fetch('/api/audit-logs');
+        allLogs = await response.json();
+        renderLogs(allLogs);
+    } catch (err) {
+        console.error("Error loading logs:", err);
+    }
+}
+
+// 2. Render Logs to Table
+function renderLogs(logs) {
+    const tableBody = document.getElementById('audit-log-body');
+    tableBody.innerHTML = logs.map(log => {
+        // Format the date nicely
+        const date = new Date(log.timestamp).toLocaleDateString('en-GB', {
+            day: '2-digit', month: 'short', year: 'numeric'
+        });
+        const time = new Date(log.timestamp).toLocaleTimeString('en-GB', {
+            hour: '2-digit', minute: '2-digit'
+        });
+
+        // Dynamic badges for actions
+        const actionClass = log.action.includes('DELETE') ? 'bg-red-100 text-red-700' : 
+                           log.action.includes('CREATE') ? 'bg-green-100 text-green-700' : 
+                           'bg-blue-100 text-blue-700';
+
+        return `
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4 text-sm">
+                    <div class="font-medium text-gray-900">${date}</div>
+                    <div class="text-xs text-gray-500">${time}</div>
+                </td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-700">
+                    ${log.performed_by}
+                </td>
+                <td class="px-6 py-4 text-sm">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${actionClass}">
+                        ${log.action}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    ${log.module}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-600 italic">
+                    ${log.details ? JSON.stringify(log.details).replace(/[{}"]/g, '') : '-'}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// 3. Automatic Search Functionality
+function filterLogs() {
+    const searchTerm = document.getElementById('log-search').value.toLowerCase();
+    
+    const filtered = allLogs.filter(log => 
+        log.performed_by.toLowerCase().includes(searchTerm) || 
+        log.action.toLowerCase().includes(searchTerm) ||
+        log.module.toLowerCase().includes(searchTerm)
+    );
+    
+    renderLogs(filtered);
+}
+
+// Trigger load when the section becomes visible
+// You can call loadAuditLogs() whenever the "Audit Logs" button is clicked
 </script>
 
 
