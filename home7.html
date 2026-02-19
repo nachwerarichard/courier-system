@@ -4721,45 +4721,45 @@ fetchBookings();
 function updateDashboardbookingStats(bookings) {
     const counts = { 'Booked': 0, 'Travelled': 0, 'No Show': 0, 'Cancelled': 0 };
     let totalRevenue = 0;
+
+    // Get start of today (00:00:00)
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
-    // Get today's date in local format (Year, Month, Day)
-    const today = new Date().toDateString();
+    // End of today (23:59:59)
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
 
     bookings.forEach(booking => {
-        // Ensure we are comparing dates correctly
-        const bDate = new Date(booking.bookingDate).toDateString();
-        
-        if (bDate === today) {
-            // 1. Count Statuses
+        const bookingDate = new Date(booking.bookingDate);
+
+        if (bookingDate >= startOfDay && bookingDate < endOfDay) {
+
             if (counts.hasOwnProperty(booking.status)) {
                 counts[booking.status]++;
             }
 
-            // 2. Calculate Revenue
             if (booking.status === 'Booked' || booking.status === 'Travelled') {
                 totalRevenue += Number(booking.amountPaid || 0);
             }
         }
     });
 
-    // 3. Update the text labels in your HTML
     document.getElementById('stat-booked').innerText = counts['Booked'];
     document.getElementById('stat-travelled').innerText = counts['Travelled'];
     document.getElementById('stat-noshow').innerText = counts['No Show'];
     document.getElementById('stat-cancelled').innerText = counts['Cancelled'];
 
-    // 4. Update Revenue with UGX formatting
     const formattedRevenue = new Intl.NumberFormat('en-UG', {
         style: 'currency',
         currency: 'UGX',
         maximumFractionDigits: 0
     }).format(totalRevenue);
-    
+
     document.getElementById('rev-booking').innerText = formattedRevenue;
 
-    // 5. Update the Graph
     renderChart(counts);
 }
+
         function renderChart(dataCounts) {
     const ctx = document.getElementById('bookingChart').getContext('2d');
 
