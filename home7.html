@@ -1450,6 +1450,7 @@
 
 </div>
     <script>
+                let allLogs = []; // Global store for filtering
         let state = {
     currentUser: null,
     parcels: [],
@@ -4905,7 +4906,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-        let allLogs = []; // Global store for filtering
 
 // 1. Fetch Logs from Backend
 async function loadAuditLogs() {
