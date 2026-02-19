@@ -4910,7 +4910,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // 1. Fetch Logs from Backend
 async function loadAuditLogs() {
     try {
-        const response = await fetch('${API_URL}/audit-logs');
+        // 1. Ensure backticks are used and the path matches the backend (/api/audit-logs)
+        const response = await fetch(`${API_URL}/api/audit-logs`);
+        
+        // 2. Check if the response is actually okay before parsing
+        if (!response.ok) {
+            console.error(`Server returned ${response.status} for ${response.url}`);
+            return;
+        }
+
         allLogs = await response.json();
         renderLogs(allLogs);
     } catch (err) {
