@@ -2881,7 +2881,60 @@ function openParcelModal() {
 }
 
 function closeParcelModal() {
+    // 1. Hide the modal
     document.getElementById('parcel-modal').classList.add('hidden');
+
+    // 2. Reset the Form Values
+    const form = document.getElementById('parcel-form');
+    if (form) form.reset();
+
+    // 3. Reset Global Variables
+    isEditMode = false;
+    editingId = null;
+    currentConsignment = []; // Clear the items array
+    if (typeof renderParcelList === "function") {
+        renderParcelList(true); // Re-render empty list
+    }
+
+    // 4. Restore Default UI (Title and Submit Button)
+    document.querySelector('#parcel-modal h3').innerText = "Create New Parcel";
+    const submitBtn = document.querySelector('#parcel-modal button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerText = "Save Parcel";
+        submitBtn.style.display = "block"; // Make sure it's visible again
+    }
+
+    // 5. Remove Injected "Edit Actions" (Status select and Payment button)
+    const oldActions = document.getElementById('edit-actions');
+    if (oldActions) oldActions.remove();
+
+    // 6. Re-enable all locked inputs and fix background colors
+    const allInputIds = [
+        'client_id', 'senderName', 'senderPhone', 'origin', 
+        'receiverName', 'receiverPhone', 'destination', 
+        'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'
+    ];
+
+    allInputIds.forEach(fieldId => {
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.readOnly = false;
+            el.disabled = false;
+            el.style.backgroundColor = ""; // Reset to default
+            el.style.cursor = "default";
+        }
+    });
+
+    // 7. Unlock the "Add Item" section
+    const addItemSection = document.getElementById('addItemSection');
+    if (addItemSection) {
+        addItemSection.style.opacity = "1";
+        addItemSection.style.pointerEvents = "auto";
+        addItemSection.classList.remove('bg-slate-100');
+        
+        const itemInputs = addItemSection.querySelectorAll('input, select, button');
+        itemInputs.forEach(input => input.disabled = false);
+    }
 }
 function getStatusStyle(status) {
     switch(status) {
