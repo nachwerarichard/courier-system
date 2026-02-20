@@ -4731,8 +4731,7 @@ function updateDashboardbookingStats(bookings) {
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
 
     bookings.forEach(booking => {
-        const bookingDate = new Date(booking.bookingDate);
-
+        const bookingDate = new Date(booking.createdAt);
         if (bookingDate >= startOfDay && bookingDate < endOfDay) {
 
             if (counts.hasOwnProperty(booking.status)) {
