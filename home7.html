@@ -1268,26 +1268,26 @@
         </div>
 
         <form id="quickUserForm" class="space-y-4">
-            <input type="hidden" id="modalCustomerId">
+            <input type="hidden" id="usermodalCustomerId">
 
             <div>
                 <label class="text-xs font-semibold text-gray-500 uppercase">Full Name</label>
-                <input type="text" id="modalFullName" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                <input type="text" id="usermodalFullName" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
             </div>
 
             <div>
                 <label class="text-xs font-semibold text-gray-500 uppercase">Phone Number</label>
-                <input type="text" id="modalPhone" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                <input type="text" id="usermodalPhone" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="text-xs font-semibold text-gray-500 uppercase">ID Number</label>
-                    <input type="text" id="modalID" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Optional">
+                    <input type="text" id="usermodalID" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Optional">
                 </div>
                 <div>
                     <label class="text-xs font-semibold text-gray-500 uppercase">Home Station</label>
-                    <select id="modalStation" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    <select id="usermodalStation" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
            
             <option value="Kampala">Kampala</option>
             <option value="Mbale">Mbale</option>                    </select>
@@ -3197,8 +3197,8 @@ loadFormOptions();
         // Function to show the modal and set the context (Sender or Receiver)
 function openUserModal(type) {
     const modal = document.getElementById('userModal');
-    const title = document.getElementById('modalTitle');
-    const typeInput = document.getElementById('modalCustomerId');
+    const title = document.getElementById('usermodalTitle');
+    const typeInput = document.getElementById('usermodalCustomerId');
 
     typeInput.value = type;
     title.innerText = type === 'sender' ? 'Add New Sender' : 'Add New Receiver';
@@ -3329,11 +3329,11 @@ window.editCustomer = async function(id) {
         if (title) title.innerText = "Edit Customer Details";
         
         // 4. Fill the fields (Added optional chaining and defaults to prevent errors)
-        document.getElementById('modalCustomerId').value = data._id || "";
-        document.getElementById('modalFullName').value = data.full_name || "";
-        document.getElementById('modalPhone').value = data.phone || "";
-        document.getElementById('modalID').value = data.id_number || "";
-        document.getElementById('modalStation').value = data.station || "";
+        document.getElementById('usermodalCustomerId').value = data._id || "";
+        document.getElementById('usermodalFullName').value = data.full_name || "";
+        document.getElementById('usermodalPhone').value = data.phone || "";
+        document.getElementById('usermodalID').value = data.id_number || "";
+        document.getElementById('usermodalStation').value = data.station || "";
 
         console.log("Modal populated successfully");
 
@@ -3347,10 +3347,10 @@ window.editCustomer = async function(id) {
     
     const customerId = document.getElementById('modalCustomerId').value;
     const userData = {
-        full_name: document.getElementById('modalFullName').value,
-        phone: document.getElementById('modalPhone').value,
-        id_number: document.getElementById('modalID').value,
-        station: document.getElementById('modalStation').value
+        full_name: document.getElementById('usermodalFullName').value,
+        phone: document.getElementById('usermodalPhone').value,
+        id_number: document.getElementById('usermodalID').value,
+        station: document.getElementById('usermodalStation').value
     };
 
     // Determine if we are Updating (PUT) or Creating (POST)
@@ -3370,7 +3370,7 @@ window.editCustomer = async function(id) {
             if (typeof refreshCustomerTable === "function") refreshCustomerTable();
             
             closeModal();
-            document.getElementById('modalCustomerId').value = ""; // Clear the ID
+            document.getElementById('usermodalCustomerId').value = ""; // Clear the ID
         }
     } catch (err) {
         console.error("Save failed:", err);
