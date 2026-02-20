@@ -223,7 +223,7 @@
         <div class="bg-white rounded-xl shadow-sm border p-6">
             <h4 class="font-bold text-gray-700 mb-4">Quick Actions</h4>
             <div class="grid grid-cols-1 gap-3">
-                <button onclick="showModal('parcel-modal')" class="flex items-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold shadow-md transition-all">
+                <button onclick="openParcelModal()" class="flex items-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold shadow-md transition-all">
                     <i class="fa-solid fa-plus-circle"></i> Create New Parcel
                 </button>
                 <button onclick="showModal('bookingModal')" class="flex items-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold shadow-md transition-all">
@@ -692,7 +692,7 @@
 
     <!-- Add New Parcel Button -->
     <div class="flex-shrink-0">
-        <button onclick="showModal('parcel-modal')" 
+        <button onclick=" openParcelModal()" 
                 class="bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 shadow-lg transition-all flex items-center gap-2 font-bold text-sm">
             <i class="fa-solid fa-plus"></i> Add New Parcel
         </button>
