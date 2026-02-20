@@ -4813,12 +4813,13 @@ reportInputs.forEach(id => {
 });
 
 async function runBookingReport() {
-    console.log("Report function triggered"); // Check if this shows in F12 console
+    console.log("Report function triggered");
+
     try {
         const response = await fetch(Bookingsurl);
         const allBookings = await response.json();
-        
-        console.log("Data received:", allBookings[0]); // Look a
+
+        console.log("Data received:", allBookings[0]);
 
         // Get Filter Values
         const fromDate = document.getElementById('bookingreportFrom').value;
@@ -4828,53 +4829,97 @@ async function runBookingReport() {
         const payMethod = document.getElementById('bookingreportPaymentType').value;
         const search = document.getElementById('bookingreportSearch').value.toLowerCase();
 
-        // 2. Filter Logic
+        // 1️⃣ Safe Filtering Logic
         const filtered = allBookings.filter(b => {
-            const bDate = new Date(b.createdAt).toISOString().split('T')[0];
-            const matchDate = (!fromDate || bDate >= fromDate) && (!toDate || bDate <= toDate);
-            const matchStation = !station || b.origin === station || b.destination === station;
-            const matchStatus = !status || b.status === status;
-            const matchPay = !payMethod || b.paymentMethod === payMethod;
-            const matchSearch = !search || b.fullName.toLowerCase().includes(search);
+
+            // Support both createdAt and old bookingDate
+            const rawDate = b.createdAt || b.bookingDate;
+            if (!rawDate) return false;
+
+            const dateObj = new Date(rawDate);
+            if (isNaN(dateObj.getTime())) return false;
+
+            // Format as YYYY-MM-DD safely
+            const bDate = dateObj.toISOString().split('T')[0];
+
+            const matchDate =
+                (!fromDate || bDate >= fromDate) &&
+                (!toDate || bDate <= toDate);
+
+            const matchStation =
+                !station ||
+                b.origin === station ||
+                b.destination === station;
+
+            const matchStatus =
+                !status ||
+                b.status === status;
+
+            const matchPay =
+                !payMethod ||
+                b.paymentMethod === payMethod;
+
+            const matchSearch =
+                !search ||
+                (b.fullName && b.fullName.toLowerCase().includes(search));
 
             return matchDate && matchStation && matchStatus && matchPay && matchSearch;
         });
 
-        // 3. Update Summary Cards
+        // 2️⃣ Update Summary Cards
         let totalRev = 0;
         let travelledCount = 0;
-        
+
         filtered.forEach(b => {
             totalRev += Number(b.amountPaid || 0);
-            if(b.status === 'Travelled') travelledCount++;
+            if (b.status === 'Travelled') travelledCount++;
         });
 
         document.getElementById('bookingreport-total-bookings').innerText = filtered.length;
         document.getElementById('bookingreport-total-travelled').innerText = travelledCount;
-        document.getElementById('bookingreport-total-revenue').innerText = new Intl.NumberFormat('en-UG', {
-            style: 'currency', currency: 'UGX', maximumFractionDigits: 0
-        }).format(totalRev);
+        document.getElementById('bookingreport-total-revenue').innerText =
+            new Intl.NumberFormat('en-UG', {
+                style: 'currency',
+                currency: 'UGX',
+                maximumFractionDigits: 0
+            }).format(totalRev);
 
-        // 4. Update Table
+        // 3️⃣ Update Table Safely
         const tableBody = document.getElementById('bookingreports-table-body');
-        tableBody.innerHTML = filtered.map(b => `
-            <tr class="hover:bg-slate-50 transition">
-                <td class="p-4 text-slate-600">${new Date(b.createdAt).toLocaleDateString()}</td>
-                <td class="p-4 font-bold text-slate-800">${b.fullName}</td>
-                <td class="p-4 text-slate-600">${b.origin} → ${b.destination}</td>
-                <td class="p-4 text-slate-600">${b.departureTime}</td>
-                <td class="p-4">
-                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusClass(b.status)}">${b.status}</span>
-                </td>
-                <td class="p-4 font-bold text-slate-700">${Number(b.amountPaid).toLocaleString()}</td>
-                <td class="p-4 text-slate-500 capitalize">${b.paymentMethod}</td>
-            </tr>
-        `).join('');
+
+        tableBody.innerHTML = filtered.map(b => {
+
+            const rawDate = b.createdAt || b.bookingDate;
+            const safeDate = rawDate && !isNaN(new Date(rawDate))
+                ? new Date(rawDate).toLocaleDateString()
+                : '—';
+
+            return `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-4 text-slate-600">${safeDate}</td>
+                    <td class="p-4 font-bold text-slate-800">${b.fullName || ''}</td>
+                    <td class="p-4 text-slate-600">${b.origin || ''} → ${b.destination || ''}</td>
+                    <td class="p-4 text-slate-600">${b.departureTime || ''}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusClass(b.status)}">
+                            ${b.status || ''}
+                        </span>
+                    </td>
+                    <td class="p-4 font-bold text-slate-700">
+                        ${Number(b.amountPaid || 0).toLocaleString()}
+                    </td>
+                    <td class="p-4 text-slate-500 capitalize">
+                        ${b.paymentMethod || ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
 
     } catch (err) {
         console.error("Report Error:", err);
     }
 }
+
         function exportToCSV() {
     const table = document.querySelector("#bookingreports-table-body");
     let csv = [];
