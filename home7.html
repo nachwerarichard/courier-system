@@ -3152,13 +3152,13 @@ document.getElementById('amountPaid').addEventListener('input', calculatePayment
     
     // We no longer care about 'type' for the database, 
     // but we use it to know which input to fill on the UI.
-    const type = document.getElementById('modalCustomerId').value; 
+    const type = document.getElementById('usermodalCustomerId').value; 
     
     const userData = {
-        full_name: document.getElementById('modalFullName').value,
-        phone: document.getElementById('modalPhone').value,
-        id_number: document.getElementById('modalID').value,
-        station: document.getElementById('modalStation').value
+        full_name: document.getElementById('usermodalFullName').value,
+        phone: document.getElementById('usermodalPhone').value,
+        id_number: document.getElementById('usermodalID').value,
+        station: document.getElementById('usermodalStation').value
     };
 
     try {
