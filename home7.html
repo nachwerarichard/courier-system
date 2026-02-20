@@ -5011,18 +5011,25 @@ function renderLogs(logs) {
     }).join('');
 }
 
-// 3. Automatic Search Functionality
+function safeLower(value) {
+    return (value || '').toString().toLowerCase();
+}
+
 function filterLogs() {
-    const searchTerm = document.getElementById('log-search').value.toLowerCase();
-    
-    const filtered = allLogs.filter(log => 
-        log.performed_by.toLowerCase().includes(searchTerm) || 
-        log.action.toLowerCase().includes(searchTerm) ||
-        log.module.toLowerCase().includes(searchTerm)
+    const searchTerm = document
+        .getElementById('log-search')
+        .value
+        .toLowerCase();
+
+    const filtered = allLogs.filter(log =>
+        safeLower(log.performed_by).includes(searchTerm) ||
+        safeLower(log.action).includes(searchTerm) ||
+        safeLower(log.module).includes(searchTerm)
     );
-    
+
     renderLogs(filtered);
 }
+
 
 // Trigger load when the section becomes visible
 // You can call loadAuditLogs() whenever the "Audit Logs" button is clicked
