@@ -1073,7 +1073,7 @@
                 <h3 class="text-lg font-bold text-blue-600 uppercase">New Parcel Booking</h3>
                 <p class="text-xs text-slate-500">Create a single waybill for multiple items.</p>
             </div>
-            <button onclick="hideModal('parcel-modal')" class="text-slate-400 hover:text-slate-600 text-3xl">&times;</button>
+            <button onclick="closeParcelModal()" class="text-slate-400 hover:text-slate-600 text-3xl">&times;</button>
         </div>
 
         <form id="createParcelForm" class="p-6 overflow-y-auto">
@@ -1224,7 +1224,7 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-100">
-                <button type="button" onclick="hideModal('parcel-modal')" class="px-8 py-3 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-100 transition">
+                <button type="button" onclick="closeParcelModal()" class="px-8 py-3 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-100 transition">
                     Close
                 </button>
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-lg text-sm font-bold shadow-lg transition transform active:scale-95">
@@ -2834,8 +2834,7 @@ function openParcelModal() {
     currentConsignment = []; // Clear the items list
 
     // 2. Standard Form Reset
-    const form = document.getElementById('parcel-form');
-    form.reset();
+
 
     // 3. Reset UI Titles & Buttons
     document.querySelector('#parcel-modal h3').innerText = "Create New Parcel";
@@ -2885,8 +2884,7 @@ function closeParcelModal() {
     document.getElementById('parcel-modal').classList.add('hidden');
 
     // 2. Reset the Form Values
-    const form = document.getElementById('parcel-form');
-    if (form) form.reset();
+    
 
     // 3. Reset Global Variables
     isEditMode = false;
