@@ -3369,9 +3369,10 @@ window.editCustomer = async function(id) {
             await loadFormOptions(); 
             if (typeof refreshCustomerTable === "function") refreshCustomerTable();
             
-            closeModal();
             document.getElementById('usermodalCustomerId').value = ""; // Clear the ID
         }
+                    closeModal();
+
     } catch (err) {
         console.error("Save failed:", err);
     }
