@@ -4412,12 +4412,12 @@ async function editUser(event, userId) {
 } 
 document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('modalCustomerId').value;
+    const id = document.getElementById('usermodalCustomerId').value;
     
     const updatedData = {
-        full_name: document.getElementById('modalFullName').value,
-        email: document.getElementById('modalPhone').value,
-        station: document.getElementById('modalStation').value
+        full_name: document.getElementById('usermodalFullName').value,
+        email: document.getElementById('usermodalPhone').value,
+        station: document.getElementById('usermodalStation').value
     };
 
     try {
