@@ -2828,11 +2828,57 @@ function calculateParcelPrice() {
 }
 
 function openParcelModal() {
-    document.getElementById('parcel-form').reset();
+    // 1. Reset variables
+    isEditMode = false;
+    editingId = null;
+    currentConsignment = []; // Clear the items list
+
+    // 2. Standard Form Reset
+    const form = document.getElementById('parcel-form');
+    form.reset();
+
+    // 3. Reset UI Titles & Buttons
+    document.querySelector('#parcel-modal h3').innerText = "Create New Parcel";
+    const submitBtn = document.querySelector('#parcel-modal button[type="submit"]');
+    submitBtn.innerText = "Save Parcel";
+    submitBtn.style.display = "block"; // Ensure it's visible
+
+    // 4. Remove Injected Edit/Payment Buttons
+    const oldActions = document.getElementById('edit-actions');
+    if (oldActions) oldActions.remove();
+
+    // 5. Unlock Fields (Undo the Edit Mode Locking)
+    const allInputIds = [
+        'client_id', 'senderName', 'senderPhone', 'origin', 
+        'receiverName', 'receiverPhone', 'destination', 
+        'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'
+    ];
+    
+    allInputIds.forEach(fieldId => {
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.readOnly = false;
+            el.disabled = false;
+            el.style.backgroundColor = "#ffffff"; 
+            el.style.cursor = "text";
+        }
+    });
+
+    // 6. Unlock the Add Item Section
+    const addItemSection = document.getElementById('addItemSection');
+    if (addItemSection) {
+        addItemSection.style.opacity = "1";
+        addItemSection.style.pointerEvents = "auto";
+        addItemSection.classList.remove('bg-slate-100');
+        const itemInputs = addItemSection.querySelectorAll('input, select, button');
+        itemInputs.forEach(input => input.disabled = false);
+    }
+
+    // 7. Refresh & Show
     calculateParcelPrice();
+    renderParcelList(true); // Render list in editable mode
     document.getElementById('parcel-modal').classList.remove('hidden');
 }
-
 
 function closeParcelModal() {
     document.getElementById('parcel-modal').classList.add('hidden');
