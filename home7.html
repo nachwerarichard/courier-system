@@ -3371,8 +3371,7 @@ window.editCustomer = async function(id) {
             
             document.getElementById('usermodalCustomerId').value = ""; // Clear the ID
         }
-                    closeModal();
-
+            closeUserModal()
     } catch (err) {
         console.error("Save failed:", err);
     }
