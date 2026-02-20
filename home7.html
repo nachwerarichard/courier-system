@@ -2813,7 +2813,7 @@ async function deleteParcel(id) {
  * UI & Calculation Helpers
  */
 function calculateParcelPrice() {
-    const q = document.getElementById('temp_qty').value || 1;
+    const q = document.getElementById('temp_qty').value || 0;
     const w = document.getElementById('temp_weight').value || 1;
     const l = document.getElementById('length').value || 1;
     const wi = document.getElementById('width').value || 1;
