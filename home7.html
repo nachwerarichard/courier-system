@@ -4830,8 +4830,7 @@ async function runBookingReport() {
 
         // 2. Filter Logic
         const filtered = allBookings.filter(b => {
-            const bDate = new Date(b.bookingDate).toISOString().split('T')[0];
-            
+            const bDate = new Date(b.createdAt).toISOString().split('T')[0];
             const matchDate = (!fromDate || bDate >= fromDate) && (!toDate || bDate <= toDate);
             const matchStation = !station || b.origin === station || b.destination === station;
             const matchStatus = !status || b.status === status;
@@ -4860,7 +4859,7 @@ async function runBookingReport() {
         const tableBody = document.getElementById('bookingreports-table-body');
         tableBody.innerHTML = filtered.map(b => `
             <tr class="hover:bg-slate-50 transition">
-                <td class="p-4 text-slate-600">${new Date(b.bookingDate).toLocaleDateString()}</td>
+                <td class="p-4 text-slate-600">${new Date(b.createdAt).toLocaleDateString()}</td>
                 <td class="p-4 font-bold text-slate-800">${b.fullName}</td>
                 <td class="p-4 text-slate-600">${b.origin} → ${b.destination}</td>
                 <td class="p-4 text-slate-600">${b.departureTime}</td>
