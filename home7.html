@@ -3147,7 +3147,7 @@ function calculatePaymentStatus() {
 document.getElementById('totalAmount').addEventListener('input', calculatePaymentStatus);
 document.getElementById('amountPaid').addEventListener('input', calculatePaymentStatus);
         
-        document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
+       /* document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
     // We no longer care about 'type' for the database, 
@@ -3190,7 +3190,7 @@ document.getElementById('amountPaid').addEventListener('input', calculatePayment
     } catch (err) {
         console.error("Save failed:", err);
     }
-});
+});*/
 
 loadFormOptions();
 
@@ -3375,7 +3375,7 @@ window.editCustomer = async function(id) {
     } catch (err) {
         console.error("Save failed:", err);
     }
-});
+});  
 let currentConsignment = [];
 
 function addParcelToList() {
@@ -4410,7 +4410,7 @@ async function editUser(event, userId) {
     const submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.innerText = "Update Staff Member";
 } 
-document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
+/*document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('usermodalCustomerId').value;
     
@@ -4435,7 +4435,7 @@ document.getElementById('quickUserForm').addEventListener('submit', async (e) =>
     } catch (err) {
         console.error("Update failed", err);
     }
-});
+});*/
 function transferUser(event, userId) {
     if (typeof event === 'string') {
         userId = event;
