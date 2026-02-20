@@ -3239,24 +3239,24 @@ window.onclick = function(event) {
         tableBody.innerHTML = ""; // Clear current rows
 
         customers.forEach(customer => {
-            const row = `
-                <tr class="border-b hover:bg-gray-50 transition">
-                    <td class="p-3 font-medium text-gray-800">${customer.full_name}</td>
-                    <td class="p-3 text-gray-600">${customer.phone}</td>
-                    <td class="p-3 text-gray-600">${customer.id_number || 'N/A'}</td>
-                    <td class="p-3">
-                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${
-                            customer.station === 'Kampala' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-                        }">
-                            ${customer.station}
-                        </span>
-                    </td>
-                    <td class="p-3 text-right">
-                        <button onclick="editCustomer('${customer._id}')" class="text-blue-600 hover:underline mr-2">Edit</button>
-                        <button onclick="deleteCustomer('${customer._id}')" class="text-red-600 hover:underline">Delete</button>
-                    </td>
-                </tr>
-            `;
+const row = `
+    <tr class="border-b hover:bg-gray-50 transition">
+        <td class="p-3 font-medium text-gray-800">${customer.full_name}</td>
+        <td class="p-3 text-gray-600">${customer.phone}</td>
+        <td class="p-3 text-gray-600">${customer.id_number || 'N/A'}</td>
+        <td class="p-3">
+            <span class="px-2 py-1 rounded-full text-xs font-semibold ${
+                customer.station === 'Kampala' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+            }">
+                ${customer.station}
+            </span>
+        </td>
+        <td class="p-3 text-right">
+            <button onclick="editCustomer('${customer._id}')" class="text-blue-600 hover:underline mr-2">Edit</button>
+            <button onclick="deleteCustomer('${customer._id}')" class="text-red-600 hover:underline">Delete</button>
+        </td>
+    </tr>
+`;
             tableBody.insertAdjacentHTML('beforeend', row);
         });
     } catch (err) {
@@ -3302,26 +3302,46 @@ refreshCustomerTable();
         }
     }
 }
-        async function editCustomer(id) {
-    try {
-        const response = await fetch(`${API_URL}/api/customers/${id}`);
-        const customer = await response.json();
+        // 1. Ensure API_URL is accessible
+const API_URL = "http://your-backend-url.com"; // Replace with your actual URL
 
-        // 1. Open the modal and change title
-        document.getElementById('userModal').classList.remove('hidden');
-        document.getElementById('modalTitle').innerText = "Edit Customer Details";
+// 2. Attach to window so the HTML onclick can find it
+window.editCustomer = async function(id) {
+    try {
+        console.log("Fetching customer details for ID:", id);
         
-        // 2. Fill the fields with current data
-        document.getElementById('modalCustomerId').value = customer._id;
-        document.getElementById('modalFullName').value = customer.full_name;
-        document.getElementById('modalPhone').value = customer.phone;
-        document.getElementById('modalID').value = customer.id_number || "";
-        document.getElementById('modalStation').value = customer.station;
+        const response = await fetch(`${API_URL}/api/customers/${id}`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch: ${response.statusText}`);
+        }
+
+        const customer = await response.json();
+        
+        // Handle cases where the backend nests data like { data: { ... } }
+        const data = customer.data || customer;
+
+        // 3. Open the modal
+        const modal = document.getElementById('userModal');
+        const title = document.getElementById('modalTitle');
+        
+        if (modal) modal.classList.remove('hidden');
+        if (title) title.innerText = "Edit Customer Details";
+        
+        // 4. Fill the fields (Added optional chaining and defaults to prevent errors)
+        document.getElementById('modalCustomerId').value = data._id || "";
+        document.getElementById('modalFullName').value = data.full_name || "";
+        document.getElementById('modalPhone').value = data.phone || "";
+        document.getElementById('modalID').value = data.id_number || "";
+        document.getElementById('modalStation').value = data.station || "";
+
+        console.log("Modal populated successfully");
 
     } catch (err) {
-        alert("Error fetching customer data");
+        console.error("Edit Error:", err);
+        alert("Error fetching customer data. Please check the console.");
     }
-}
+};
         document.getElementById('quickUserForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
