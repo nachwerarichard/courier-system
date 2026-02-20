@@ -2827,90 +2827,44 @@ function calculateParcelPrice() {
     document.getElementById('totalAmount').value = Math.round(total);
 }
 
-function openParcelModal() {
-    // 1. Reset variables
-    isEditMode = false;
-    editingId = null;
-    currentConsignment = []; // Clear the items list
-
-    // 2. Standard Form Reset
-
-
-    // 3. Reset UI Titles & Buttons
-    document.querySelector('#parcel-modal h3').innerText = "Create New Parcel";
-    const submitBtn = document.querySelector('#parcel-modal button[type="submit"]');
-    submitBtn.innerText = "Save Parcel";
-    submitBtn.style.display = "block"; // Ensure it's visible
-
-    // 4. Remove Injected Edit/Payment Buttons
-    const oldActions = document.getElementById('edit-actions');
-    if (oldActions) oldActions.remove();
-
-    // 5. Unlock Fields (Undo the Edit Mode Locking)
-    const allInputIds = [
-        'client_id', 'senderName', 'senderPhone', 'origin', 
-        'receiverName', 'receiverPhone', 'destination', 
-        'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'
-    ];
-    
-    allInputIds.forEach(fieldId => {
-        const el = document.getElementById(fieldId);
-        if (el) {
-            el.readOnly = false;
-            el.disabled = false;
-            el.style.backgroundColor = "#ffffff"; 
-            el.style.cursor = "text";
-        }
-    });
-
-    // 6. Unlock the Add Item Section
-    const addItemSection = document.getElementById('addItemSection');
-    if (addItemSection) {
-        addItemSection.style.opacity = "1";
-        addItemSection.style.pointerEvents = "auto";
-        addItemSection.classList.remove('bg-slate-100');
-        const itemInputs = addItemSection.querySelectorAll('input, select, button');
-        itemInputs.forEach(input => input.disabled = false);
-    }
-
-    // 7. Refresh & Show
-    calculateParcelPrice();
-    renderParcelList(true); // Render list in editable mode
-    document.getElementById('parcel-modal').classList.remove('hidden');
-}
-
+/**
+ * Closes the modal and wipes all data/states
+ */
 function closeParcelModal() {
     // 1. Hide the modal
-    document.getElementById('parcel-modal').classList.add('hidden');
+    const modal = document.getElementById('parcel-modal');
+    modal.classList.add('hidden');
 
-    // 2. Reset the Form Values
-    
+    // 2. Reset the Form (Matches HTML id="createParcelForm")
+    const form = document.getElementById('createParcelForm');
+    if (form) form.reset();
 
-    // 3. Reset Global Variables
+    // 3. Clear Global Variables
     isEditMode = false;
     editingId = null;
-    currentConsignment = []; // Clear the items array
-    if (typeof renderParcelList === "function") {
-        renderParcelList(true); // Re-render empty list
-    }
-
-    // 4. Restore Default UI (Title and Submit Button)
-    document.querySelector('#parcel-modal h3').innerText = "Create New Parcel";
+    currentConsignment = []; 
+    
+    // 4. Reset UI Text & Submit Button
+    const modalTitle = document.querySelector('#parcel-modal h3');
+    if (modalTitle) modalTitle.innerText = "New Parcel Booking";
+    
     const submitBtn = document.querySelector('#parcel-modal button[type="submit"]');
     if (submitBtn) {
-        submitBtn.innerText = "Save Parcel";
-        submitBtn.style.display = "block"; // Make sure it's visible again
+        submitBtn.innerText = "Add Parcel";
+        submitBtn.style.display = "block";
     }
 
-    // 5. Remove Injected "Edit Actions" (Status select and Payment button)
+    // 5. Remove Injected Edit Elements (Status select/Payment buttons)
     const oldActions = document.getElementById('edit-actions');
     if (oldActions) oldActions.remove();
 
-    // 6. Re-enable all locked inputs and fix background colors
+    // 6. Unlock All Fields & Reset Styles
     const allInputIds = [
-        'client_id', 'senderName', 'senderPhone', 'origin', 
+        'client_id', 'sender_client_id', 'receiver_client_id',
+        'senderName', 'senderPhone', 'origin', 
         'receiverName', 'receiverPhone', 'destination', 
-        'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType'
+        'totalAmount', 'amountPaid', 'balance', 'paymentStatus', 'paymentType',
+        'temp_desc', 'temp_qty', 'temp_weight', 'length', 'width', 'height', 'temp_rate'
     ];
 
     allInputIds.forEach(fieldId => {
@@ -2918,22 +2872,43 @@ function closeParcelModal() {
         if (el) {
             el.readOnly = false;
             el.disabled = false;
-            el.style.backgroundColor = ""; // Reset to default
+            el.style.backgroundColor = ""; // Clear custom colors
             el.style.cursor = "default";
         }
     });
 
-    // 7. Unlock the "Add Item" section
+    // 7. Re-enable "Add Item" Section
     const addItemSection = document.getElementById('addItemSection');
     if (addItemSection) {
         addItemSection.style.opacity = "1";
         addItemSection.style.pointerEvents = "auto";
         addItemSection.classList.remove('bg-slate-100');
-        
-        const itemInputs = addItemSection.querySelectorAll('input, select, button');
-        itemInputs.forEach(input => input.disabled = false);
+        const items = addItemSection.querySelectorAll('input, button');
+        items.forEach(i => i.disabled = false);
+    }
+
+    // 8. Refresh the Item List view
+    if (typeof renderParcelList === "function") {
+        renderParcelList(true); 
     }
 }
+
+/**
+ * Opens the modal for a fresh, new booking
+ */
+function openParcelModal() {
+    // We call close first to ensure a 100% clean slate from any previous edits
+    closeParcelModal(); 
+
+    // Open the modal
+    document.getElementById('parcel-modal').classList.remove('hidden');
+
+    // Run initial price calculation (sets defaults to 0)
+    if (typeof calculateParcelPrice === "function") {
+        calculateParcelPrice();
+    }
+}
+        
 function getStatusStyle(status) {
     switch(status) {
         case 'Delivered': return 'bg-green-100 text-green-700';
