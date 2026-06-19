@@ -15,6 +15,27 @@
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        @media print {
+    /* Hide all main application layout wrapping structures completely */
+    body * {
+        visibility: hidden;
+    }
+    /* Enforce visibility targeting boundaries strictly onto report canvas grids alone */
+    #printable-report-area, #printable-report-area * {
+        visibility: visible;
+    }
+    /* Lock the printing frame bounding boxes directly up into the topmost document margins */
+    #printable-report-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+}
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-900">
@@ -110,6 +131,9 @@
                         </a>
                         <a href="#" onclick="showSection('bookingReports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
                             <i class="fa-solid fa-box-archive w-5 text-blue-400 w-5"></i>Bookings Reports
+                        </a>
+                        <a href="#" onclick="showSection('expense-reports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
+                            <i class="fa-solid fa-credit-card w-5"></i>Expenses Reports
                         </a>
                         <a href="#" onclick="showSection('users-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
                             <i class="fa-solid fa-user-shield w-5 text-orange-400"></i> Users
@@ -5495,6 +5519,132 @@ document.addEventListener('DOMContentLoaded', () => {
     // Automatically query database items on entry screen renders
     fetchExpenses();
 });
+</script>
+<script>
+    /**
+ * Hook this function into your application initialization workflow or navigation section routing tabs 
+ * Example: when shifting view windows to the reports screen, execute: initExpenseReports();
+ */
+function initExpenseReports() {
+    calculateReportMetrics();
+    renderReportsTable();
+}
+
+/**
+ * Iterates through the allExpenses data array to compute summary KPI values
+ */
+function calculateReportMetrics() {
+    let total = 0, approved = 0, pending = 0, rejected = 0;
+    let tCount = 0, aCount = 0, pCount = 0, rCount = 0;
+
+    allExpenses.forEach(item => {
+        const amt = Number(item.amount) || 0;
+        total += amt;
+        tCount++;
+
+        if (item.status === 'Approved') { approved += amt; aCount++; }
+        else if (item.status === 'Pending') { pending += amt; pCount++; }
+        else if (item.status === 'Rejected') { rejected += amt; rCount++; }
+    });
+
+    // Write aggregated totals directly onto the metric cards UI DOM locations
+    document.getElementById('repo-total-amount').innerText = `$${total.toFixed(2)}`;
+    document.getElementById('repo-total-count').innerText = `${tCount} transactions logged`;
+
+    document.getElementById('repo-approved-amount').innerText = `$${approved.toFixed(2)}`;
+    document.getElementById('repo-approved-count').innerText = `${aCount} approved entries`;
+
+    document.getElementById('repo-pending-amount').innerText = `$${pending.toFixed(2)}`;
+    document.getElementById('repo-pending-count').innerText = `${pCount} awaiting approval`;
+
+    document.getElementById('repo-rejected-amount').innerText = `$${rejected.toFixed(2)}`;
+    document.getElementById('repo-rejected-count').innerText = `${rCount} items denied`;
+}
+
+/**
+ * Builds reporting data rows without quick-action modification buttons
+ */
+function renderReportsTable() {
+    const reportsBody = document.getElementById('reports-table-body');
+    if (!reportsBody) return;
+    reportsBody.innerHTML = '';
+
+    if (allExpenses.length === 0) {
+        reportsBody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 text-sm">No recorded ledger data available.</td></tr>`;
+        return;
+    }
+
+    allExpenses.forEach(item => {
+        const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'short', day: 'numeric'
+        });
+
+        reportsBody.insertAdjacentHTML('beforeend', `
+            <tr class="hover:bg-slate-50 transition-colors print:bg-transparent">
+                <td class="p-3 text-xs font-semibold text-slate-700">${item.expenseId}</td>
+                <td class="p-3 text-xs text-slate-600">${formattedDate}</td>
+                <td class="p-3 text-xs text-slate-600 font-medium">${item.description}</td>
+                <td class="p-3 text-xs text-slate-500">${item.category}</td>
+                <td class="p-3 text-xs text-slate-600">${item.merchant}</td>
+                <td class="p-3 text-xs text-slate-500">${item.loggedBy}</td>
+                <td class="p-3 text-xs">
+                    <span class="font-semibold text-xs text-slate-700 print:text-black">${item.status}</span>
+                </td>
+                <td class="p-3 text-xs font-bold text-slate-800 text-right">$${Number(item.amount).toFixed(2)}</td>
+            </tr>
+        `);
+    });
+}
+
+/**
+ * FUNCTIONALITY: Full Page Print
+ * Uses CSS styles natively to extract the target window and trigger print dialogues cleanly
+ */
+function printExpenseReport() {
+    // Set a live snapshot timestamp context identifier inside print header view
+    const tsContainer = document.getElementById('print-timestamp');
+    if (tsContainer) tsContainer.innerText = new Date().toLocaleString();
+
+    // Trigger standard browser system layout canvas rendering print pipeline dialog
+    window.print();
+}
+
+/**
+ * FUNCTIONALITY: Export To Excel
+ * Automatically compiles dataset parameters into an XML spreadsheet binary string structure
+ */
+function exportReportToExcel() {
+    if (allExpenses.length === 0) {
+        alert('There is no data available to export.');
+        return;
+    }
+
+    // Set up standard tabular parsing headings string content fields 
+    let csvContent = "Expense ID,Date,Description,Category,Merchant,Logged By,Status,Amount\n";
+
+    // Build values text streams escaping matching data criteria strings boundaries safely
+    allExpenses.forEach(item => {
+        const dateStr = new Date(item.date).toISOString().split('T')[0];
+        const descClean = item.description.replace(/"/g, '""');
+        const merchantClean = item.merchant.replace(/"/g, '""');
+
+        csvContent += `"${item.expenseId}","${dateStr}","${descClean}","${item.category}","${merchantClean}","${item.loggedBy}","${item.status}",${Number(item.amount).toFixed(2)}\n`;
+    });
+
+    // Create a Blob containing the CSV data with a UTF-8 BOM for Excel compatibility
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    
+    // Bind temporary structural link reference addresses to execute automatic file saving loops
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Expense_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 </script>
 
 </body>
