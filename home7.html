@@ -559,6 +559,44 @@
         </div>
     </div>
 
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+            <div>
+                <label for="filterStartDate" class="block text-xs font-bold text-slate-500 uppercase mb-2">From Date</label>
+                <input type="date" id="filterStartDate" onchange="applyReportFilters()"
+                       class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            <div>
+                <label for="filterEndDate" class="block text-xs font-bold text-slate-500 uppercase mb-2">To Date</label>
+                <input type="date" id="filterEndDate" onchange="applyReportFilters()"
+                       class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            <div>
+                <label for="filterCategory" class="block text-xs font-bold text-slate-500 uppercase mb-2">Category</label>
+                <select id="filterCategory" onchange="applyReportFilters()"
+                        class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="ALL">All Categories</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Office Supplies">Office Supplies</option>
+                    <option value="Travel & Logistics">Travel & Logistics</option>
+                    <option value="Software/SaaS">Software / SaaS</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label for="filterStatus" class="block text-xs font-bold text-slate-500 uppercase mb-2">Status</label>
+                <select id="filterStatus" onchange="applyReportFilters()"
+                        class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="ALL">All Statuses</option>
+                    <option value="Pending">Pending Approval</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <div class="flex justify-between items-start">
@@ -598,7 +636,6 @@
     </div>
 
     <div id="printable-report-area" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        
         <div class="hidden print:block border-b-2 border-slate-800 pb-4 mb-6">
             <h1 class="text-3xl font-black uppercase text-slate-900 tracking-tight">Corporate Financial Ledger</h1>
             <p class="text-slate-600 text-sm mt-1">Generated Internally on: <span id="print-timestamp"></span></p>
@@ -5609,23 +5646,74 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script>
-    /**
- * Hook this function into your application initialization workflow or navigation section routing tabs 
- * Example: when shifting view windows to the reports screen, execute: initExpenseReports();
+    // Global scope track arrays for reports view configuration
+let filteredExpenses = [];
+
+/**
+ * Initializes or resets the entire reporting view frame.
+ * Execute this whenever the user navigates directly into the Report tab view dashboard.
  */
 function initExpenseReports() {
-    calculateReportMetrics();
-    renderReportsTable();
+    // Clear existing values in filter fields to reset standard states on fresh views
+    document.getElementById('filterStartDate').value = '';
+    document.getElementById('filterEndDate').value = '';
+    document.getElementById('filterCategory').value = 'ALL';
+    document.getElementById('filterStatus').value = 'ALL';
+
+    // Default target state shows the base unfiltered dataset array structure
+    filteredExpenses = [...allExpenses];
+    
+    refreshReportUI();
 }
 
 /**
- * Iterates through the allExpenses data array to compute summary KPI values
+ * Evaluates the active inputs from the filter card controls and trims the dataset array
  */
-function calculateReportMetrics() {
+function applyReportFilters() {
+    const startDateVal = document.getElementById('filterStartDate').value;
+    const endDateVal = document.getElementById('filterEndDate').value;
+    const categoryVal = document.getElementById('filterCategory').value;
+    const statusVal = document.getElementById('filterStatus').value;
+
+    // Convert filter bounding input strings down to clean date object tracking boundaries
+    const startLimit = startDateVal ? new Date(startDateVal).setHours(0,0,0,0) : null;
+    const endLimit = endDateVal ? new Date(endDateVal).setHours(23,59,59,999) : null;
+
+    filteredExpenses = allExpenses.filter(item => {
+        const itemDate = new Date(item.date).getTime();
+
+        // 1. Date Range checks
+        if (startLimit && itemDate < startLimit) return false;
+        if (endLimit && itemDate > endLimit) return false;
+
+        // 2. Category Check
+        if (categoryVal !== 'ALL' && item.category !== categoryVal) return false;
+
+        // 3. Status Check
+        if (statusVal !== 'ALL' && item.status !== statusVal) return false;
+
+        return true;
+    });
+
+    refreshReportUI();
+}
+
+/**
+ * Synchronizes metrics and tables directly against the evaluated filtered array data pool
+ */
+function refreshReportUI() {
+    calculateReportMetrics(filteredExpenses);
+    renderReportsTable(filteredExpenses);
+}
+
+/**
+ * Calculates metric values across the passed data stream configuration array
+ */
+function calculateReportMetrics(dataSet) {
     let total = 0, approved = 0, pending = 0, rejected = 0;
     let tCount = 0, aCount = 0, pCount = 0, rCount = 0;
 
-    allExpenses.forEach(item => {
+    dataSet.forEach(item => {
         const amt = Number(item.amount) || 0;
         total += amt;
         tCount++;
@@ -5635,34 +5723,33 @@ function calculateReportMetrics() {
         else if (item.status === 'Rejected') { rejected += amt; rCount++; }
     });
 
-    // Write aggregated totals directly onto the metric cards UI DOM locations
     document.getElementById('repo-total-amount').innerText = `$${total.toFixed(2)}`;
-    document.getElementById('repo-total-count').innerText = `${tCount} transactions logged`;
+    document.getElementById('repo-total-count').innerText = `${tCount} filtered logs`;
 
     document.getElementById('repo-approved-amount').innerText = `$${approved.toFixed(2)}`;
-    document.getElementById('repo-approved-count').innerText = `${aCount} approved entries`;
+    document.getElementById('repo-approved-count').innerText = `${aCount} items`;
 
     document.getElementById('repo-pending-amount').innerText = `$${pending.toFixed(2)}`;
-    document.getElementById('repo-pending-count').innerText = `${pCount} awaiting approval`;
+    document.getElementById('repo-pending-count').innerText = `${pCount} items`;
 
     document.getElementById('repo-rejected-amount').innerText = `$${rejected.toFixed(2)}`;
-    document.getElementById('repo-rejected-count').innerText = `${rCount} items denied`;
+    document.getElementById('repo-rejected-count').innerText = `${rCount} items`;
 }
 
 /**
- * Builds reporting data rows without quick-action modification buttons
+ * Compiles dynamic table item visual elements strictly for items within our filter state matches
  */
-function renderReportsTable() {
+function renderReportsTable(dataSet) {
     const reportsBody = document.getElementById('reports-table-body');
     if (!reportsBody) return;
     reportsBody.innerHTML = '';
 
-    if (allExpenses.length === 0) {
-        reportsBody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 text-sm">No recorded ledger data available.</td></tr>`;
+    if (dataSet.length === 0) {
+        reportsBody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 text-sm">No recorded ledger data matches current criteria configurations.</td></tr>`;
         return;
     }
 
-    allExpenses.forEach(item => {
+    dataSet.forEach(item => {
         const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
             year: 'numeric', month: 'short', day: 'numeric'
         });
@@ -5685,33 +5772,17 @@ function renderReportsTable() {
 }
 
 /**
- * FUNCTIONALITY: Full Page Print
- * Uses CSS styles natively to extract the target window and trigger print dialogues cleanly
- */
-function printExpenseReport() {
-    // Set a live snapshot timestamp context identifier inside print header view
-    const tsContainer = document.getElementById('print-timestamp');
-    if (tsContainer) tsContainer.innerText = new Date().toLocaleString();
-
-    // Trigger standard browser system layout canvas rendering print pipeline dialog
-    window.print();
-}
-
-/**
- * FUNCTIONALITY: Export To Excel
- * Automatically compiles dataset parameters into an XML spreadsheet binary string structure
+ * FULLY FUNCTIONAL EXCEL EXPORT (Scoped strictly to currently filtered data rows)
  */
 function exportReportToExcel() {
-    if (allExpenses.length === 0) {
-        alert('There is no data available to export.');
+    if (filteredExpenses.length === 0) {
+        alert('There is no matching filtered dataset rows to compile an export file from.');
         return;
     }
 
-    // Set up standard tabular parsing headings string content fields 
     let csvContent = "Expense ID,Date,Description,Category,Merchant,Logged By,Status,Amount\n";
 
-    // Build values text streams escaping matching data criteria strings boundaries safely
-    allExpenses.forEach(item => {
+    filteredExpenses.forEach(item => {
         const dateStr = new Date(item.date).toISOString().split('T')[0];
         const descClean = item.description.replace(/"/g, '""');
         const merchantClean = item.merchant.replace(/"/g, '""');
@@ -5719,19 +5790,26 @@ function exportReportToExcel() {
         csvContent += `"${item.expenseId}","${dateStr}","${descClean}","${item.category}","${merchantClean}","${item.loggedBy}","${item.status}",${Number(item.amount).toFixed(2)}\n`;
     });
 
-    // Create a Blob containing the CSV data with a UTF-8 BOM for Excel compatibility
     const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
-    
-    // Bind temporary structural link reference addresses to execute automatic file saving loops
     const url = URL.createObjectURL(blob);
+    
     link.setAttribute("href", url);
-    link.setAttribute("download", `Expense_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `Filtered_Expense_Report_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
     
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+/**
+ * FULLY FUNCTIONAL PRINT (Triggers the global layout canvas print dialog automatically)
+ */
+function printExpenseReport() {
+    const tsContainer = document.getElementById('print-timestamp');
+    if (tsContainer) tsContainer.innerText = new Date().toLocaleString();
+    window.print();
 }
 </script>
 
