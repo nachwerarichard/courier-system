@@ -94,57 +94,53 @@
         <div class="flex h-screen overflow-hidden">
             <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col">
                 <nav class="flex-1 p-4 space-y-1">
-                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Main Menu</p>
-<a href="#" onclick="showSection('dashboard-section', this)"
-   class="nav-item flex items-center gap-3 p-3 bg-blue-600 text-white rounded-lg section">
-   <i class="fa-solid fa-chart-line w-5"></i> Dashboard
-</a>
-          <a href="#" onclick="showSection('bookings-section', this)"
-   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
-   <i class="fa-solid fa-book w-5"></i> Bookings
-</a>
-<a href="#" onclick="showSection('parcels-section', this)"
-   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
-   <i class="fa-solid fa-box w-5"></i> Parcels
-</a>
-                    <a href="#" onclick="showSection('senders-section', this)"
-   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
-   <i class="fa-solid fa-users w-5"></i> Customers
-</a>
-
-
-<a href="#" onclick="showSection('payment-section', this)"
-   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
-   <i class="fa-solid fa-receipt w-5"></i> Payments
-</a>
-
-<a href="#" onclick="showSection('expenses-section', this)"
-   class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
-   <i class="fa-solid fa-wallet w-5"></i> Expenses
-</a>
-
-                    
-                    <div id="admin-menu" class="hidden pt-4 border-t border-slate-800 mt-4">
-                        <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Administration</p>
-                        <a href="#" onclick="showSection('reports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
-                            <i class="fa-solid fa-file-invoice-dollar w-5"></i>Parcel Reports
-                        </a>
-                        <a href="#" onclick="showSection('bookingReports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
-                            <i class="fa-solid fa-box-archive w-5 text-blue-400 w-5"></i>Bookings Reports
-                        </a>
-                        <a href="#" onclick="showSection('expense-reports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
-                            <i class="fa-solid fa-credit-card w-5"></i>Expenses Reports
-                        </a>
-                        <a href="#" onclick="showSection('users-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
-                            <i class="fa-solid fa-user-shield w-5 text-orange-400"></i> Users
-                        </a>
-                        <a href="#" onclick="showSection('settings-section')"  class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-gears w-5"></i> System Settings</a>
-                        <a href="#" onclick="showSection('log-section'); loadAuditLogs();" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
-        <i class="fa-solid fa-clipboard-list w-6 text-indigo-500 group-hover:scale-110 transition-transform"></i>
-        <span class="ml-3 font-medium">Audit Logs</span>
+    <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Main Menu</p>
+    
+    <a href="#" onclick="showSection('dashboard-section', this)" class="nav-item flex items-center gap-3 p-3 bg-blue-600 text-white rounded-lg section">
+        <i class="fa-solid fa-chart-line w-5"></i> Dashboard
     </a>
-                    </div>
-                </nav>
+    <a href="#" onclick="showSection('bookings-section', this)" class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
+        <i class="fa-solid fa-book w-5"></i> Bookings
+    </a>
+    <a href="#" onclick="showSection('parcels-section', this)" class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
+        <i class="fa-solid fa-box w-5"></i> Parcels
+    </a>
+    <a href="#" onclick="showSection('senders-section', this)" class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section">
+        <i class="fa-solid fa-users w-5"></i> Customers
+    </a>
+
+    <a href="#" data-role="admin,manager,finance" onclick="showSection('payment-section', this)" class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section hidden">
+        <i class="fa-solid fa-receipt w-5"></i> Payments
+    </a>
+    <a href="#" data-role="admin,manager,finance" onclick="showSection('expenses-section', this)" class="nav-item flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg section hidden">
+        <i class="fa-solid fa-wallet w-5"></i> Expenses
+    </a>
+
+    <div id="admin-menu" data-role="admin,manager" class="hidden pt-4 border-t border-slate-800 mt-4">
+        <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3">Administration</p>
+        
+        <a href="#" onclick="showSection('reports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
+            <i class="fa-solid fa-file-invoice-dollar w-5"></i>Parcel Reports
+        </a>
+        <a href="#" onclick="showSection('bookingReports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
+            <i class="fa-solid fa-box-archive w-5 text-blue-400"></i>Bookings Reports
+        </a>
+        <a href="#" data-role="admin,manager,finance" onclick="showSection('expense-reports-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg">
+            <i class="fa-solid fa-credit-card w-5"></i>Expenses Reports
+        </a>
+        
+        <a href="#" data-role="admin" onclick="showSection('users-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg hidden">
+            <i class="fa-solid fa-user-shield w-5 text-orange-400"></i> Users
+        </a>
+        <a href="#" data-role="admin" onclick="showSection('settings-section')" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg hidden">
+            <i class="fa-solid fa-gears w-5"></i> System Settings
+        </a>
+        <a href="#" data-role="admin" onclick="showSection('log-section'); loadAuditLogs();" class="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg hidden">
+            <i class="fa-solid fa-clipboard-list w-6 text-indigo-500"></i>
+            <span class="ml-3 font-medium">Audit Logs</span>
+        </a>
+    </div>
+</nav>
             </aside>
 
             <main class="flex-1 overflow-y-auto p-6 pb-24">
@@ -1532,9 +1528,10 @@
                 <input type="password" id="staffPass" placeholder="Password" class="w-full border p-3 rounded-lg" required>
                 <div class="grid grid-cols-2 gap-4">
                     <select id="staffRole" class="border p-3 rounded-lg">
-                        <option value="clerk">Clerk</option>
-                        <option value="supervisor">Supervisor</option>
+                        <option value="standard">Standard</option>
+                        <option value="manager">Manager</option>
                         <option value="admin">Admin</option>
+                        <option value="finance">Finance</option>
                     </select>
                     <select id="staffStation" class="border p-3 rounded-lg">
                         <option value="Mbale - Bishop Wasikye Rd">Mbale - Bishop Wasikye Rd</option>
@@ -1833,23 +1830,41 @@ function showSection(sectionId, clickedLink) {
             }
         });
 
-        function showDashboard(user) {
-            state.currentUser = user;
-            document.getElementById('login-overlay').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-            
-            document.getElementById('staff-name').innerText = user.full_name;
-            document.getElementById('staff-station').innerText = `Station: ${user.station}`;
-            
-            if(user.role === 'admin') {
-                document.getElementById('admin-menu').classList.remove('hidden');
-            }
-            
-            updateDateTime();
-            fetchParcels();
-            refreshCustomerTable();
-            if(user.role === 'admin') loadUsers();
+      function showDashboard(user) {
+    state.currentUser = user;
+    
+    // 1. Reveal main content template
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('main-content').classList.remove('hidden');
+    
+    // 2. Populate user profile info
+    document.getElementById('staff-name').innerText = user.full_name;
+    document.getElementById('staff-station').innerText = `Station: ${user.station}`;
+    
+    // 3. Process Authorizations for Navigation
+    const restrictedElements = document.querySelectorAll('[data-role]');
+    
+    restrictedElements.forEach(element => {
+        // Get allowed roles from attribute (e.g. "admin,manager" -> ['admin', 'manager'])
+        const allowedRoles = element.getAttribute('data-role').split(',');
+        
+        if (allowedRoles.includes(user.role)) {
+            element.classList.remove('hidden'); // Show element if user has permission
+        } else {
+            element.classList.add('hidden');    // Force hide if they don't
         }
+    });
+    
+    // 4. Trigger Data Fetching based on roles
+    updateDateTime();
+    fetchParcels();
+    refreshCustomerTable();
+    
+    // Conditional fetching for protected resources
+    if (user.role === 'admin') {
+        loadUsers();
+    }
+}
 
         // --- NAVIGATION ---
 
