@@ -1822,6 +1822,7 @@ function showSection(sectionId, clickedLink) {
                     localStorage.setItem('courier_user', JSON.stringify(userData));
                     showDashboard(userData);
                     runBookingReport(); // Trigger the first load of data
+                    loadAuditLogs();
                 } else {
                     errorDiv.classList.remove('hidden');
                 }
@@ -3017,6 +3018,7 @@ document.getElementById('createParcelForm').addEventListener('submit', async (e)
             hideModal('parcel-modal');
             fetchParcels(); 
             loadFormOptions(); 
+            loadAuditLogs();
         } else {
             const errorData = await response.json();
             alert("Error: " + (errorData.error || "Unknown error"));
@@ -3675,6 +3677,7 @@ window.editCustomer = async function(id) {
             if (typeof refreshCustomerTable === "function") refreshCustomerTable();
             
             document.getElementById('usermodalCustomerId').value = ""; // Clear the ID
+            loadAuditLogs();
         }
             closeUserModal()
     } catch (err) {
@@ -5061,6 +5064,7 @@ const bookingData = {
 
     closeModal();
     fetchBookings();
+    loadAuditLogs();
 });
 
 // 3. Open Modal for Edit
@@ -5482,7 +5486,7 @@ window.addEventListener('click', function(event) {
 const API_BASE_URL = 'https://patrinahhotelmgtsys.onrender.com/api/expenses';
 
 // DOM Element Selectors
-const expensesTableBody = document.getElementById('payments-table-body') || document.getElementById('expenses-table-body');
+const expensesTableBody = document.getElementById('expenses-table-body') || document.getElementById('expenses-table-body');
 const expenseSearchInput = document.getElementById('expenseSearch');
 
 // Global state to store items loaded from the server
@@ -5593,6 +5597,7 @@ async function handleExpenseSubmit(event) {
         if (result.success) {
             closeAddExpenseModal(); // Close and clear standard UI inputs
             fetchExpenses();       // Reload the table layout instantly
+            loadAuditLogs();
         } else {
             alert('Error creating expense: ' + result.error);
         }
