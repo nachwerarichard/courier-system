@@ -1861,9 +1861,10 @@ function showSection(sectionId, clickedLink) {
     updateDateTime();
     fetchParcels();
     refreshCustomerTable();
-    
+    loadAuditLogs();
+
     // Conditional fetching for protected resources
-    if (user.role === 'admin') {
+    if (['admin','manager'].includes(user.role)) {
         loadUsers();
     }
 }
