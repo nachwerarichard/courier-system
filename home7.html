@@ -1928,7 +1928,9 @@ document.getElementById('staffForm').addEventListener('submit', async (e) => {
         full_name: document.getElementById('staffName').value,
         email: document.getElementById('staffEmail').value,
         role: document.getElementById('staffRole').value,
-        station: document.getElementById('staffStation').value
+        station: document.getElementById('staffStation').value,
+        recorded_by: document.getElementById('staff-name')?.innerText || 'Unknown Clerk',
+
     };
 
     // Only include password if it's a new user or if the field isn't empty
@@ -3657,7 +3659,9 @@ window.editCustomer = async function(id) {
         full_name: document.getElementById('usermodalFullName').value,
         phone: document.getElementById('usermodalPhone').value,
         id_number: document.getElementById('usermodalID').value,
-        station: document.getElementById('usermodalStation').value
+        station: document.getElementById('usermodalStation').value,
+                    recorded_by: document.getElementById('staff-name')?.innerText || 'Unknown Clerk',
+
     };
 
     // Determine if we are Updating (PUT) or Creating (POST)
@@ -3941,7 +3945,9 @@ document.getElementById('miniPaymentForm').addEventListener('submit', async (e) 
 
     const paymentData = {
         amount_paid: amountPaid,
-        payment_method: paymentMethod
+        payment_method: paymentMethod,
+                    recorded_by: document.getElementById('staff-name')?.innerText || 'Unknown Clerk',
+
     };
 
     try {
@@ -5044,7 +5050,9 @@ const bookingData = {
     departureTime: document.getElementById('modalDepartureTime').value,
     amountPaid: document.getElementById('modalAmount').value,
     paymentMethod: document.getElementById('paymentMethod').value,
-    status: document.getElementById('bookingStatus').value || 'Booked'
+    status: document.getElementById('bookingStatus').value || 'Booked',
+    recorded_by: document.getElementById('staff-name')?.innerText || 'Unknown Clerk',
+
 };
     if (id) {
         // Update
@@ -5583,7 +5591,7 @@ async function handleExpenseSubmit(event) {
         category: document.getElementById('expenseCategory').value,
         merchant: document.getElementById('expenseMerchant').value,
         status: document.getElementById('expenseStatus').value,
-        loggedBy: document.getElementById('expenseUser').value
+        loggedBy: document.getElementById('staff-name')?.innerText || 'Unknown Clerk'
     };
 
     try {
