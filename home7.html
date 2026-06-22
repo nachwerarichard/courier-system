@@ -5591,7 +5591,8 @@ async function handleExpenseSubmit(event) {
         category: document.getElementById('expenseCategory').value,
         merchant: document.getElementById('expenseMerchant').value,
         status: document.getElementById('expenseStatus').value,
-        loggedBy: document.getElementById('staff-name')?.innerText || 'Unknown Clerk'
+        loggedBy:document.getElementById('expenseUser').value || 'Unknown Clerk',
+        recorded_by: document.getElementById('staff-name')?.innerText || 'Unknown Clerk'
     };
 
     try {
