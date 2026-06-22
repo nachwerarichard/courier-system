@@ -5755,7 +5755,7 @@ function calculateReportMetrics(dataSet) {
         else if (item.status === 'Rejected') { rejected += amt; rCount++; }
     });
 
-    document.getElementById('repo-total-amount').innerText = `UGX${total.toFixed(2)}`;
+    document.getElementById('repo-total-amount').innerText = `UGX ${total.toFixed(2)}`;
     document.getElementById('repo-total-count').innerText = `${tCount} filtered logs`;
 
     document.getElementById('repo-approved-amount').innerText = `UGX ${approved.toFixed(2)}`;
