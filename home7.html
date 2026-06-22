@@ -5755,16 +5755,16 @@ function calculateReportMetrics(dataSet) {
         else if (item.status === 'Rejected') { rejected += amt; rCount++; }
     });
 
-    document.getElementById('repo-total-amount').innerText = `$${total.toFixed(2)}`;
+    document.getElementById('repo-total-amount').innerText = `UGX${total.toFixed(2)}`;
     document.getElementById('repo-total-count').innerText = `${tCount} filtered logs`;
 
-    document.getElementById('repo-approved-amount').innerText = `$${approved.toFixed(2)}`;
+    document.getElementById('repo-approved-amount').innerText = `UGX ${approved.toFixed(2)}`;
     document.getElementById('repo-approved-count').innerText = `${aCount} items`;
 
-    document.getElementById('repo-pending-amount').innerText = `$${pending.toFixed(2)}`;
+    document.getElementById('repo-pending-amount').innerText = `UGX ${pending.toFixed(2)}`;
     document.getElementById('repo-pending-count').innerText = `${pCount} items`;
 
-    document.getElementById('repo-rejected-amount').innerText = `$${rejected.toFixed(2)}`;
+    document.getElementById('repo-rejected-amount').innerText = `UGX ${rejected.toFixed(2)}`;
     document.getElementById('repo-rejected-count').innerText = `${rCount} items`;
 }
 
